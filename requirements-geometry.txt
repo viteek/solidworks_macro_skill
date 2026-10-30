@@ -1,0 +1,7 @@
+# Tested optional geometry stack. Python 3.12 x64 on Windows.
+ezdxf==1.4.4
+shapely==2.2.0
+cadquery-ocp==7.9.3.1.1
+vtk==9.6.2
+# Required only by the live SOLIDWORKS runner; offline DXF/STEP validators do not use COM.
+pywin32>=306; platform_system == "Windows"

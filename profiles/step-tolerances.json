@@ -1,0 +1,6 @@
+{
+  "linear_mm": 0.01,
+  "relative": 0.0001,
+  "area_mm2": 0.01,
+  "volume_mm3": 0.01
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "name": "neutral-mm-not-machine-approved",
+  "units": "mm",
+  "layers": {"CUT": "cut", "BEND": "bend", "MARK": "mark"},
+  "curve_tolerance_mm": 0.001,
+  "topology_tolerance_mm": 0.000001,
+  "allowed_entities": ["LINE", "ARC", "CIRCLE", "LWPOLYLINE", "SPLINE", "ELLIPSE"],
+  "expected": {}
+}

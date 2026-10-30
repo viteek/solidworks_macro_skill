@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "name": "solidworks-2024-flat-pattern-mm",
+  "description": "SOLIDWORKS ExportToDWG2 flat pattern (mask 1+4+8): outline on layer 0, bend lines = CENTERX2/CENTER/PHANTOM linetype on layer 0, sketch points ignored. Screening only - not machine approved.",
+  "units": "mm",
+  "layers": {"0": "cut"},
+  "linetypes": {"CENTERX2": "bend", "CENTER": "bend", "CENTER2": "bend", "PHANTOM": "bend"},
+  "ignored_entities": ["POINT"],
+  "curve_tolerance_mm": 0.01,
+  "topology_tolerance_mm": 0.001,
+  "allowed_entities": ["LINE", "ARC", "CIRCLE", "LWPOLYLINE", "SPLINE", "ELLIPSE"],
+  "expected": {}
+}
