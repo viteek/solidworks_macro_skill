@@ -86,11 +86,22 @@ def entity_vertices(entity, distance):
     elif kind == 'LWPOLYLINE':
         # Real ARC flattening bounds sagitta; no cubic Bezier surrogate for circular bulges.
         first = True
+        current = next(entity.vertices_in_wcs(), None)
         for primitive in entity.virtual_entities():
             points = iter(entity_vertices(primitive, distance))
+            # DXF ARC primitives are always counterclockwise. A negative bulge reverses
+            # their endpoints relative to the parent polyline, including its first arc.
+            if (primitive.dxftype() == 'ARC' and current is not None
+                    and primitive.end_point.distance(current) < primitive.start_point.distance(current)):
+                vertices = list(islice(points, MAX_POINTS + 1))
+                if len(vertices) > MAX_POINTS:
+                    raise ValueError('Curve approximation exceeds the analysis point budget')
+                points = reversed(vertices)
             if not first:
                 next(points, None)
-            yield from points
+            for point in points:
+                current = point
+                yield point
             first = False
     elif kind in ('ARC', 'CIRCLE', 'SPLINE', 'ELLIPSE'):
         yield from entity.flattening(distance)

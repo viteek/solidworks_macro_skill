@@ -7,17 +7,22 @@ needs Python 3 + pywin32 (pip install pywin32) and a running SOLIDWORKS session.
 How it works
 - The code is saved as a temporary text macro (.swb, cp1250, CRLF) - SOLIDWORKS runs .swb files
   with the SOLIDWORKS type libraries available, so early-bound code and sw* constants work.
-- A watcher thread closes every dialog the macro (or VBA) shows and records its text:
-  MsgBox / SendMsgToUser2 / InputBox -> default button (or --answer), VBA run-time error -> "End",
-  compile error -> "OK" (and the VBA editor window it opens is closed). Folder pickers are cancelled -
+- A watcher records recognized Windows dialogs. Message boxes are left unanswered by default;
+  --answer explicitly permits only the matching button, never a fallback button. VBA run-time
+  errors -> "End", compile errors -> "OK" (and the VBA editor window it opens is closed).
+  Folder pickers are cancelled -
   use --define to give folder constants a value instead, or --pick-folder.
-  --strict-dialogs: message boxes are NOT answered (status BLOCKED_DIALOG) - for macros whose prompts
-  could confirm something destructive.
+  --strict-dialogs keeps message boxes unanswered even with --answer (status BLOCKED_DIALOG).
+  SendMsgToUser2 calls are never rewritten. Opaque/custom dialogs that cannot be recognized
+  may reach the timeout; inspect SOLIDWORKS manually in that case.
 - Optionally opens a document first (--open; refuses if a same-named file from another folder is
   loaded). --close-opened closes only new documents inside the test root (default: folder of --open),
   never the user's own documents; the previously active document is re-activated afterwards.
-- --expect-file / --expect-text turn "the macro ran" into "the macro produced this": a file written
-  during this run, a success line in its log.
+- --expect-file checks output freshness; --expect-text checks only appended text, or the contents
+  of a new log or a log whose previous byte prefix changed. Identical content is conservatively
+  treated as unchanged, even after replacement. Prefer an appended per-run result or run ID.
+- Timeout/blocked dialog: report without further COM calls or document cleanup. The macro may
+  still be running in SOLIDWORKS; the timeout does not cancel it. Finish it before another run.
 
 Usage
   python run_in_solidworks.py macro.bas [--open C:\SWTest\part.sldprt] [--define SAVE_CHANGES=True]
@@ -58,10 +63,10 @@ RUN_ERRORS = {
 }
 END_BUTTONS = ("&End", "End", "&Zakończ", "Zakończ")
 ANSWERS = {
-    "ok": ("OK", "&OK", "Tak", "&Tak", "Yes", "&Yes"),
-    "yes": ("&Yes", "Yes", "&Tak", "Tak", "OK"),
+    "ok": ("OK", "&OK"),
+    "yes": ("&Yes", "Yes", "&Tak", "Tak"),
     "no": ("&No", "No", "&Nie", "Nie"),
-    "cancel": ("Cancel", "Anuluj", "&No", "No", "Nie"),
+    "cancel": ("Cancel", "Anuluj"),
 }
 
 
@@ -110,9 +115,9 @@ def has_child_class(hwnd, name):
 
 
 class DialogWatcher(threading.Thread):
-    def __init__(self, pid, answer, strict=False):
+    def __init__(self, pid, answer=None, strict=False):
         super().__init__(daemon=True)
-        self.pid, self.answer, self.strict = pid, answer, strict
+        self.pid, self.answer, self.strict = pid, answer, strict or answer is None
         self.blocked = False
         self.stop = threading.Event()
         self.dialogs = []
@@ -131,8 +136,8 @@ class DialogWatcher(threading.Thread):
                 if txt.replace("&", "") == name.replace("&", "") and win32gui.IsWindowEnabled(child):
                     win32gui.PostMessage(child, win32con.BM_CLICK, 0, 0)
                     return txt
-        win32gui.PostMessage(hwnd, win32con.WM_COMMAND, win32con.IDOK, 0)
-        return "<Enter>"
+        self.blocked = True
+        return None   # never substitute another button for the requested answer
 
     def _check(self, hwnd, _):
         try:
@@ -175,24 +180,9 @@ class DialogWatcher(threading.Thread):
         return True
 
 
-def prepare_code(src_text, defines, pick_folders=(), msg_log=None, answer="yes"):
+def prepare_code(src_text, defines, pick_folders=()):
     lines = [l for l in src_text.replace("\r\n", "\n").split("\n") if not l.startswith("Attribute VB_")]
     code = "\n".join(lines)
-    if msg_log:
-        # SOLIDWORKS-styled message boxes don't expose their text to Windows -> log them from VBA instead
-        code, n = re.subn(r"\b\w+\.SendMsgToUser2\b", "HarnessSendMsg", code)
-        if n:
-            hit = {"yes": "6", "ok": "6", "no": "3", "cancel": "7"}[answer]
-            okc = {"yes": "4", "ok": "4", "no": "7", "cancel": "7"}[answer]
-            code += ("\n\nPrivate Function HarnessSendMsg(ByVal msg As String, Optional ByVal icon As Long = 0, "
-                     "Optional ByVal btns As Long = 0) As Long\n"
-                     "    Dim ff As Integer: ff = FreeFile\n"
-                     f"    Open \"{msg_log}\" For Append As #ff\n"
-                     "    Print #ff, \"<<MSG>>\" & msg\n"
-                     "    Close #ff\n"
-                     f"    Select Case btns\n        Case 5, 6: HarnessSendMsg = {hit}\n"
-                     f"        Case 3, 4: HarnessSendMsg = {okc}\n        Case Else: HarnessSendMsg = 4\n    End Select\n"
-                     "End Function\n")
     if pick_folders:
         # Shell.Application.BrowseForFolder(...) -> .NameSpace(<next given folder>) (same Folder object type)
         code, n = re.subn(r"\.BrowseForFolder\s*\((?:[^()]|\([^()]*\))*\)", ".NameSpace(HarnessNextFolder())", code)
@@ -229,12 +219,34 @@ def open_docs(sw):
     return {d.GetPathName.lower(): d.GetTitle for d in (docs or [])}
 
 
+def read_log(path):
+    try:
+        with open(path, "rb") as stream:
+            return stream.read()
+    except FileNotFoundError:
+        return b""
+
+
+def new_log_text(previous, current):
+    """Read appended bytes only; a truncated/replaced log is a new document."""
+    appended = current.startswith(previous)
+    raw = current[len(previous):] if appended else current
+    if current.startswith((b'\xff\xfe', b'\xfe\xff')):
+        encoding = 'utf-16-le' if current.startswith(b'\xff\xfe') else 'utf-16-be'
+        return raw.decode(encoding, errors='replace').lstrip('\ufeff')
+    try:
+        return raw.decode('utf-8-sig')
+    except UnicodeDecodeError:
+        return raw.decode('cp1250', errors='replace')
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("macro")
     ap.add_argument("--open", help="document to open and activate before running")
     ap.add_argument("--define", action="append", default=[], help="NAME=VBA_LITERAL, overrides a Const")
-    ap.add_argument("--answer", choices=list(ANSWERS), default="yes")
+    ap.add_argument("--answer", choices=list(ANSWERS),
+                    help="explicitly allow this dialog answer (default: leave message boxes unanswered)")
     ap.add_argument("--pick-folder", action="append", default=[],
                     help="answer Shell BrowseForFolder pickers with these folders, in order")
     ap.add_argument("--entry", help="procedure to run (default main)")
@@ -249,7 +261,7 @@ def main():
     ap.add_argument("--expect-file", action="append", default=[],
                     help="file that must exist and be written during this run (repeatable)")
     ap.add_argument("--expect-text", nargs=2, action="append", default=[], metavar=("FILE", "TEXT"),
-                    help="FILE must contain TEXT after the run (repeatable)")
+                    help="newly appended/replaced text in FILE must contain TEXT (repeatable)")
     ap.add_argument("--json", help="write the report here")
     a = ap.parse_args()
 
@@ -269,18 +281,21 @@ def main():
         return 2
 
     # one macro at a time per machine: SOLIDWORKS runs macros on its UI thread
-    lock = open(os.path.join(tempfile.gettempdir(), "run_in_solidworks.lock"), "a+")
-    waited = time.time()
-    while True:
-        try:
-            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
-            break
-        except OSError:
-            if time.time() - waited > 1800:
-                print("Another macro test has been running for 30 min - giving up.")
-                return 2
-            time.sleep(2)
+    with open(os.path.join(tempfile.gettempdir(), "run_in_solidworks.lock"), "a+") as lock:
+        waited = time.monotonic()
+        while True:
+            try:
+                msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+                break
+            except OSError:
+                if time.monotonic() - waited > 1800:
+                    print("Another macro test has been running for 30 min - giving up.")
+                    return 2
+                time.sleep(2)
+        return execute_macro(a, test_root, norm)
 
+
+def execute_macro(a, test_root, norm):
     pythoncom.CoInitialize()
     try:
         sw = w32.dynamic.Dispatch(w32.GetActiveObject("SldWorks.Application"))
@@ -294,14 +309,15 @@ def main():
         return 2
     pid = pids[0]
 
-    raw = open(a.macro, "rb").read()
+    with open(a.macro, "rb") as source:
+        raw = source.read()
     try:
         text = raw.decode("utf-8-sig")
     except UnicodeDecodeError:
         text = raw.decode("cp1250")
     tmpdir = tempfile.mkdtemp(prefix="swrun_")
-    msg_log = os.path.join(tmpdir, "messages.txt")
-    code = prepare_code(text, a.define, a.pick_folder, None if a.strict_dialogs else msg_log, a.answer)
+    strict = a.strict_dialogs or a.answer is None
+    code = prepare_code(text, a.define, a.pick_folder)
     entry = a.entry or find_entry(code)
     swb = os.path.join(tmpdir, "TestMacro.swb")
     with open(swb, "wb") as f:
@@ -333,7 +349,8 @@ def main():
         sw.ActivateDoc3(m.GetTitle, False, 2, e2)
         report["opened"] = m.GetPathName
 
-    watcher = DialogWatcher(pid, a.answer, a.strict_dialogs)
+    previous_logs = {f: read_log(f) for f, _ in a.expect_text}
+    watcher = DialogWatcher(pid, a.answer, strict)
     watcher.start()
     result = {}
 
@@ -346,38 +363,47 @@ def main():
             result["err"] = e.value
         except Exception as ex:  # noqa: BLE001
             result["exception"] = str(ex)
+        finally:
+            pythoncom.CoUninitialize()
 
     t0 = time.time()
     runner = threading.Thread(target=run, daemon=True)
     runner.start()
-    runner.join(a.timeout)
-    time.sleep(0.8)
+    deadline = time.monotonic() + a.timeout
+    while runner.is_alive() and not watcher.blocked:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        runner.join(min(0.1, remaining))
+    macro_still_running = runner.is_alive()
+    if not macro_still_running:
+        time.sleep(0.8)
     watcher.stop.set()
+    watcher.join(timeout=1)
     report["seconds"] = round(time.time() - t0, 1)
-    report["timed_out"] = runner.is_alive()
+    report["timed_out"] = macro_still_running and not watcher.blocked
+    report["macro_still_running"] = macro_still_running
     report["run_ok"] = result.get("ok")
     report["run_error"] = RUN_ERRORS.get(result.get("err"), result.get("err"))
     if "exception" in result:
         report["exception"] = result["exception"]
     report["dialogs"] = watcher.dialogs
-    if os.path.exists(msg_log):
-        raw_msgs = open(msg_log, "rb").read().decode("cp1250", errors="replace")
-        for m in raw_msgs.split("<<MSG>>")[1:]:
-            report["dialogs"].append({"kind": "sw_message", "title": "SendMsgToUser2",
-                                      "text": m.strip(), "pressed": a.answer})
     report["compile_error"] = watcher.compile_error
     report["runtime_error"] = watcher.runtime_error
 
-    after = open_docs(sw)
+    # A synchronous COM call here can hang forever while the macro owns SW's UI thread.
+    # Report from captured Python state only; leave live documents and the macro alone.
+    safe_to_query = not macro_still_running and not watcher.blocked
+    after = open_docs(sw) if safe_to_query else {}
     new_docs = [p for p in after if p not in before]
     inside = [p for p in new_docs if test_root and norm(p).startswith(test_root + os.sep)]
-    report["documents_left_open"] = new_docs
-    if a.close_opened and not report["timed_out"]:
+    report["documents_left_open"] = new_docs if safe_to_query else None
+    if a.close_opened and safe_to_query:
         for p in inside:
             sw.CloseDoc(after[p])           # test copies only - never documents outside the test root
         report["closed_test_documents"] = inside
         report["documents_left_open"] = [p for p in new_docs if p not in inside]
-    if previously_active and not report["timed_out"]:
+    if previously_active and safe_to_query:
         e3 = w32.VARIANT(pythoncom.VT_BYREF | pythoncom.VT_I4, 0)
         try:
             sw.ActivateDoc3(previously_active, False, 2, e3)   # give the user back their active document
@@ -392,15 +418,7 @@ def main():
         elif os.path.getmtime(f) < started - 2:
             expect_failures.append(f"not written by this run (old file): {f}")
     for f, needle in a.expect_text:
-        content = ""
-        if os.path.exists(f):
-            rawc = open(f, "rb").read()
-            for enc in ("utf-8-sig", "utf-16", "cp1250"):
-                try:
-                    content = rawc.decode(enc)
-                    break
-                except UnicodeDecodeError:
-                    continue
+        content = new_log_text(previous_logs[f], read_log(f))
         if needle not in content:
             expect_failures.append(f"text {needle!r} not found in {f}")
     report["expectations_failed"] = expect_failures
@@ -414,8 +432,11 @@ def main():
           and not report["timed_out"] and not expect_failures and not watcher.blocked)
     report["status"] = "PASS" if ok else ("BLOCKED_DIALOG" if watcher.blocked else "FAIL")
     if watcher.blocked:
-        report["hint"] = ("A message box was left open (--strict-dialogs). The macro is still waiting in "
-                          "SOLIDWORKS - answer it there, then rerun.")
+        report["hint"] = ("A message box was left unanswered. Inspect it in SOLIDWORKS and wait for the "
+                          "macro to finish before rerunning. No document cleanup was attempted.")
+    elif report["timed_out"]:
+        report["hint"] = ("The timeout does not stop the SOLIDWORKS macro. Its documents were not queried "
+                          "or closed. Inspect SOLIDWORKS and wait for it to finish before rerunning.")
     out = json.dumps(report, ensure_ascii=False, indent=2)
     print(out)
     if a.json:

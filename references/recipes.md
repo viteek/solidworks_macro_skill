@@ -106,41 +106,22 @@ Use the view ID, not the name - names are localized ("*Isometric" fails in a Pol
 
 ## 3. Sheet-metal flat pattern → DXF
 
-Tested on SOLIDWORKS 2024 SP5 (see pitfalls.md "Measured"):
-```vb
-' SheetMetalOptions bit mask (not in the type library - declare it yourself):
-'   1 = flat pattern geometry (ALWAYS required), 2 = hidden edges, 4 = "bend lines" (documented),
-'   8 = sketches - in practice bend lines only appear with 8, 16 = merge coplanar faces,
-'   32 = library features, 64 = forming tools, 2048 = bounding box
-Const SM_OPTIONS As Long = 1 + 4 + 8 + 16
+Use the complete [safe export template](../assets/templates/safe_export_template.bas) as the source of
+export/publication logic, rather than a second implementation here. Set `OUTPUT_PATH` to the `.dxf`
+destination and `CONFIGURATION_NAME` if needed. Keep `ALLOW_OVERWRITE=False` by default; enable it only
+when replacing that output is intended. The template stages the export, checks API status and nonzero
+size, retains a uniquely named backup, and attempts to restore the original target if publication fails.
+An existing file by itself is not evidence that the current export succeeded.
 
-' Export one part's flat pattern to a STAGED file, then publish it (old output kept as backup, never
-' deleted before success). Returns True only when the new file exists. Needs Scripting.FileSystemObject.
-Private Function ExportFlatPattern(swModel As SldWorks.ModelDoc2, dxfPath As String) As Boolean
-    Dim swPart As SldWorks.PartDoc, attempt As Long, e As Long, fso As Object, stage As String
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    Set swPart = swModel
-    ' Parts loaded as assembly components are invisible/inactive: the first export fails -> activate
-    swApp.ActivateDoc3 swModel.GetTitle, False, swDontRebuildActiveDoc, e
-    stage = fso.BuildPath(fso.GetParentFolderName(dxfPath), "swstage-" & fso.GetBaseName(fso.GetTempName) & ".dxf")
-    For attempt = 1 To 2                       ' 2nd attempt: first call can still fail on some parts
-        swPart.ExportToDWG2 stage, swModel.GetPathName, swExportToDWG_ExportSheetMetal, True, _
-                            Empty, False, False, SM_OPTIONS, Empty
-        If fso.FileExists(stage) Then Exit For
-    Next attempt
-    If Not fso.FileExists(stage) Then Exit Function
-    If fso.GetFile(stage).Size = 0 Then fso.DeleteFile stage: Exit Function
-    If fso.FileExists(dxfPath) Then
-        If fso.FileExists(dxfPath & ".previous") Then fso.DeleteFile dxfPath & ".previous"
-        Name dxfPath As dxfPath & ".previous"   ' or skip existing (SKIP_EXISTING_FILES) - user's choice
-    End If
-    Name stage As dxfPath
-    ExportFlatPattern = True
-End Function
-' ... after the loop re-activate the assembly: swApp.ActivateDoc3 swAsm.GetTitle, False, swDontRebuildActiveDoc, e
-' and close the part windows you activated (swApp.CloseDoc) unless they were open before.
-```
-Judge success by `Dir(dxfPath) <> ""`, not by the return value (see the Boolean pitfall).
+For assembly components, activate the verified component document with `ActivateDoc3` and use its
+`ReferencedConfiguration` before exporting. Reuse the template's `ExportToStage`, `PublishStage`, and
+cleanup logic together in the adapted module. A retry, if needed on SW2024 SP5, belongs only around
+the staged export, at most once; never retry publication or delete an existing final/backup file.
+Restore the assembly/configuration afterwards and close only documents opened by the macro.
+
+SheetMetalOptions (measured on SW2024 SP5; see pitfalls.md): 1 = geometry, 2 = hidden edges,
+4 = bend lines, 8 = sketches, 16 = merge coplanar faces, 32 = library features, 64 = forming tools,
+2048 = bounding box. The template uses 1+4+8 for bend lines; inspect the actual DXF result.
 - The part must be saved (`GetPathName <> ""`). The output extension (.dxf/.dwg) picks the format.
 - Detect sheet metal: any solid body with `Body2.IsSheetMetal` (works also via `Component2.GetBodies3`), or a
   `"SheetMetal"` / `"FlatPattern"` feature (note: `FlatPattern` and cut-lists are **sub-features**).

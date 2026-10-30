@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.2.1 - 2026-10-30
+
+- Runner: message boxes are unanswered by default; explicit answers require a matching button.
+  Removed fabricated `SendMsgToUser2` results and regex rewriting of message calls/string literals.
+- Timeout/blocked prompt reports avoid further COM calls and document cleanup; the macro may still
+  be running, so document state is reported as unknown. Blocked prompts return without waiting for
+  the timeout. The macro must finish before another test starts.
+- `--expect-text` examines newly appended text or a new/changed log, including UTF-16 logs;
+  byte-identical replacement is conservatively treated as unchanged.
+- DXF: preserve polyline traversal direction for negative bulges, including first/closing arcs.
+- API checker: validate zero-argument member access against required parameters; recognize bare
+  calls after inline `Then`/`Else` without flagging valid template calls.
+- Flat-pattern recipe now uses the safe exporter instead of duplicating overwrite/backup logic.
+- Added offline regression tests: `python -B -m unittest discover -s tests -v` (Windows, installed
+  SOLIDWORKS type libraries, and the geometry dependencies; does not drive a SOLIDWORKS session).
+
 ## 2.2.0 - 2026-10-30 (merge of the local 2.0 line with Codex 2.1.0, after audit)
 
 From 2.1.0 (reviewed and fixed):

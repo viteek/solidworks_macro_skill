@@ -2,7 +2,7 @@
 name: solidworks-macros
 description: Write, fix, test, explain and refactor SOLIDWORKS API automation - VBA macros (.swp/.bas), VSTA (VB.NET/C#) macros, standalone C#/VB.NET/Python programs driving SOLIDWORKS via COM, and macros for Batch+/Toolbar+/Task Scheduler. Use this skill whenever the user mentions SOLIDWORKS/SolidWorks/SW macros, "makro SolidWorks", the SOLIDWORKS API (ModelDoc2, SldWorks, IAssemblyDoc, swconst...), a macro error (run-time error 91, 438...), or wants to automate anything in SOLIDWORKS - batch export to PDF/DXF/STEP, flat patterns, custom properties (właściwości), BOM/assembly traversal, cut-lists, drawings, configurations, dimensions/equations, renaming or processing many files - even if they don't say "macro" or "API".
 metadata:
-  version: "2.2.0"
+  version: "2.2.1"
 ---
 
 # SOLIDWORKS Macros
@@ -68,7 +68,7 @@ cp1250 for VBA import - see pitfalls.md).
    - `check_api.py` needs SOLIDWORKS installed (reads `sldworks.tlb`; SW needn't run). It catches the
      errors a text macro would hide: invented methods, wrong argument counts, misspelled constants,
      undeclared variables.
-   - `run_in_solidworks.py` (pywin32) runs the macro in the user's open SOLIDWORKS, answers its dialogs,
+   - `run_in_solidworks.py` (pywin32) runs the macro in the user's open SOLIDWORKS, records recognized dialogs,
      reports run-time errors, compile failures and documents left open. Only when SOLIDWORKS is
      running, **only on copies** (copy the user's sample files to a temp folder first), and tell the user
      you're doing it - it drives their SOLIDWORKS. SOLIDWORKS can't hold two files with the same name,
@@ -76,9 +76,17 @@ cp1250 for VBA import - see pitfalls.md).
      `--define NAME=value` to fill folder Consts and `--pick-folder` for folder pickers. Drive SOLIDWORKS
      only through this script - never save/close "the active document" from your own helper code. Then **check the result itself** (files exist, values changed,
      drawings untouched) - "ran without error" proves little.
-   - Prefer `--expect-file <output>` / `--expect-text <log> "OK"`: PASS then means "the expected file was
-     written by this run", not just "the macro didn't crash". Use `--strict-dialogs` when a prompt in the
-     macro could confirm something destructive (overwrite, delete) - it is then reported, not answered.
+   - Prefer `--expect-file <output>` (output freshness) / `--expect-text <log> "OK"` (only newly appended
+     text, or a new log/changed byte prefix; old success lines do not count). Byte-identical log
+     replacement is conservatively treated as unchanged; prefer appended per-run results or run IDs.
+     These check concrete output in
+     addition to macro execution. Message boxes are unanswered by default. Use `--answer` only after
+     reviewing the prompts and explicitly intending that answer; `--strict-dialogs` overrides it.
+     The runner never rewrites `SendMsgToUser2` into fabricated results. Unrecognized custom dialogs
+     may reach the timeout instead of `BLOCKED_DIALOG`.
+   - Timeout or blocked dialog: no further COM queries or document cleanup; `documents_left_open` is
+     unknown (`null`). The timeout does not stop the macro. Inspect SOLIDWORKS and finish the pending
+     macro before another test; never assume it is safe to start a second run.
    - `--close-opened` closes only new documents inside the test folder and re-activates the user's
      document; the user's own documents are never closed. Copy referenced files too - a copied top
      assembly still points at production parts.

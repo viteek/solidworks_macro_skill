@@ -197,7 +197,8 @@ def parse_decl_list(text):
 
 
 def check(path, idx):
-    raw = open(path, "rb").read()
+    with open(path, "rb") as source:
+        raw = source.read()
     try:
         text = raw.decode("utf-8-sig")
     except UnicodeDecodeError:
@@ -282,7 +283,9 @@ def check(path, idx):
             getters = [c for c in cands if c["kind"] not in (INVOKE_PROPERTYPUT, INVOKE_PROPERTYPUTREF)] or cands
             f = getters[0]
             rest = line[pos:]
-            argtext = None
+            # A member without parentheses or trailing arguments is a zero-argument
+            # call/property access, not an unchecked call (e.g. ok = ext.SaveAs).
+            argtext = ""
             pm = re.match(r"\s*\(", rest)
             if pm:
                 depth, j = 0, pos + pm.end() - 1
@@ -346,8 +349,9 @@ def check(path, idx):
                 with_stack.pop()
             continue
 
-        # statements may be separated by ':' (outside strings - strings are blanked already)
-        for stmt in re.split(r":(?!=)", l):
+        # Strings are already blanked. Treat inline branches as statement boundaries,
+        # so each bare call owns only its own arguments (also for implicit With receivers).
+        for stmt in re.split(r":(?!=)|\b(?:Then|Else)\b", l, flags=re.I):
             st = stmt.strip()
             if not st or re.match(r"^\w+$", st) and st.lower() not in VBA_KEYWORDS and stmt is l:
                 pass
