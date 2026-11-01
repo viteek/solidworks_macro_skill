@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\saved-input-rejected",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": true,
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "macro_sha256": "b5f769a8380cf42385e7e7ac45a4cbdf0f347ec9e4975ea9ec2c1effe9d0f396",
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\saved-input-rejected\\copy.sldprt",
+      "sha256": "a8acf842bff5f1770fc7974cd172b45081e9c2b98c82dfd0f3c93d927f530c41"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\saved-input-rejected\\runner.json"
+  ],
+  "allowed_dialogs": []
+}

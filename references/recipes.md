@@ -61,9 +61,12 @@ End Function
 ### Drawing → PDF (all sheets, one file)
 ```vb
 Dim swExportPdf As SldWorks.ExportPdfData
+Dim swDraw As SldWorks.DrawingDoc
 Dim sheetNames As Variant
+If swModel.GetType <> swDocDRAWING Then Err.Raise vbObjectError + 100, , "A drawing is required"
+Set swDraw = swModel
 Set swExportPdf = swApp.GetExportFileData(swExportPdfData)
-sheetNames = swModel.GetSheetNames                 ' swModel is a drawing
+sheetNames = swDraw.GetSheetNames
 ' ExportAllSheets makes SetSheets return False (SW 2024) although it works -> use Specified + all names
 swExportPdf.SetSheets swExportData_ExportSpecifiedSheets, sheetNames
 swExportPdf.ViewPdfAfterSaving = False

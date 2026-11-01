@@ -29,6 +29,8 @@ import uuid
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))  # sibling imports also under python -I
 from validation_reports import file_hash, write_report  # noqa: E402
+from runner_safety import code_hash
+from run_in_solidworks import prepare_code
 
 PACKAGE = HERE.parent
 
@@ -95,18 +97,33 @@ def execute(args):
         raise ValueError('Target directory does not exist')
     source_hash = file_hash(source)
     job = Path(tempfile.mkdtemp(prefix='.sw-validation-', dir=target.parent))
+    test_source = job / source.name
+    shutil.copy2(source, test_source)
     with_metrics = kind != '.dxf'
     macro = job / 'job.bas'
     macro.write_text(build_validation_macro(with_metrics), encoding='utf-8')
     raw, metrics, log, runner_report = job / ('raw' + kind), job / 'source-metrics.json', job / 'macro.log', job / 'runner.json'
     command = [sys.executable, '-I', str(HERE / 'run_in_solidworks.py'), str(macro),
-               '--open', str(source), '--close-opened', '--timeout', str(args.timeout), '--json', str(runner_report),
+               '--open', str(test_source), '--close-opened', '--timeout', str(args.timeout), '--json', str(runner_report),
                '--define', 'SHOW_MESSAGES=False', '--define', 'OUTPUT_PATH=' + vba_string(raw),
                '--define', 'RESULT_PATH=' + vba_string(log)]
     if with_metrics:
         command += ['--define', 'METRICS_PATH=' + vba_string(metrics)]
     if args.configuration:
         command += ['--define', 'CONFIGURATION_NAME=' + vba_string(args.configuration)]
+    defines = [command[index + 1] for index, value in enumerate(command) if value == '--define']
+    prepared = prepare_code(macro.read_text(encoding='utf-8'), defines)
+    test_profile = job / 'test-profile.json'
+    # This pipeline owns the generated exporter and its private input/output paths.
+    # External references are refused by the runner; they are never copied blindly.
+    test_profile.write_text(json.dumps({
+        'schema_version': 1, 'test_root': str(job), 'reviewed': True, 'copies_confirmed': True,
+        'allow_model_changes': False, 'macro_sha256': code_hash(prepared),
+        'entry_point': {'module': 'TestMacro', 'procedure': 'main'},
+        'inputs': [{'path': str(test_source), 'sha256': file_hash(test_source)}],
+        'outputs': [str(path) for path in (raw, metrics, log, runner_report)], 'allowed_dialogs': []
+    }, indent=2), encoding='utf-8')
+    command += ['--profile', str(test_profile)]
     started = time.time()
     subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=args.timeout + 60)
     report = {'status': 'BLOCKED_EXPORT', 'cam_status': 'NOT_CONFIGURED', 'source_sha256': source_hash,
@@ -136,7 +153,7 @@ def execute(args):
     else:
         from validate_step import validate_step
         source_metrics = json.loads(metrics.read_text(encoding='ascii'))
-        if os.path.normcase(str(Path(source_metrics['source_path']).resolve())) != os.path.normcase(str(source)):
+        if os.path.normcase(str(Path(source_metrics['source_path']).resolve())) != os.path.normcase(str(test_source)):
             raise ValueError('Source metric identity does not match requested part')
         if args.configuration and source_metrics['configuration'] != args.configuration:
             raise ValueError('Metrics came from a different source configuration')

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "task_id": "T05",
+  "family": "selection_modeling",
+  "title": "Select a named feature",
+  "fixture": {
+    "id": "base-part",
+    "revision": "1"
+  },
+  "fixture_instructions": "Create 100 x 50 x 10 mm centered rectangular boss named Base on Front Plane; save baseline. Clear selections and ensure no sketch is active.",
+  "request": "Select only Base feature with mark 0 and report selected object.",
+  "api_candidates": [
+    "IModelDocExtension.SelectByID2",
+    "ISelectionMgr.GetSelectedObject6",
+    "IFeature.Name"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "selection_count",
+      "path": "/selection/count",
+      "op": "equals",
+      "expected": 1
+    },
+    {
+      "id": "selection_mark",
+      "path": "/selection/mark",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "selection_name",
+      "path": "/selection/name",
+      "op": "equals",
+      "expected": "Base"
+    },
+    {
+      "id": "selection_object_type",
+      "path": "/selection/object_type",
+      "op": "equals",
+      "expected": "Feature"
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "check": "unittest",
+    "command": [
+      "C:\\Users\\micha\\.codex\\tmp\\solidworks-macro-quality-venv\\Scripts\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 28.05,
+    "status": "PASS",
+    "tests_run": 107
+  },
+  {
+    "check": "examples-api",
+    "command": [
+      "C:\\Users\\micha\\.codex\\tmp\\solidworks-macro-quality-venv\\Scripts\\python.exe",
+      "-B",
+      "scripts/check_examples.py",
+      "--api"
+    ],
+    "exit_code": 0,
+    "seconds": 1.02,
+    "status": "PASS",
+    "checked": 58,
+    "errors": 0
+  },
+  {
+    "check": "environment",
+    "command": [
+      "C:\\Users\\micha\\.codex\\tmp\\solidworks-macro-quality-venv\\Scripts\\python.exe",
+      "-B",
+      "scripts/verify_environment.py",
+      "--require-api",
+      "--json",
+      "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\validation\\2026-11-01\\environment.json"
+    ],
+    "exit_code": 0,
+    "seconds": 0.33,
+    "status": "PASS"
+  },
+  {
+    "check": "skill",
+    "command": [
+      "C:\\Users\\micha\\.codex\\tmp\\solidworks-macro-quality-venv\\Scripts\\python.exe",
+      "-X",
+      "utf8",
+      "-B",
+      "C:\\Users\\micha\\.codex\\skills\\.system\\skill-creator\\scripts\\quick_validate.py",
+      "."
+    ],
+    "exit_code": 0,
+    "seconds": 0.19,
+    "status": "PASS"
+  },
+  {
+    "check": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "status": "PASS"
+  }
+]

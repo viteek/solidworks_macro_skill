@@ -1,0 +1,29 @@
+{
+  "macro": "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\recipes\\modeling\\circular-pattern\\circular_pattern.bas",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "TestMacro",
+  "macro_sha256": "64f22ff97756fa477a60bd57e1cefb336bb13255e27b8a61bc5208ed549dff57",
+  "project_format": "swb",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-final\\circular\\circular.sldprt",
+  "seconds": 2.7,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": true,
+  "run_error": "OK",
+  "observation_ok": true,
+  "observation_error": 0,
+  "observer_sha256": "b6b023fb58538bce2fa08c1063b8f6da07aa8c3253fcd2d59753a5eab1428d29",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-final\\circular\\circular.sldprt"
+  ],
+  "expectations_failed": [],
+  "status": "PASS",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

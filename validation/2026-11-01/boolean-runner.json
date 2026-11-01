@@ -1,0 +1,26 @@
+{
+  "macro": "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\assets\\diagnostic-macros\\boolean_probe.bas",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "TestMacro",
+  "macro_sha256": "59231d3c416fe116cb90d410a39735697d3f6747108f7458a9e2e4f1fea5a04d",
+  "project_format": "swb",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-input.sldprt",
+  "seconds": 0.9,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": true,
+  "run_error": "OK",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-input.sldprt"
+  ],
+  "expectations_failed": [],
+  "status": "PASS",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

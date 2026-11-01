@@ -1,0 +1,3 @@
+WARN  inspect_drawing_semantics.bas:60: 'On Error Resume Next' without checking Err nearby - hides failures.
+
+OK    inspect_drawing_semantics.bas: all checked API members, argument counts and constants exist.

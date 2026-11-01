@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "task_id": "T04",
+  "family": "docs_properties",
+  "title": "Enumerate open document types",
+  "fixture": {
+    "id": "three-documents",
+    "revision": "1"
+  },
+  "fixture_instructions": "Create and save a Base part from properties-part, an empty assembly and an A4 landscape drawing from configured templates. Open all three and no other documents; activate part.",
+  "request": "Enumerate exactly these three documents and retain active part.",
+  "api_candidates": [
+    "ISldWorks.GetFirstDocument",
+    "IModelDoc2.GetNext",
+    "IModelDoc2.GetType"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "open_document_count",
+      "path": "/open_document_count",
+      "op": "equals",
+      "expected": 3
+    },
+    {
+      "id": "open_document_types",
+      "path": "/open_document_types",
+      "op": "unordered_equals",
+      "expected": [
+        "PartDoc",
+        "AssemblyDoc",
+        "DrawingDoc"
+      ]
+    },
+    {
+      "id": "active_document",
+      "path": "/active_document",
+      "op": "equals",
+      "expected": "part.sldprt"
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

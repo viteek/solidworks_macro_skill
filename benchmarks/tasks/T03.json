@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "task_id": "T03",
+  "family": "docs_properties",
+  "title": "Write one scoped property",
+  "fixture": {
+    "id": "config-part",
+    "revision": "1"
+  },
+  "fixture_instructions": "Use config-part recipe above with Long PartNo=P-002 and no Revision property in any scope; duplicate baseline for this run.",
+  "request": "Set Long configuration text Revision=B; leave document and Default scopes without Revision. Do not save source.",
+  "api_candidates": [
+    "ICustomPropertyManager.Add3",
+    "ICustomPropertyManager.Get6"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "properties_Long_Revision",
+      "path": "/properties/Long/Revision",
+      "op": "equals",
+      "expected": "B"
+    },
+    {
+      "id": "property_exists_document_Revision",
+      "path": "/property_exists/document/Revision",
+      "op": "equals",
+      "expected": false
+    },
+    {
+      "id": "property_exists_Default_Revision",
+      "path": "/property_exists/Default/Revision",
+      "op": "equals",
+      "expected": false
+    },
+    {
+      "id": "properties_Long_PartNo",
+      "path": "/properties/Long/PartNo",
+      "op": "equals",
+      "expected": "P-002"
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

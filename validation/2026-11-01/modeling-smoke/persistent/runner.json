@@ -1,0 +1,29 @@
+{
+  "macro": "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\recipes\\selection\\plane-selection\\plane_selection.bas",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "TestMacro",
+  "macro_sha256": "7899266fd232f2854990d4fe41c8da147607e086bc22a41ce3cf0c7b6c01c42a",
+  "project_format": "swb",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\persistent\\persistent.sldprt",
+  "seconds": 0.9,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": true,
+  "run_error": "OK",
+  "observation_ok": true,
+  "observation_error": 0,
+  "observer_sha256": "b34b6e1df76d8d46050d622546a8bac21641c82770453ea840db055685c8c6b1",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\persistent\\persistent.sldprt"
+  ],
+  "expectations_failed": [],
+  "status": "PASS",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

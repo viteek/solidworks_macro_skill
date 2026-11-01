@@ -1,0 +1,26 @@
+{
+  "macro": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\mate_reference.bas",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "TestMacro",
+  "macro_sha256": "9d66798d1a2824682d1e3f05971b4b7fcaeaea6d6a1e44807ae8fd55f8f534e1",
+  "project_format": "swb",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\block.sldprt",
+  "seconds": 1.2,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": true,
+  "run_error": "OK",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\block.sldprt"
+  ],
+  "expectations_failed": [],
+  "status": "PASS",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

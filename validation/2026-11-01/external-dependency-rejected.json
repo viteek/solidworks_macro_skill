@@ -1,0 +1,5 @@
+{
+  "status": "PREFLIGHT_FAILED",
+  "error": "Dependency is not a declared test copy: 'C:\\\\Sandpit\\\\devsilo1\\\\QAA\\\\MigrationData\\\\SampleFiles\\\\sldrx\\\\sldbenchmark\\\\macro\\\\pipingassembly.sldasm'",
+  "macro_executed": false
+}

@@ -1,0 +1,657 @@
+{
+  "schema_version": 1,
+  "scope": "modeling smoke only, not full project compilation or A/B benchmark",
+  "source_hashes": {
+    "blank": "8339c62260e50fe38146ae26472bba87c407b2f2e7eeb0764d70149100716190",
+    "block": "a8acf842bff5f1770fc7974cd172b45081e9c2b98c82dfd0f3c93d927f530c41"
+  },
+  "sources_unchanged": true,
+  "results": [
+    {
+      "case": "sketch",
+      "status": "PASS",
+      "failures": [],
+      "runner_status": "PASS",
+      "observation": {
+        "collection_status": "OK",
+        "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\sketch\\sketch.sldprt",
+        "document_type": 1,
+        "selection_count": 0,
+        "active_configuration": "Domy\u015blna",
+        "configurations": [
+          "Domy\u015blna"
+        ],
+        "features": [
+          {
+            "name": "Komentarze",
+            "type": "CommentsFolder"
+          },
+          {
+            "name": "Ulubione",
+            "type": "FavoriteFolder"
+          },
+          {
+            "name": "Historia",
+            "type": "HistoryFolder"
+          },
+          {
+            "name": "Zestawy wybrane",
+            "type": "SelectionSetFolder"
+          },
+          {
+            "name": "Sensory",
+            "type": "SensorFolder"
+          },
+          {
+            "name": "Spinacz projektu",
+            "type": "DocsFolder"
+          },
+          {
+            "name": "Adnotacje",
+            "type": "DetailCabinet"
+          },
+          {
+            "name": "Obiekty powierzchniowe",
+            "type": "SurfaceBodyFolder"
+          },
+          {
+            "name": "Obiekty bry\u0142owe",
+            "type": "SolidBodyFolder"
+          },
+          {
+            "name": "\u015awiat\u0142a i kamery",
+            "type": "EnvFolder"
+          },
+          {
+            "name": "Uwagi",
+            "type": "InkMarkupFolder"
+          },
+          {
+            "name": "R\u00f3wnania",
+            "type": "EqnFolder"
+          },
+          {
+            "name": "Materia\u0142 <nieokre\u015blony>",
+            "type": "MaterialFolder"
+          },
+          {
+            "name": "P\u0142aszczyzna przednia",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna g\u00f3rna",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna prawa",
+            "type": "RefPlane"
+          },
+          {
+            "name": "Pocz\u0105tek uk\u0142adu wsp\u00f3\u0142rz\u0119dnych",
+            "type": "OriginProfileFeature"
+          },
+          {
+            "name": "Recipe_Profile",
+            "type": "ProfileFeature",
+            "segment_count": 4,
+            "length_m": 0.12,
+            "constrained_status": 3
+          },
+          {
+            "name": "Recipe_Block",
+            "type": "Extrusion"
+          }
+        ],
+        "solid_body_count": 1,
+        "volume_m3": 8e-06
+      },
+      "macro_sha256": "a9a386414839ad6de57e8af85230162d5c785d05bea6dbdcc5b979b0eb6bfe86",
+      "observer_sha256": "60e547d50e71244435e8f8a498ce1c271d7d50c71bcea7435348933d8fdad603",
+      "session_state": "IDLE",
+      "compilation_status": "NOT_TESTED"
+    },
+    {
+      "case": "modify",
+      "status": "PASS",
+      "failures": [],
+      "runner_status": "PASS",
+      "observation": {
+        "collection_status": "OK",
+        "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\modify\\modify.sldprt",
+        "document_type": 1,
+        "selection_count": 0,
+        "active_configuration": "Domy\u015blna",
+        "configurations": [
+          "Domy\u015blna"
+        ],
+        "features": [
+          {
+            "name": "Komentarze",
+            "type": "CommentsFolder"
+          },
+          {
+            "name": "Ulubione",
+            "type": "FavoriteFolder"
+          },
+          {
+            "name": "Historia",
+            "type": "HistoryFolder"
+          },
+          {
+            "name": "Zestawy wybrane",
+            "type": "SelectionSetFolder"
+          },
+          {
+            "name": "Sensory",
+            "type": "SensorFolder"
+          },
+          {
+            "name": "Spinacz projektu",
+            "type": "DocsFolder"
+          },
+          {
+            "name": "Adnotacje",
+            "type": "DetailCabinet"
+          },
+          {
+            "name": "Obiekty powierzchniowe",
+            "type": "SurfaceBodyFolder"
+          },
+          {
+            "name": "Obiekty bry\u0142owe",
+            "type": "SolidBodyFolder"
+          },
+          {
+            "name": "\u015awiat\u0142a i kamery",
+            "type": "EnvFolder"
+          },
+          {
+            "name": "Uwagi",
+            "type": "InkMarkupFolder"
+          },
+          {
+            "name": "R\u00f3wnania",
+            "type": "EqnFolder"
+          },
+          {
+            "name": "Materia\u0142 <nieokre\u015blony>",
+            "type": "MaterialFolder"
+          },
+          {
+            "name": "P\u0142aszczyzna przednia",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna g\u00f3rna",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna prawa",
+            "type": "RefPlane"
+          },
+          {
+            "name": "Pocz\u0105tek uk\u0142adu wsp\u00f3\u0142rz\u0119dnych",
+            "type": "OriginProfileFeature"
+          },
+          {
+            "name": "Recipe_Profile",
+            "type": "ProfileFeature",
+            "segment_count": 4,
+            "length_m": 0.12,
+            "constrained_status": 3
+          },
+          {
+            "name": "Recipe_Block",
+            "type": "Extrusion"
+          }
+        ],
+        "solid_body_count": 1,
+        "volume_m3": 1.2e-05
+      },
+      "macro_sha256": "db43ef8f2764a9a5cc915e37717fcce82aecc03a3d92acc69675e03cb479b7d5",
+      "observer_sha256": "4645ed01802095a3309f248cda5b75af6cc1db4e6ea059c5702191fbc9e57f31",
+      "session_state": "IDLE",
+      "compilation_status": "NOT_TESTED"
+    },
+    {
+      "case": "configurations",
+      "status": "PASS",
+      "failures": [],
+      "runner_status": "PASS",
+      "observation": {
+        "collection_status": "OK",
+        "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\configurations\\configurations.sldprt",
+        "document_type": 1,
+        "selection_count": 0,
+        "active_configuration": "Domy\u015blna",
+        "configurations": [
+          "Domy\u015blna",
+          "Recipe_10mm",
+          "Recipe_20mm"
+        ],
+        "features": [
+          {
+            "name": "Komentarze",
+            "type": "CommentsFolder"
+          },
+          {
+            "name": "Komentarze konfiguracji",
+            "type": "ConfigCommentsFolder"
+          },
+          {
+            "name": "Ulubione",
+            "type": "FavoriteFolder"
+          },
+          {
+            "name": "Historia",
+            "type": "HistoryFolder"
+          },
+          {
+            "name": "Zestawy wybrane",
+            "type": "SelectionSetFolder"
+          },
+          {
+            "name": "Sensory",
+            "type": "SensorFolder"
+          },
+          {
+            "name": "Spinacz projektu",
+            "type": "DocsFolder"
+          },
+          {
+            "name": "Adnotacje",
+            "type": "DetailCabinet"
+          },
+          {
+            "name": "Obiekty powierzchniowe",
+            "type": "SurfaceBodyFolder"
+          },
+          {
+            "name": "Obiekty bry\u0142owe",
+            "type": "SolidBodyFolder"
+          },
+          {
+            "name": "\u015awiat\u0142a i kamery",
+            "type": "EnvFolder"
+          },
+          {
+            "name": "Uwagi",
+            "type": "InkMarkupFolder"
+          },
+          {
+            "name": "R\u00f3wnania",
+            "type": "EqnFolder"
+          },
+          {
+            "name": "Materia\u0142 <nieokre\u015blony>",
+            "type": "MaterialFolder"
+          },
+          {
+            "name": "P\u0142aszczyzna przednia",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna g\u00f3rna",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna prawa",
+            "type": "RefPlane"
+          },
+          {
+            "name": "Pocz\u0105tek uk\u0142adu wsp\u00f3\u0142rz\u0119dnych",
+            "type": "OriginProfileFeature"
+          },
+          {
+            "name": "Recipe_Profile",
+            "type": "ProfileFeature",
+            "segment_count": 4,
+            "length_m": 0.12,
+            "constrained_status": 3
+          },
+          {
+            "name": "Recipe_Block",
+            "type": "Extrusion"
+          }
+        ],
+        "solid_body_count": 1,
+        "volume_m3": 8e-06
+      },
+      "macro_sha256": "346b6da69225ef677d5d70cc69359b9e420112a893cebf2b21a056124a0aa1cc",
+      "observer_sha256": "fa6429606423c09919514119a8d05134f52d85be0c827ecc8c8260d91789d262",
+      "session_state": "IDLE",
+      "compilation_status": "NOT_TESTED"
+    },
+    {
+      "case": "hole_linear",
+      "status": "FAIL",
+      "failures": [
+        "Runner failed; inspect runner.json and macro.log"
+      ],
+      "runner_status": "FAIL",
+      "observation": null,
+      "macro_sha256": "f8cc8ad22368ad98cea5fdd939379ad17676094bfe6658df08a581e32ccfde94",
+      "observer_sha256": "44c5743db98ad5e40efe44c53c8a07339fe232294c3045928201e4345ed16871",
+      "session_state": "IDLE",
+      "compilation_status": "NOT_TESTED"
+    },
+    {
+      "case": "revolve",
+      "status": "PASS",
+      "failures": [],
+      "runner_status": "PASS",
+      "observation": {
+        "collection_status": "OK",
+        "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\revolve\\revolve.sldprt",
+        "document_type": 1,
+        "selection_count": 0,
+        "active_configuration": "Domy\u015blna",
+        "configurations": [
+          "Domy\u015blna"
+        ],
+        "features": [
+          {
+            "name": "Komentarze",
+            "type": "CommentsFolder"
+          },
+          {
+            "name": "Ulubione",
+            "type": "FavoriteFolder"
+          },
+          {
+            "name": "Historia",
+            "type": "HistoryFolder"
+          },
+          {
+            "name": "Zestawy wybrane",
+            "type": "SelectionSetFolder"
+          },
+          {
+            "name": "Sensory",
+            "type": "SensorFolder"
+          },
+          {
+            "name": "Spinacz projektu",
+            "type": "DocsFolder"
+          },
+          {
+            "name": "Adnotacje",
+            "type": "DetailCabinet"
+          },
+          {
+            "name": "Obiekty powierzchniowe",
+            "type": "SurfaceBodyFolder"
+          },
+          {
+            "name": "Obiekty bry\u0142owe",
+            "type": "SolidBodyFolder"
+          },
+          {
+            "name": "\u015awiat\u0142a i kamery",
+            "type": "EnvFolder"
+          },
+          {
+            "name": "Uwagi",
+            "type": "InkMarkupFolder"
+          },
+          {
+            "name": "R\u00f3wnania",
+            "type": "EqnFolder"
+          },
+          {
+            "name": "Materia\u0142 <nieokre\u015blony>",
+            "type": "MaterialFolder"
+          },
+          {
+            "name": "P\u0142aszczyzna przednia",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna g\u00f3rna",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna prawa",
+            "type": "RefPlane"
+          },
+          {
+            "name": "Pocz\u0105tek uk\u0142adu wsp\u00f3\u0142rz\u0119dnych",
+            "type": "OriginProfileFeature"
+          },
+          {
+            "name": "Recipe_RevolveProfile",
+            "type": "ProfileFeature",
+            "segment_count": 5,
+            "length_m": 0.06,
+            "constrained_status": 2
+          },
+          {
+            "name": "Recipe_Ring",
+            "type": "Revolution"
+          }
+        ],
+        "solid_body_count": 1,
+        "volume_m3": 9.42477796076938e-06
+      },
+      "macro_sha256": "e510ef143a74e08693f6a4c7917b02956edd5742bd096d4f426183b24e4c2ba7",
+      "observer_sha256": "5dcc959664f74090a7f80cecc2ae7feaa841d7474834d5b30ae5f1c6e2b8a1c3",
+      "session_state": "IDLE",
+      "compilation_status": "NOT_TESTED"
+    },
+    {
+      "case": "circular",
+      "status": "FAIL",
+      "failures": [
+        "Runner failed; inspect runner.json and macro.log"
+      ],
+      "runner_status": "FAIL",
+      "observation": null,
+      "macro_sha256": "42d1a794641e38cc12418053f63e66d109b9e23dcb4c2a48f26f7bbc7b34f0a7",
+      "observer_sha256": "e5c62ce41f16d2dab6e7ce457a9fa12f56b9b993572caf3d43159b2696da90f5",
+      "session_state": "IDLE",
+      "compilation_status": "NOT_TESTED"
+    },
+    {
+      "case": "sketch3d",
+      "status": "PASS",
+      "failures": [],
+      "runner_status": "PASS",
+      "observation": {
+        "collection_status": "OK",
+        "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\sketch3d\\sketch3d.sldprt",
+        "document_type": 1,
+        "selection_count": 0,
+        "active_configuration": "Domy\u015blna",
+        "configurations": [
+          "Domy\u015blna"
+        ],
+        "features": [
+          {
+            "name": "Komentarze",
+            "type": "CommentsFolder"
+          },
+          {
+            "name": "Ulubione",
+            "type": "FavoriteFolder"
+          },
+          {
+            "name": "Historia",
+            "type": "HistoryFolder"
+          },
+          {
+            "name": "Zestawy wybrane",
+            "type": "SelectionSetFolder"
+          },
+          {
+            "name": "Sensory",
+            "type": "SensorFolder"
+          },
+          {
+            "name": "Spinacz projektu",
+            "type": "DocsFolder"
+          },
+          {
+            "name": "Adnotacje",
+            "type": "DetailCabinet"
+          },
+          {
+            "name": "Obiekty powierzchniowe",
+            "type": "SurfaceBodyFolder"
+          },
+          {
+            "name": "Obiekty bry\u0142owe",
+            "type": "SolidBodyFolder"
+          },
+          {
+            "name": "\u015awiat\u0142a i kamery",
+            "type": "EnvFolder"
+          },
+          {
+            "name": "Uwagi",
+            "type": "InkMarkupFolder"
+          },
+          {
+            "name": "R\u00f3wnania",
+            "type": "EqnFolder"
+          },
+          {
+            "name": "Materia\u0142 <nieokre\u015blony>",
+            "type": "MaterialFolder"
+          },
+          {
+            "name": "P\u0142aszczyzna przednia",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna g\u00f3rna",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna prawa",
+            "type": "RefPlane"
+          },
+          {
+            "name": "Pocz\u0105tek uk\u0142adu wsp\u00f3\u0142rz\u0119dnych",
+            "type": "OriginProfileFeature"
+          },
+          {
+            "name": "Recipe_3DPath",
+            "type": "3DProfileFeature",
+            "segment_count": 3,
+            "length_m": 0.06,
+            "constrained_status": 2
+          }
+        ],
+        "solid_body_count": 0,
+        "volume_m3": 0
+      },
+      "macro_sha256": "8bd47b3f188add91496396bcf0067f50903eb1830eb43789a9e040d827f2ac5f",
+      "observer_sha256": "2a1c48753d463f93101e69eac17435c0a446065ac17afb8d9705f7e85184940a",
+      "session_state": "IDLE",
+      "compilation_status": "NOT_TESTED"
+    },
+    {
+      "case": "plane",
+      "status": "PASS",
+      "failures": [],
+      "runner_status": "PASS",
+      "observation": {
+        "collection_status": "OK",
+        "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\plane\\plane.sldprt",
+        "document_type": 1,
+        "selection_count": 1,
+        "active_configuration": "Domy\u015blna",
+        "configurations": [
+          "Domy\u015blna"
+        ],
+        "features": [
+          {
+            "name": "Komentarze",
+            "type": "CommentsFolder"
+          },
+          {
+            "name": "Ulubione",
+            "type": "FavoriteFolder"
+          },
+          {
+            "name": "Historia",
+            "type": "HistoryFolder"
+          },
+          {
+            "name": "Zestawy wybrane",
+            "type": "SelectionSetFolder"
+          },
+          {
+            "name": "Sensory",
+            "type": "SensorFolder"
+          },
+          {
+            "name": "Spinacz projektu",
+            "type": "DocsFolder"
+          },
+          {
+            "name": "Adnotacje",
+            "type": "DetailCabinet"
+          },
+          {
+            "name": "Obiekty powierzchniowe",
+            "type": "SurfaceBodyFolder"
+          },
+          {
+            "name": "Obiekty bry\u0142owe",
+            "type": "SolidBodyFolder"
+          },
+          {
+            "name": "\u015awiat\u0142a i kamery",
+            "type": "EnvFolder"
+          },
+          {
+            "name": "Uwagi",
+            "type": "InkMarkupFolder"
+          },
+          {
+            "name": "R\u00f3wnania",
+            "type": "EqnFolder"
+          },
+          {
+            "name": "Materia\u0142 <nieokre\u015blony>",
+            "type": "MaterialFolder"
+          },
+          {
+            "name": "P\u0142aszczyzna przednia",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna g\u00f3rna",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna prawa",
+            "type": "RefPlane"
+          },
+          {
+            "name": "Pocz\u0105tek uk\u0142adu wsp\u00f3\u0142rz\u0119dnych",
+            "type": "OriginProfileFeature"
+          }
+        ],
+        "solid_body_count": 0,
+        "volume_m3": 0
+      },
+      "macro_sha256": "d6e0f2cbae1571434c7f2dd0bf0b931ae81d7757bf37b4a60d7e14b8dbd99719",
+      "observer_sha256": "0065f6d2e3e6c9227d2b2f9484ce88f0ea1f0b1a964599022b6228801a01fc1c",
+      "session_state": "IDLE",
+      "compilation_status": "NOT_TESTED"
+    },
+    {
+      "case": "persistent",
+      "status": "PASS",
+      "failures": [],
+      "runner_status": "PASS",
+      "observation": null,
+      "macro_sha256": "7899266fd232f2854990d4fe41c8da147607e086bc22a41ce3cf0c7b6c01c42a",
+      "observer_sha256": "b34b6e1df76d8d46050d622546a8bac21641c82770453ea840db055685c8c6b1",
+      "session_state": "IDLE",
+      "compilation_status": "NOT_TESTED"
+    }
+  ]
+}

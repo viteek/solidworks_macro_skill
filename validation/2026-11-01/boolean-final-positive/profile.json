@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-final-positive",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": true,
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "macro_sha256": "67e02216099672ac4367c0cebc16cc5851e3ec1b3b1254e43033fe65b43c846c",
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-final-positive\\copy.sldprt",
+      "sha256": "a8acf842bff5f1770fc7974cd172b45081e9c2b98c82dfd0f3c93d927f530c41"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-final-positive\\macro.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-final-positive\\runner.json"
+  ],
+  "allowed_dialogs": []
+}

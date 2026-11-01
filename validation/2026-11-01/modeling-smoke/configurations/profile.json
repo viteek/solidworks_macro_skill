@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\configurations",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": true,
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "macro_sha256": "346b6da69225ef677d5d70cc69359b9e420112a893cebf2b21a056124a0aa1cc",
+  "observer_sha256": "fa6429606423c09919514119a8d05134f52d85be0c827ecc8c8260d91789d262",
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\configurations\\configurations.sldprt",
+      "sha256": "a8acf842bff5f1770fc7974cd172b45081e9c2b98c82dfd0f3c93d927f530c41"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\configurations\\macro.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\configurations\\observed.json",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\configurations\\runner.json"
+  ],
+  "allowed_dialogs": []
+}

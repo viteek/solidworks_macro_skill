@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": true,
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "macro_sha256": "5823edc974997240cdd850ea5822b4c27a4f8fc3bb38a5f65e4756a40b58d220",
+  "observer_sha256": "6ae600f686ae9ca18a25696ebaf42b1cb9d572750950f7c8cdfaa02cfbd08df1",
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\blank-copy.sldprt",
+      "sha256": "8339c62260e50fe38146ae26472bba87c407b2f2e7eeb0764d70149100716190"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\macro.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\metrics.json",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\inspection.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\save.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\flat-blank.sldprt",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\runner.json"
+  ],
+  "allowed_dialogs": []
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-final\\persistent",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": true,
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "macro_sha256": "0f3e590f51ee1a397b443379bdd63a7bf982449782bb128b595caa99c1bcf6c5",
+  "observer_sha256": "f9d289b56fc1aaac75146e4bd4d66802e18427e61f612252dccedd37da0581d9",
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-final\\persistent\\persistent.sldprt",
+      "sha256": "8339c62260e50fe38146ae26472bba87c407b2f2e7eeb0764d70149100716190"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-final\\persistent\\macro.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-final\\persistent\\observed.json",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-final\\persistent\\runner.json"
+  ],
+  "allowed_dialogs": []
+}

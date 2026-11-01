@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "task_id": "T09",
+  "family": "assemblies",
+  "title": "Traverse resolved component instances",
+  "fixture": {
+    "id": "assembly-tree",
+    "revision": "1"
+  },
+  "fixture_instructions": "Create Base part from base-part recipe and distinct Bolt.sldprt as a diameter 10 mm, length 20 mm cylindrical boss in Default. Build sub.sldasm containing Bolt-1 and Bolt-2 from Bolt.sldprt. Top.sldasm contains fixed Base-1, sub-1 and suppressed Spare-1 referencing Base part. Fully resolve unsuppressed components. Save all.",
+  "request": "Traverse recursively and count instances, suppressed components and distinct unsuppressed part file/config pairs; include subassembly node.",
+  "api_candidates": [
+    "IAssemblyDoc.GetComponents",
+    "IComponent2.GetChildren",
+    "IComponent2.IsSuppressed",
+    "IComponent2.ReferencedConfiguration"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "instance_count",
+      "path": "/instance_count",
+      "op": "equals",
+      "expected": 5
+    },
+    {
+      "id": "suppressed_count",
+      "path": "/suppressed_count",
+      "op": "equals",
+      "expected": 1
+    },
+    {
+      "id": "distinct_unsuppressed_parts",
+      "path": "/distinct_unsuppressed_parts",
+      "op": "equals",
+      "expected": 2
+    },
+    {
+      "id": "component_names",
+      "path": "/component_names",
+      "op": "unordered_equals",
+      "expected": [
+        "Base-1",
+        "sub-1",
+        "sub-1/Bolt-1",
+        "sub-1/Bolt-2",
+        "Spare-1"
+      ]
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

@@ -1,5 +1,30 @@
 # Changelog
 
+## 3.0.0-dev - 2026-11-01
+
+- Audit stage I: mandatory reviewed/hash-bound test profiles, copied input/dependency closure checks,
+  explicit mutation confirmation, empty-session preflight, durable RUNNING/UNKNOWN states and
+  OS-only explicit recovery. Timeouts and uncertain COM statuses do not permit retries or late observers.
+- Dialog automation requires an exact title/text/answer allowlist and permits one response per run.
+  Reports cannot overwrite inputs, macros or profiles during failed preflight. Native `.swp` bytes
+  and reviewed entry points are preserved; optional hash-bound observers run before cleanup.
+- Boolean analysis now tracks scoped COM provenance, normalization, aliases and numeric results;
+  fixed standard FileExists false positives, unsafe RHS negation, Circle reserved identifiers,
+  valid IBodyFolder.GetBodies, wrong API owners and negative/Or-prefixed bare-call arguments.
+  PDF sheet enumeration now uses DrawingDoc. RunMacro error enums match the installed type library.
+- Audit stage II: sixteen original complete CAD recipes, selection/model-state/Boolean diagnostics,
+  model/configuration/FeatureData/assembly/MateReference/drawing/fabrication references and per-recipe
+  expected/negative/verification instructions. Existing template paths remain available.
+- Audit stages III-IV: portable offline tests and CI, manual self-hosted integration workflow,
+  environment discovery (including 3DEXPERIENCE), six-phase evidence evaluation, 24 paired A/B task
+  specifications, strict provenance/measurement validation, source policy/index and version matrix.
+- Local verification records are in validation/2026-11-01. Scope is explicit: modeling smoke,
+  source metrics, validated STEP, native invocation and COM truth-value probes do not certify
+  every release, complete VBA projects or the full 24-task A/B experiment.
+- Final review: edit permission allows in-memory changes only; saved input changes now fail hash
+  checks for every resolved run. Evidence CLIs require fresh output files, and assembly smoke
+  requires both a successful process exit and confirmed PASS/IDLE status.
+
 ## 2.2.1 - 2026-10-30
 
 - Runner: message boxes are unanswered by default; explicit answers require a matching button.

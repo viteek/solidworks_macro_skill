@@ -1,0 +1,31 @@
+{
+  "macro": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\compile\\recipes_compile.swp",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "SketchExtrudeRecipe",
+  "macro_sha256": "4f9c64c0ce9e37f581723e33911762e67b8715dfec6de83cd60108129e23443d",
+  "project_format": "swp",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\native-input.sldprt",
+  "seconds": 1.2,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": false,
+  "run_error": 22,
+  "observation_ok": null,
+  "observation_error": null,
+  "observer_sha256": "25fe405ce0009a0236675fdae906ee60f6bf35e20d6455ed685786a6276273df",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\native-input.sldprt"
+  ],
+  "expectations_failed": [
+    "missing: C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\compile\\native-observed.json"
+  ],
+  "status": "FAIL",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-final\\modify",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": true,
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "macro_sha256": "5b403e09abe1c7f018f9e646f467fc8db8abc70427cdc8d6ffa604f83963a34b",
+  "observer_sha256": "9098a3621dd6e44d0855b55e92dc581cc8b2d940295978ec426cb1a8149141ec",
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-final\\modify\\modify.sldprt",
+      "sha256": "a8acf842bff5f1770fc7974cd172b45081e9c2b98c82dfd0f3c93d927f530c41"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-final\\modify\\macro.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-final\\modify\\observed.json",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-final\\modify\\runner.json"
+  ],
+  "allowed_dialogs": []
+}

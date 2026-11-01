@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\persistent",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": true,
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "macro_sha256": "7899266fd232f2854990d4fe41c8da147607e086bc22a41ce3cf0c7b6c01c42a",
+  "observer_sha256": "b34b6e1df76d8d46050d622546a8bac21641c82770453ea840db055685c8c6b1",
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\persistent\\persistent.sldprt",
+      "sha256": "8339c62260e50fe38146ae26472bba87c407b2f2e7eeb0764d70149100716190"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\persistent\\macro.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\persistent\\observed.json",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\persistent\\runner.json"
+  ],
+  "allowed_dialogs": []
+}

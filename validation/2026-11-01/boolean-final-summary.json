@@ -1,0 +1,16 @@
+[
+  {
+    "case": "positive",
+    "status": "PASS",
+    "expected_runner_status": "PASS",
+    "actual_runner_status": "PASS",
+    "source_unchanged": true
+  },
+  {
+    "case": "invalid-log-parent",
+    "status": "PASS",
+    "expected_runner_status": "FAIL",
+    "actual_runner_status": "FAIL",
+    "source_unchanged": true
+  }
+]

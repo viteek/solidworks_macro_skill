@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\hole_linear",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": true,
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "macro_sha256": "f8cc8ad22368ad98cea5fdd939379ad17676094bfe6658df08a581e32ccfde94",
+  "observer_sha256": "44c5743db98ad5e40efe44c53c8a07339fe232294c3045928201e4345ed16871",
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\hole_linear\\hole_linear.sldprt",
+      "sha256": "a8acf842bff5f1770fc7974cd172b45081e9c2b98c82dfd0f3c93d927f530c41"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\hole_linear\\macro.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\hole_linear\\observed.json",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\hole_linear\\runner.json"
+  ],
+  "allowed_dialogs": []
+}

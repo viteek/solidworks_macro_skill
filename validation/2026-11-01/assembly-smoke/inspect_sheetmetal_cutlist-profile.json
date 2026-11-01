@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": true,
+  "macro_sha256": "6a218605f40b8364f3f19a5308bda92b7f451c256c89be67adf7d38a7c702b4f",
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\assembly.asmdot",
+      "sha256": "e1c22591824d49f073944e6b5a97270a183479fe2d836e512f8efc78d7c5a172"
+    },
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\blank.sldprt",
+      "sha256": "8339c62260e50fe38146ae26472bba87c407b2f2e7eeb0764d70149100716190"
+    },
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\block.sldprt",
+      "sha256": "a8acf842bff5f1770fc7974cd172b45081e9c2b98c82dfd0f3c93d927f530c41"
+    },
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\drawing.drwdot",
+      "sha256": "a8c5c284ef5b0a0fd95042af9c17ddee29ce5996318b7b94c46d0c000345dc37"
+    },
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\fixture.SLDASM",
+      "sha256": "5289aeb18b8b2c9e09d92bd4c8691bb502af42f9b6e590048927e79ae8e6c745"
+    },
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\fixture.SLDDRW",
+      "sha256": "4ef423c55327d560314e225fdf56e20dcda52019fdf852f7ba856977539ce133"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\inspect_sheetmetal_cutlist.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\inspect_sheetmetal_cutlist-runner.json"
+  ],
+  "allowed_dialogs": []
+}

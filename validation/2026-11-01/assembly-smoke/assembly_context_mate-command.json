@@ -1,0 +1,23 @@
+[
+  "C:\\Users\\micha\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "-B",
+  "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\scripts\\run_in_solidworks.py",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\assembly_context_mate.bas",
+  "--profile",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\assembly_context_mate-profile.json",
+  "--open",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\fixture.sldasm",
+  "--confirm-model-changes",
+  "--close-opened",
+  "--timeout",
+  "45.0",
+  "--json",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\assembly_context_mate-runner.json",
+  "--define",
+  "SHOW_MESSAGES=False",
+  "--define",
+  "RESULT_PATH=\"C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\assembly_context_mate.log\"",
+  "--expect-text",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\assembly_context_mate.log",
+  "RESULT assembly_context_mate PASS"
+]

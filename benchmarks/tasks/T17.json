@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "task_id": "T17",
+  "family": "sheetmetal_export",
+  "title": "Export rectangular flat blank",
+  "fixture": {
+    "id": "flat-sheet",
+    "revision": "1"
+  },
+  "fixture_instructions": "Create centered 100 x 50 mm sheet metal base flange, thickness 2 mm, bend radius 2 mm, K-factor 0.5, no bends. Name Sheet-Metal and Flat-Pattern deterministically; save folded Default. Output folder empty.",
+  "request": "Export geometry-only flat DXF outputs/blank.dxf; independently parse model-space geometry dimensions in mm, units and closed outer contour.",
+  "api_candidates": [
+    "IPartDoc.ExportToDWG2",
+    "IBody2.IsSheetMetal"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "blank.dxf",
+      "op": "file",
+      "file": "outputs/blank.dxf",
+      "min_bytes": 20,
+      "contains": [
+        "SECTION",
+        "ENTITIES",
+        "EOF"
+      ]
+    },
+    {
+      "id": "dxf_width_mm",
+      "path": "/dxf/width_mm",
+      "op": "number",
+      "expected": 100,
+      "abs_tol": 0.01
+    },
+    {
+      "id": "dxf_height_mm",
+      "path": "/dxf/height_mm",
+      "op": "number",
+      "expected": 50,
+      "abs_tol": 0.01
+    },
+    {
+      "id": "dxf_closed_outer_contours",
+      "path": "/dxf/closed_outer_contours",
+      "op": "equals",
+      "expected": 1
+    },
+    {
+      "id": "dxf_bend_line_count",
+      "path": "/dxf/bend_line_count",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "dxf_units",
+      "path": "/dxf/units",
+      "op": "equals",
+      "expected": "mm"
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

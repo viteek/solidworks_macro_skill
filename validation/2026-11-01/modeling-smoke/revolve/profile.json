@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\revolve",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": true,
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "macro_sha256": "e510ef143a74e08693f6a4c7917b02956edd5742bd096d4f426183b24e4c2ba7",
+  "observer_sha256": "5dcc959664f74090a7f80cecc2ae7feaa841d7474834d5b30ae5f1c6e2b8a1c3",
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\revolve\\revolve.sldprt",
+      "sha256": "8339c62260e50fe38146ae26472bba87c407b2f2e7eeb0764d70149100716190"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\revolve\\macro.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\revolve\\observed.json",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\revolve\\runner.json"
+  ],
+  "allowed_dialogs": []
+}

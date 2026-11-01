@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "task_id": "T19",
+  "family": "sheetmetal_export",
+  "title": "Export distinct bodies without collision",
+  "fixture": {
+    "id": "two-sheet-bodies",
+    "revision": "1"
+  },
+  "fixture_instructions": "Create multibody sheet metal part with two unmerged base flanges: 100x50x2 mm at origin and 60x40x2 mm translated 200 mm X. Separate cut-list items tagged CutId=A and CutId=B; update cut list, save Default. Output empty.",
+  "request": "Export outputs/A.dxf and outputs/B.dxf exactly once each, preserving two solid bodies and original configuration.",
+  "api_candidates": [
+    "IFeature.GetTypeName2",
+    "IBodyFolder.GetBodies",
+    "IPartDoc.ExportToDWG2"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "A.dxf",
+      "op": "file",
+      "file": "outputs/A.dxf",
+      "min_bytes": 20,
+      "contains": [
+        "ENTITIES",
+        "EOF"
+      ]
+    },
+    {
+      "id": "B.dxf",
+      "op": "file",
+      "file": "outputs/B.dxf",
+      "min_bytes": 20,
+      "contains": [
+        "ENTITIES",
+        "EOF"
+      ]
+    },
+    {
+      "id": "exported_files",
+      "path": "/exported_files",
+      "op": "unordered_equals",
+      "expected": [
+        "A.dxf",
+        "B.dxf"
+      ]
+    },
+    {
+      "id": "A_width_mm",
+      "path": "/A/width_mm",
+      "op": "number",
+      "expected": 100,
+      "abs_tol": 0.01
+    },
+    {
+      "id": "B_width_mm",
+      "path": "/B/width_mm",
+      "op": "number",
+      "expected": 60,
+      "abs_tol": 0.01
+    },
+    {
+      "id": "solid_body_count",
+      "path": "/solid_body_count",
+      "op": "equals",
+      "expected": 2
+    },
+    {
+      "id": "active_configuration",
+      "path": "/active_configuration",
+      "op": "equals",
+      "expected": "Default"
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

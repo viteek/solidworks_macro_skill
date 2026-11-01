@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "task_id": "T02",
+  "family": "docs_properties",
+  "title": "Configuration property precedence",
+  "fixture": {
+    "id": "config-part",
+    "revision": "1"
+  },
+  "fixture_instructions": "Use properties-part recipe; add configurations Default and Long; document PartNo=P-001; Long configuration PartNo=P-002; Default has no configuration PartNo. Activate Default and save baseline.",
+  "request": "Resolve PartNo with configuration precedence and document fallback for both configurations; restore Default.",
+  "api_candidates": [
+    "IModelDocExtension.CustomPropertyManager",
+    "ICustomPropertyManager.Get6",
+    "IModelDoc2.ShowConfiguration2"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "resolved_Default",
+      "path": "/resolved/Default",
+      "op": "equals",
+      "expected": "P-001"
+    },
+    {
+      "id": "resolved_Long",
+      "path": "/resolved/Long",
+      "op": "equals",
+      "expected": "P-002"
+    },
+    {
+      "id": "active_configuration",
+      "path": "/active_configuration",
+      "op": "equals",
+      "expected": "Default"
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

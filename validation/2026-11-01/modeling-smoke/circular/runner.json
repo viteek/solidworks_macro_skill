@@ -1,0 +1,33 @@
+{
+  "macro": "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\recipes\\modeling\\circular-pattern\\circular_pattern.bas",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "TestMacro",
+  "macro_sha256": "42d1a794641e38cc12418053f63e66d109b9e23dcb4c2a48f26f7bbc7b34f0a7",
+  "project_format": "swb",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\circular\\circular.sldprt",
+  "seconds": 0.9,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": false,
+  "run_error": "OK",
+  "observation_ok": null,
+  "observation_error": null,
+  "observer_sha256": "e5c62ce41f16d2dab6e7ce457a9fa12f56b9b993572caf3d43159b2696da90f5",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\circular\\circular.sldprt"
+  ],
+  "expectations_failed": [
+    "missing: C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\circular\\observed.json",
+    "text 'RESULT circular_pattern OK' not found in C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\circular\\macro.log"
+  ],
+  "hint": "Macro did not start and showed no error - almost always a COMPILE error (undeclared variable, unknown member, wrong argument count, syntax). Run check_api.py and check_vba.py on it.",
+  "status": "FAIL",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

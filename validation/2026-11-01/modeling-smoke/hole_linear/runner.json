@@ -1,0 +1,33 @@
+{
+  "macro": "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\recipes\\modeling\\hole-linear-pattern\\hole_linear_pattern.bas",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "TestMacro",
+  "macro_sha256": "f8cc8ad22368ad98cea5fdd939379ad17676094bfe6658df08a581e32ccfde94",
+  "project_format": "swb",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\hole_linear\\hole_linear.sldprt",
+  "seconds": 0.9,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": false,
+  "run_error": "OK",
+  "observation_ok": null,
+  "observation_error": null,
+  "observer_sha256": "44c5743db98ad5e40efe44c53c8a07339fe232294c3045928201e4345ed16871",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\hole_linear\\hole_linear.sldprt"
+  ],
+  "expectations_failed": [
+    "missing: C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\hole_linear\\observed.json",
+    "text 'RESULT hole_linear_pattern OK' not found in C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\hole_linear\\macro.log"
+  ],
+  "hint": "Macro did not start and showed no error - almost always a COMPILE error (undeclared variable, unknown member, wrong argument count, syntax). Run check_api.py and check_vba.py on it.",
+  "status": "FAIL",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "task_id": "T22",
+  "family": "errors_resilience",
+  "title": "Reject wrong document type",
+  "fixture": {
+    "id": "drawing-for-part-operation",
+    "revision": "1"
+  },
+  "fixture_instructions": "Open only two-sheet-drawing as active document. Record before hashes, sheet/view inventory and dirty flag=False.",
+  "request": "Request part-only through-hole operation; return WRONG_DOCUMENT_TYPE without creating features or files.",
+  "api_candidates": [
+    "IModelDoc2.GetType"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "outcome",
+      "path": "/outcome",
+      "op": "equals",
+      "expected": "WRONG_DOCUMENT_TYPE"
+    },
+    {
+      "id": "handled",
+      "path": "/handled",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "document_type",
+      "path": "/document_type",
+      "op": "equals",
+      "expected": "DrawingDoc"
+    },
+    {
+      "id": "model_view_count",
+      "path": "/model_view_count",
+      "op": "equals",
+      "expected": 3
+    },
+    {
+      "id": "files_created",
+      "path": "/files_created",
+      "op": "equals",
+      "expected": []
+    },
+    {
+      "id": "dirty",
+      "path": "/dirty",
+      "op": "equals",
+      "expected": false
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

@@ -1,0 +1,110 @@
+name: Manual SOLIDWORKS integration
+on:
+  workflow_dispatch:
+    inputs:
+      macro:
+        description: Absolute path to reviewed macro on dedicated runner
+        required: true
+        type: string
+      profile:
+        description: Absolute path to reviewed hash-bound test profile
+        required: true
+        type: string
+      open_document:
+        description: Absolute path to declared disposable CAD input
+        required: true
+        type: string
+      report:
+        description: Absolute declared JSON report output inside test root
+        required: true
+        type: string
+      module:
+        description: Reviewed module name (mandatory for native .swp)
+        default: ''
+        type: string
+      entry:
+        description: Reviewed entry procedure (mandatory for native .swp)
+        default: ''
+        type: string
+      observer:
+        description: Optional absolute reviewed source observer path
+        default: ''
+        type: string
+      model_changes:
+        description: Explicitly confirm reviewed changes to disposable copies
+        default: false
+        type: boolean
+      installation_dir:
+        description: Optional absolute installed API directory (including 3DEXPERIENCE)
+        default: ''
+        type: string
+      timeout_seconds:
+        description: Runner wait limit; timeout does not stop VBA
+        default: '600'
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: solidworks-test-desktop
+  cancel-in-progress: false
+jobs:
+  integration:
+    runs-on: [self-hosted, Windows, X64, solidworks-test]
+    timeout-minutes: 30
+    env:
+      SW_MACRO: ${{ inputs.macro }}
+      SW_PROFILE: ${{ inputs.profile }}
+      SW_OPEN: ${{ inputs.open_document }}
+      SW_REPORT: ${{ inputs.report }}
+      SW_MODULE: ${{ inputs.module }}
+      SW_ENTRY: ${{ inputs.entry }}
+      SW_OBSERVER: ${{ inputs.observer }}
+      SW_MODEL_CHANGES: ${{ inputs.model_changes }}
+      SW_INSTALLATION: ${{ inputs.installation_dir }}
+      SW_TIMEOUT: ${{ inputs.timeout_seconds }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate paths and inspect installed API without COM
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Path integration-artifacts -Force | Out-Null
+          foreach ($path in @($env:SW_MACRO, $env:SW_PROFILE, $env:SW_OPEN, $env:SW_REPORT)) {
+            if (-not [IO.Path]::IsPathFullyQualified($path)) { throw 'All execution paths must be absolute' }
+          }
+          foreach ($path in @($env:SW_MACRO, $env:SW_PROFILE, $env:SW_OPEN)) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw 'Reviewed input file is missing' }
+          }
+          if ([IO.Path]::GetExtension($env:SW_REPORT) -ne '.json') { throw 'Report must be JSON' }
+          if ($env:SW_OBSERVER -and (-not [IO.Path]::IsPathFullyQualified($env:SW_OBSERVER) -or -not (Test-Path -LiteralPath $env:SW_OBSERVER -PathType Leaf))) { throw 'Observer must be an absolute existing file' }
+          if ($env:SW_INSTALLATION -and -not [IO.Path]::IsPathFullyQualified($env:SW_INSTALLATION)) { throw 'Installation directory must be absolute' }
+          $waitSeconds = 0.0
+          if (-not [double]::TryParse($env:SW_TIMEOUT, [ref]$waitSeconds) -or -not [double]::IsFinite($waitSeconds) -or $waitSeconds -le 0 -or $waitSeconds -gt 1200) { throw 'Timeout must be finite, >0 and <=1200 seconds' }
+          $inspectArgs = @('scripts/verify_environment.py', '--json', 'integration-artifacts/environment.json', '--require-api')
+          if ($env:SW_INSTALLATION) { $inspectArgs += @('--sw-dir', $env:SW_INSTALLATION) }
+          & python @inspectArgs
+          if ($LASTEXITCODE -ne 0) { throw 'Installed API inspection failed; no live test started' }
+      - name: Run reviewed macro on declared test copies
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $runnerArgs = @('scripts/run_in_solidworks.py', $env:SW_MACRO, '--profile', $env:SW_PROFILE, '--open', $env:SW_OPEN, '--json', $env:SW_REPORT, '--timeout', $env:SW_TIMEOUT, '--strict-dialogs', '--close-opened')
+          if ($env:SW_MODULE) { $runnerArgs += @('--module', $env:SW_MODULE) }
+          if ($env:SW_ENTRY) { $runnerArgs += @('--entry', $env:SW_ENTRY) }
+          if ($env:SW_OBSERVER) { $runnerArgs += @('--observe', $env:SW_OBSERVER) }
+          if ($env:SW_MODEL_CHANGES -eq 'true') { $runnerArgs += '--confirm-model-changes' }
+          $startedUtc = [DateTime]::UtcNow
+          & python @runnerArgs 2>&1 | Tee-Object -FilePath integration-artifacts/runner-stdout.txt
+          $runnerExit = $LASTEXITCODE
+          if (Test-Path -LiteralPath $env:SW_REPORT -PathType Leaf) {
+            $reportFile = Get-Item -LiteralPath $env:SW_REPORT
+            if ($reportFile.LastWriteTimeUtc -ge $startedUtc) { Copy-Item -LiteralPath $env:SW_REPORT -Destination integration-artifacts/runner-report.json }
+          }
+          exit $runnerExit
+      - name: Preserve inspection and execution evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: solidworks-integration-${{ github.run_id }}
+          path: integration-artifacts/
+          if-no-files-found: warn

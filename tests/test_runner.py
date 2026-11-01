@@ -1,5 +1,6 @@
 """Run the real CLI flow with COM and Windows UI replaced at their boundaries."""
 import contextlib
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -16,6 +17,24 @@ import run_in_solidworks as runner
 
 class RunnerTests(unittest.TestCase):
     def setUp(self):
+        if runner.pythoncom is None:
+            # Linux CI: replace only the absent Windows boundaries. Runner/profile,
+            # state files, locking, code preparation and report checks remain real.
+            boundaries = {
+                'pythoncom': types.SimpleNamespace(CoInitialize=lambda: None, CoUninitialize=lambda: None,
+                    VT_BYREF=0x4000, VT_I4=3, com_error=OSError),
+                'w32': types.SimpleNamespace(GetActiveObject=lambda _: None, GetObject=lambda _: None,
+                    dynamic=types.SimpleNamespace(Dispatch=lambda x: x),
+                    VARIANT=lambda kind, value: types.SimpleNamespace(value=value)),
+                'win32gui': types.SimpleNamespace(error=OSError, IsWindowVisible=lambda _: True,
+                    IsWindowEnabled=lambda _: True, GetClassName=lambda _: '', GetWindowText=lambda _: '',
+                    PostMessage=lambda *args: None),
+                'win32process': types.SimpleNamespace(GetWindowThreadProcessId=lambda _: (0, 0)),
+                'win32con': types.SimpleNamespace(BM_CLICK=0xF5)}
+            for name, value in boundaries.items():
+                patcher = patch.object(runner, name, value)
+                patcher.start()
+                self.addCleanup(patcher.stop)
         self.directory = tempfile.TemporaryDirectory(prefix='sw-runner-test-')
         self.addCleanup(self.directory.cleanup)
         self.root = Path(self.directory.name)
@@ -23,11 +42,37 @@ class RunnerTests(unittest.TestCase):
         self.macro.write_text('Option Explicit\nSub main()\nEnd Sub\n')
         self.report = self.root / 'report.json'
 
-    def invoke(self, *args, operation=None, dialog=False, buttons=None):
+    def invoke(self, *args, operation=None, dialog=False, buttons=None, allowed=False, with_profile=True, dependencies=None, existing_docs=None, second_dialog=False, reviewed_module='TestMacro', observe_operation=None, attachment_error=None, run_error=0, api_return=None, mutating=False):
         release = threading.Event()
         finished = threading.Event()
         busy = threading.Event()
+        worker_finished = threading.Event()
+        self.macro_calls = []
         test_case = self
+        source = self.root / 'copy.sldprt'
+        source.write_bytes(b'test copy')
+        profile = self.root / 'profile.json'
+        outputs = [str(self.report)]
+        for index, value in enumerate(args):
+            if value in ('--expect-text', '--expect-file'):
+                outputs.append(args[index + 1])
+        profile_data = {
+            'schema_version': 1, 'test_root': str(self.root), 'reviewed': True, 'copies_confirmed': True,
+            'allow_model_changes': mutating,
+            'macro_sha256': hashlib.sha256(self.macro.read_bytes() if self.macro.suffix == '.swp' else self.macro.read_text().encode('utf-8')).hexdigest(),
+            'entry_point': {'module': reviewed_module, 'procedure': 'main'},
+            'inputs': [{'path': str(source), 'sha256': hashlib.sha256(b'test copy').hexdigest()}],
+            'outputs': outputs,
+            'allowed_dialogs': [{'title': 'SOLIDWORKS', 'text': 'Overwrite existing output?',
+                                 'answer': 'yes'}] if allowed else []}
+        if '--observe' in args:
+            observer = Path(args[args.index('--observe') + 1])
+            profile_data['observer_sha256'] = hashlib.sha256(observer.read_text().encode('utf-8')).hexdigest()
+        profile.write_text(json.dumps(profile_data))
+
+        class Document:
+            GetPathName = str(source)
+            GetTitle = source.name
 
         class SolidWorks:
             RevisionNumber = 'test boundary'
@@ -37,17 +82,34 @@ class RunnerTests(unittest.TestCase):
             def GetDocuments(self):
                 if busy.is_set():
                     raise AssertionError('COM queried while RunMacro2 is still running')
-                return []
+                return existing_docs or []
+
+            def GetDocumentDependencies2(self, path, traverse, search, readonly):
+                test_case.assertEqual((path, traverse, readonly), (str(source), True, False))
+                if isinstance(dependencies, BaseException):
+                    raise dependencies
+                return dependencies or []
+
+            def OpenDoc6(self, *unused):
+                return Document()
+
+            def ActivateDoc3(self, *unused):
+                return Document()
 
             def RunMacro2(self, swb, *unused):
                 try:
-                    test_case.generated_code = Path(swb).read_text(encoding='cp1250')
-                    if operation == 'wait':
+                    test_case.macro_calls.append(Path(swb).stem)
+                    test_case.generated_bytes = Path(swb).read_bytes()
+                    test_case.entry_point = unused[:2]
+                    test_case.generated_code = Path(swb).read_text(encoding='cp1250') if Path(swb).suffix != '.swp' else None
+                    current = observe_operation if Path(swb).stem == 'ObserveMacro' else operation
+                    if current == 'wait':
                         busy.set()
                         release.wait(5)
-                    elif operation:
-                        operation()
-                    return True
+                    elif current:
+                        current()
+                    unused[-1].value = run_error
+                    return run_error == 0 if api_return is None else api_return
                 finally:
                     busy.clear()
                     finished.set()
@@ -56,16 +118,24 @@ class RunnerTests(unittest.TestCase):
         def start_watcher(watcher):
             if dialog:
                 watcher._check(100, None)
+                if second_dialog:
+                    watcher._check(200, None)
 
         with contextlib.ExitStack() as stack:
             stack.enter_context(patch.object(sys, 'argv', [
-                'run_in_solidworks.py', str(self.macro), '--json', str(self.report), *args]))
-            stack.enter_context(patch.object(runner.w32, 'GetActiveObject', return_value=sw))
+                'run_in_solidworks.py', str(self.macro), '--json', str(self.report),
+                *(['--profile', str(profile), '--open', str(source)] if with_profile else []), *args]))
+            stack.enter_context(patch.object(runner, 'SESSION_PATH', self.root / 'session.json', create=True))
+            stack.enter_context(patch.object(runner, 'LOCK_PATH', self.root / 'session.lock', create=True))
+            stack.enter_context(patch.object(runner.w32, 'GetActiveObject', return_value=sw, side_effect=attachment_error))
             stack.enter_context(patch.object(runner.w32.dynamic, 'Dispatch', side_effect=lambda x: x))
             stack.enter_context(patch.object(runner.w32, 'GetObject', return_value=types.SimpleNamespace(
                 ExecQuery=lambda _: [types.SimpleNamespace(ProcessId=123)])))
             stack.enter_context(patch.object(runner.pythoncom, 'CoInitialize'))
-            stack.enter_context(patch.object(runner.pythoncom, 'CoUninitialize'))
+            def uninitialize():
+                if threading.current_thread() is not threading.main_thread():
+                    worker_finished.set()
+            stack.enter_context(patch.object(runner.pythoncom, 'CoUninitialize', side_effect=uninitialize))
             stack.enter_context(patch.object(runner.DialogWatcher, 'start', start_watcher))
             stack.enter_context(patch.object(runner.DialogWatcher, 'join'))
             stack.enter_context(patch.object(runner.win32gui, 'IsWindowVisible', return_value=True))
@@ -77,13 +147,22 @@ class RunnerTests(unittest.TestCase):
                 ['Overwrite existing output?'], buttons if buttons is not None else [(101, 'Yes'), (102, 'No')])))
             stack.enter_context(patch.object(runner, 'has_child_class', return_value=False))
             clicks = stack.enter_context(patch.object(runner.win32gui, 'PostMessage'))
-            stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
+            output = stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
             try:
                 status = runner.main()
-                return status, json.loads(self.report.read_text()), clicks.call_args_list
+                return status, json.loads(output.getvalue()), clicks.call_args_list
             finally:
                 release.set()
-                finished.wait(2)
+                if self.macro_calls:
+                    worker_finished.wait(2)
+
+    def test_in_memory_mutation_permission_never_allows_saving_a_hashed_input(self):
+        status, report, _ = self.invoke('--confirm-model-changes', mutating=True,
+            operation=lambda: (self.root / 'copy.sldprt').write_bytes(b'unexpected Save3'))
+        self.assertEqual(status, 1, report)
+        self.assertEqual(report['status'], 'FAIL')
+        self.assertTrue(report['expectations_failed'])
+        self.assertEqual(report['session_state'], 'IDLE')
 
     def test_timeout_writes_failure_report_without_querying_busy_com(self):
         status, report, _ = self.invoke('--timeout', '0.01', operation='wait')
@@ -91,10 +170,101 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(report['status'], 'FAIL')
         self.assertTrue(report['timed_out'])
         self.assertIsNone(report['documents_left_open'])
+        self.assertEqual(json.loads((self.root / 'session.json').read_text())['state'], 'UNKNOWN')
+        status, report, _ = self.invoke()
+        self.assertEqual(status, 2)
+        self.assertEqual(report['status'], 'BLOCKED_SESSION')
+
+    def test_profile_is_required_before_connecting_to_solidworks(self):
+        status, report, _ = self.invoke(with_profile=False)
+        self.assertEqual(status, 2)
+        self.assertEqual(report['status'], 'PREFLIGHT_FAILED')
+
+    def test_native_project_is_run_without_text_conversion(self):
+        self.macro = self.root / 'complete-project.swp'
+        self.macro.write_bytes(b'\xd0\xcf\x11\xe0\x00\x81binary-project')
+        status, report, _ = self.invoke('--module', 'FixtureModule', '--entry', 'main', reviewed_module='FixtureModule')
+        self.assertEqual(status, 0, report)
+        self.assertEqual(self.generated_bytes, self.macro.read_bytes())
+        self.assertEqual(self.entry_point, ('FixtureModule', 'main'))
+        self.assertEqual(report['project_format'], 'swp')
+        self.assertEqual(report['compilation_status'], 'NOT_TESTED')
+
+    def test_different_procedure_is_rejected_after_profile_review(self):
+        status, report, _ = self.invoke('--entry', 'OtherProcedure')
+        self.assertEqual(status, 2)
+        self.assertFalse(hasattr(self, 'generated_bytes'))
+
+    def test_observer_runs_before_cleanup_and_checks_its_output(self):
+        observer = self.root / 'observer.bas'
+        observer.write_text('Option Explicit\nSub main()\nEnd Sub\n')
+        output = self.root / 'observations.json'
+        status, report, _ = self.invoke('--observe', str(observer), '--expect-file', str(output),
+            observe_operation=lambda: output.write_text('{"solid_count":1}'))
+        self.assertEqual(status, 0, report)
+        self.assertTrue(report['observation_ok'])
+        self.assertEqual(self.entry_point, ('ObserveMacro', 'main'))
+
+    def test_observer_timeout_keeps_session_blocked(self):
+        observer = self.root / 'observer.bas'
+        observer.write_text('Option Explicit\nSub main()\nEnd Sub\n')
+        status, report, _ = self.invoke('--observe', str(observer), '--timeout', '0.01', observe_operation='wait')
+        self.assertEqual(status, 1)
+        self.assertTrue(report['timed_out'])
+        self.assertIsNone(report['documents_left_open'])
+        self.assertEqual(json.loads((self.root / 'session.json').read_text())['state'], 'UNKNOWN')
+
+    def test_external_dependency_is_rejected_before_macro_runs(self):
+        status, report, _ = self.invoke(dependencies=['production', str(self.root.parent / 'production.sldprt')])
+        self.assertEqual(status, 2)
+        self.assertFalse(hasattr(self, 'generated_code'))
+
+    def test_com_exception_during_preflight_leaves_unknown_session(self):
+        error = runner.pythoncom.com_error(-2147418111, 'COM call rejected', None, None)
+        status, report, _ = self.invoke(dependencies=error)
+        self.assertEqual(report['status'], 'EXECUTION_UNKNOWN')
+        self.assertEqual(json.loads((self.root / 'session.json').read_text())['state'], 'UNKNOWN')
+
+    def test_com_attachment_exception_is_not_reclassified_as_a_safe_validation_failure(self):
+        error = runner.pythoncom.com_error(-2147418111, 'COM call rejected', None, None)
+        status, report, _ = self.invoke(attachment_error=error)
+        self.assertEqual(report['status'], 'EXECUTION_UNKNOWN')
+        self.assertEqual(json.loads((self.root / 'session.json').read_text())['state'], 'UNKNOWN')
+
+    def test_busy_run_error_does_not_query_documents_or_clear_session(self):
+        status, report, _ = self.invoke(run_error=17)
+        self.assertEqual(status, 1)
+        self.assertEqual(report['run_error'], 'Busy')
+        self.assertIsNone(report['documents_left_open'])
+        self.assertEqual(json.loads((self.root / 'session.json').read_text())['state'], 'UNKNOWN')
+
+    def test_nonzero_run_error_cannot_pass_even_with_true_return(self):
+        status, report, _ = self.invoke(run_error=22, api_return=True)
+        self.assertEqual(status, 1)
+        self.assertEqual(report['run_error'], 'Invalidindex')
+
+    def test_primary_macro_cannot_start_observer_after_timeout(self):
+        observer = self.root / 'observer.bas'
+        observer.write_text('Option Explicit\nSub main()\nEnd Sub\n')
+        status, report, _ = self.invoke('--observe', str(observer), '--timeout', '0.01', operation='wait')
+        self.assertEqual(status, 1)
+        self.assertTrue(report['timed_out'])
+        self.assertEqual(self.macro_calls, ['TestMacro'])
+
+    def test_production_document_in_session_is_rejected(self):
+        doc = types.SimpleNamespace(GetPathName=str(self.root.parent / 'production.sldprt'), GetTitle='production')
+        status, report, _ = self.invoke(existing_docs=[doc])
+        self.assertEqual(status, 2)
+        self.assertFalse(hasattr(self, 'generated_code'))
 
     def test_default_leaves_confirmation_unanswered(self):
         status, report, clicks = self.invoke(dialog=True)
         self.assertEqual(status, 1)
+        self.assertEqual(report['status'], 'BLOCKED_DIALOG')
+        self.assertEqual(clicks, [])
+
+    def test_answer_without_matching_allowlist_leaves_confirmation_unanswered(self):
+        status, report, clicks = self.invoke('--answer', 'yes', dialog=True)
         self.assertEqual(report['status'], 'BLOCKED_DIALOG')
         self.assertEqual(clicks, [])
 
@@ -106,13 +276,13 @@ class RunnerTests(unittest.TestCase):
         self.assertIsNone(report['documents_left_open'])
 
     def test_explicit_yes_answers_the_matching_button(self):
-        status, report, clicks = self.invoke('--answer', 'yes', dialog=True)
+        status, report, clicks = self.invoke('--answer', 'yes', dialog=True, allowed=True)
         self.assertEqual(status, 0)
         self.assertEqual(report['status'], 'PASS')
         self.assertEqual(clicks[0].args[:2], (101, runner.win32con.BM_CLICK))
 
     def test_missing_requested_button_blocks_instead_of_clicking_ok(self):
-        status, report, clicks = self.invoke('--answer', 'no', dialog=True, buttons=[(101, 'Yes')])
+        status, report, clicks = self.invoke('--answer', 'yes', dialog=True, allowed=True, buttons=[(101, 'OK')])
         self.assertEqual(status, 1)
         self.assertEqual(report['status'], 'BLOCKED_DIALOG')
         self.assertEqual(clicks, [])
@@ -121,6 +291,11 @@ class RunnerTests(unittest.TestCase):
         status, report, clicks = self.invoke('--answer', 'yes', '--strict-dialogs', dialog=True)
         self.assertEqual(report['status'], 'BLOCKED_DIALOG')
         self.assertEqual(clicks, [])
+
+    def test_allowlist_answers_at_most_one_dialog_per_run(self):
+        status, report, clicks = self.invoke('--answer', 'yes', allowed=True, dialog=True, second_dialog=True)
+        self.assertEqual(report['status'], 'BLOCKED_DIALOG')
+        self.assertEqual(len(clicks), 1)
 
     def test_explicit_answer_preserves_native_message_calls_and_string_literals(self):
         code = ('Option Explicit\nSub main()\n'

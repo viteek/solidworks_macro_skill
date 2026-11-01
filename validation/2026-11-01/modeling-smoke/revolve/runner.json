@@ -1,0 +1,29 @@
+{
+  "macro": "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\recipes\\modeling\\revolve\\revolve_ring.bas",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "TestMacro",
+  "macro_sha256": "e510ef143a74e08693f6a4c7917b02956edd5742bd096d4f426183b24e4c2ba7",
+  "project_format": "swb",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\revolve\\revolve.sldprt",
+  "seconds": 2.1,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": true,
+  "run_error": "OK",
+  "observation_ok": true,
+  "observation_error": 0,
+  "observer_sha256": "5dcc959664f74090a7f80cecc2ae7feaa841d7474834d5b30ae5f1c6e2b8a1c3",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\modeling-smoke\\revolve\\revolve.sldprt"
+  ],
+  "expectations_failed": [],
+  "status": "PASS",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

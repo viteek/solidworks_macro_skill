@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "task_id": "T16",
+  "family": "drawings",
+  "title": "Rename a sheet and restore active sheet",
+  "fixture": {
+    "id": "two-sheet-drawing",
+    "revision": "1"
+  },
+  "fixture_instructions": "Use two-sheet-drawing recipe with Sheet1 active and Front/Top views on Sheet1, Right view on Sheet2. Save baseline.",
+  "request": "Rename Sheet2 to Detail; retain Sheet1 active and preserve all model view references.",
+  "api_candidates": [
+    "IDrawingDoc.ActivateSheet",
+    "ISheet.SetName",
+    "IView.ReferencedDocument"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "sheets",
+      "path": "/sheets",
+      "op": "unordered_equals",
+      "expected": [
+        "Sheet1",
+        "Detail"
+      ]
+    },
+    {
+      "id": "active_sheet",
+      "path": "/active_sheet",
+      "op": "equals",
+      "expected": "Sheet1"
+    },
+    {
+      "id": "model_views",
+      "path": "/model_views",
+      "op": "unordered_equals",
+      "expected": [
+        "Sheet1/Front",
+        "Sheet1/Top",
+        "Detail/Right"
+      ]
+    },
+    {
+      "id": "broken_view_references",
+      "path": "/broken_view_references",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

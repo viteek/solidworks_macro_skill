@@ -1,0 +1,28 @@
+{
+  "macro": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\saved-input-rejected\\probe.bas",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "TestMacro",
+  "macro_sha256": "b5f769a8380cf42385e7e7ac45a4cbdf0f347ec9e4975ea9ec2c1effe9d0f396",
+  "project_format": "swb",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\saved-input-rejected\\copy.sldprt",
+  "seconds": 1.2,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": true,
+  "run_error": "OK",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\saved-input-rejected\\copy.sldprt"
+  ],
+  "expectations_failed": [
+    "Input copy missing, moved outside test_root, or changed since review: c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\saved-input-rejected\\copy.sldprt"
+  ],
+  "status": "FAIL",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

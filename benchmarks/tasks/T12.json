@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "task_id": "T12",
+  "family": "assemblies",
+  "title": "Resolve lightweight without unsuppressing",
+  "fixture": {
+    "id": "lightweight-assembly",
+    "revision": "1"
+  },
+  "fixture_instructions": "Use assembly-tree recipe. Reopen Top with lightweight loading; record Bolt-1 lightweight=True, Spare-1 suppressed=True. If installed settings cannot produce lightweight state, mark fixture NOT_TESTED.",
+  "request": "Resolve all lightweight components needed for traversal; leave Spare-1 suppressed and active assembly unchanged.",
+  "api_candidates": [
+    "IAssemblyDoc.ResolveAllLightWeightComponents",
+    "IComponent2.GetSuppression",
+    "IComponent2.GetModelDoc2"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "lightweight_before",
+      "path": "/lightweight_before",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "unresolved_after",
+      "path": "/unresolved_after",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "spare_suppressed",
+      "path": "/spare_suppressed",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "active_document",
+      "path": "/active_document",
+      "op": "equals",
+      "expected": "Top.sldasm"
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

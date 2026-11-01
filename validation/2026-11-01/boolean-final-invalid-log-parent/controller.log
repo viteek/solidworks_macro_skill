@@ -1,0 +1,28 @@
+{
+  "macro": "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\assets\\diagnostic-macros\\boolean_probe.bas",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "TestMacro",
+  "macro_sha256": "30cdaed0582cda8b1849bd3671c85e28ebe2f8248275dff5aa29c822bc95ecb6",
+  "project_format": "swb",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-final-invalid-log-parent\\copy.sldprt",
+  "seconds": 0.9,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": true,
+  "run_error": "OK",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-final-invalid-log-parent\\copy.sldprt"
+  ],
+  "expectations_failed": [
+    "text 'RESULT=PASS' not found in C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-final-invalid-log-parent\\missing\\macro.log"
+  ],
+  "status": "FAIL",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

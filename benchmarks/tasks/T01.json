@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "task_id": "T01",
+  "family": "docs_properties",
+  "title": "Read document properties",
+  "fixture": {
+    "id": "properties-part",
+    "revision": "1"
+  },
+  "fixture_instructions": "Create a 100 x 50 x 10 mm rectangular boss named Base in Default configuration; set document text PartNo=P-001 and Description=Plate. Save baseline part.sldprt, close, reopen saved copy.",
+  "request": "Read document PartNo and Description without editing or saving.",
+  "api_candidates": [
+    "ICustomPropertyManager.Get6",
+    "IModelDoc2.GetType",
+    "IModelDoc2.GetSaveFlag"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "document_type",
+      "path": "/document_type",
+      "op": "equals",
+      "expected": "PartDoc"
+    },
+    {
+      "id": "properties_document_PartNo",
+      "path": "/properties/document/PartNo",
+      "op": "equals",
+      "expected": "P-001"
+    },
+    {
+      "id": "properties_document_Description",
+      "path": "/properties/document/Description",
+      "op": "equals",
+      "expected": "Plate"
+    },
+    {
+      "id": "dirty",
+      "path": "/dirty",
+      "op": "equals",
+      "expected": false
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

@@ -1,0 +1,29 @@
+{
+  "macro": "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\recipes\\sheetmetal\\create-flat-blank\\create_flat_blank.bas",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "TestMacro",
+  "macro_sha256": "98711857636fb1eb84890bcff5f9c4f4326939c11ba15b814f9661ff008c4c2f",
+  "project_format": "swb",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-final\\blank-copy.sldprt",
+  "seconds": 3.0,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": true,
+  "run_error": "OK",
+  "observation_ok": true,
+  "observation_error": 0,
+  "observer_sha256": "01976d41f736cdc5e800e17d8ee26b07a8e2ab1105547f3774b56e62fa1a7c1c",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-final\\blank-copy.sldprt"
+  ],
+  "expectations_failed": [],
+  "status": "PASS",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

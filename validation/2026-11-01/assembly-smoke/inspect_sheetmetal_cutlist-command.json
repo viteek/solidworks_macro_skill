@@ -1,0 +1,23 @@
+[
+  "C:\\Users\\micha\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "-B",
+  "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\scripts\\run_in_solidworks.py",
+  "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\recipes\\sheetmetal\\inspect_sheetmetal_cutlist.bas",
+  "--profile",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\inspect_sheetmetal_cutlist-profile.json",
+  "--open",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\block.sldprt",
+  "--confirm-model-changes",
+  "--close-opened",
+  "--timeout",
+  "45.0",
+  "--json",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\inspect_sheetmetal_cutlist-runner.json",
+  "--define",
+  "SHOW_MESSAGES=False",
+  "--define",
+  "RESULT_PATH=\"C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\inspect_sheetmetal_cutlist.log\"",
+  "--expect-text",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\inspect_sheetmetal_cutlist.log",
+  "RESULT inspect_sheetmetal_cutlist PASS"
+]

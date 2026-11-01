@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "task_id": "T23",
+  "family": "errors_resilience",
+  "title": "Reject invalid output path and restore state",
+  "fixture": {
+    "id": "base-part-invalid-output",
+    "revision": "1"
+  },
+  "fixture_instructions": "Use saved base-part and configure output path containing forbidden filename character bad:name.step beneath sandbox. Preselect Base with mark 0. Snapshot preferences and source hashes.",
+  "request": "Reject invalid filename before SaveAs with INVALID_OUTPUT_PATH; preserve Base selection and export preferences, create no files.",
+  "api_candidates": [
+    "IModelDocExtension.SaveAs",
+    "ISelectionMgr.GetSelectedObject6",
+    "ISldWorks.GetUserPreferenceIntegerValue"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "outcome",
+      "path": "/outcome",
+      "op": "equals",
+      "expected": "INVALID_OUTPUT_PATH"
+    },
+    {
+      "id": "handled",
+      "path": "/handled",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "files_created",
+      "path": "/files_created",
+      "op": "equals",
+      "expected": []
+    },
+    {
+      "id": "selection_name",
+      "path": "/selection/name",
+      "op": "equals",
+      "expected": "Base"
+    },
+    {
+      "id": "preferences_restored",
+      "path": "/preferences_restored",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "save_calls",
+      "path": "/save_calls",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

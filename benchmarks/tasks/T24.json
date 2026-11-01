@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "task_id": "T24",
+  "family": "errors_resilience",
+  "title": "Recover from missing selection",
+  "fixture": {
+    "id": "base-part",
+    "revision": "1"
+  },
+  "fixture_instructions": "Use base-part; clear every selection; record zero selection count and Base persistent identity. Set export preferences to recorded baseline and save source before run.",
+  "request": "Request face-only operation; return SELECTION_REQUIRED, restore global preferences and exit without model edits or save.",
+  "api_candidates": [
+    "ISelectionMgr.GetSelectedObjectCount2",
+    "ISelectionMgr.GetSelectedObject6"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "outcome",
+      "path": "/outcome",
+      "op": "equals",
+      "expected": "SELECTION_REQUIRED"
+    },
+    {
+      "id": "handled",
+      "path": "/handled",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "selection_count",
+      "path": "/selection/count",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "base_identity_preserved",
+      "path": "/base_identity_preserved",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "preferences_restored",
+      "path": "/preferences_restored",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "dirty",
+      "path": "/dirty",
+      "op": "equals",
+      "expected": false
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

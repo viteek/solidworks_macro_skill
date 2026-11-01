@@ -1,0 +1,220 @@
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\assets\diagnostic-macros\boolean_probe.bas:1
+OK    boolean_probe-1.bas: no issues found.
+OK    boolean_probe-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\assets\diagnostic-macros\create_blank_part_fixture.bas:1
+OK    create_blank_part_fixture-1.bas: no issues found.
+OK    create_blank_part_fixture-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\assets\diagnostic-macros\model_state_snapshot.bas:1
+OK    model_state_snapshot-1.bas: no issues found.
+OK    model_state_snapshot-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\assets\diagnostic-macros\save_fixture_copy.bas:1
+OK    save_fixture_copy-1.bas: no issues found.
+OK    save_fixture_copy-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\assets\diagnostic-macros\selection_diagnostic.bas:1
+OK    selection_diagnostic-1.bas: no issues found.
+OK    selection_diagnostic-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\assets\templates\assembly_traverse_template.bas:1
+OK    assembly_traverse_template-1.bas: no issues found.
+OK    assembly_traverse_template-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\assets\templates\batch_folder_template.bas:1
+OK    batch_folder_template-1.bas: no issues found.
+OK    batch_folder_template-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\assets\templates\safe_export_template.bas:1
+OK    safe_export_template-1.bas: no issues found.
+OK    safe_export_template-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\assets\templates\single_doc_template.bas:1
+OK    single_doc_template-1.bas: no issues found.
+OK    single_doc_template-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\assets\templates\source_metrics_template.bas:1
+OK    source_metrics_template-1.bas: no issues found.
+OK    source_metrics_template-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\assemblies\assembly_context_mate.bas:1
+OK    assembly_context_mate-1.bas: no issues found.
+OK    assembly_context_mate-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\assemblies\insert_component_transform.bas:1
+OK    insert_component_transform-1.bas: no issues found.
+OK    insert_component_transform-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\assemblies\mate_reference.bas:1
+OK    mate_reference-1.bas: no issues found.
+OK    mate_reference-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\drawings\create_three_views.bas:1
+OK    create_three_views-1.bas: no issues found.
+OK    create_three_views-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\drawings\inspect_drawing_semantics.bas:1
+WARN  inspect_drawing_semantics-1.bas:60: 'On Error Resume Next' without checking Err nearby - hides failures.
+OK    inspect_drawing_semantics-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\modeling\circular-pattern\circular_pattern.bas:1
+OK    circular_pattern-1.bas: no issues found.
+OK    circular_pattern-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\modeling\configuration-variants\configuration_variants.bas:1
+OK    configuration_variants-1.bas: no issues found.
+OK    configuration_variants-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\modeling\feature-modification\modify_extrude.bas:1
+OK    modify_extrude-1.bas: no issues found.
+OK    modify_extrude-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\modeling\hole-linear-pattern\hole_linear_pattern.bas:1
+OK    hole_linear_pattern-1.bas: no issues found.
+OK    hole_linear_pattern-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\modeling\revolve\revolve_ring.bas:1
+OK    revolve_ring-1.bas: no issues found.
+OK    revolve_ring-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\modeling\sketch-3d\sketch_3d.bas:1
+OK    sketch_3d-1.bas: no issues found.
+OK    sketch_3d-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\modeling\sketch-extrude\sketch_extrude.bas:1
+OK    sketch_extrude-1.bas: no issues found.
+OK    sketch_extrude-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\selection\persistent-reference\persistent_roundtrip.bas:1
+OK    persistent_roundtrip-1.bas: no issues found.
+OK    persistent_roundtrip-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\selection\plane-selection\plane_selection.bas:1
+OK    plane_selection-1.bas: no issues found.
+OK    plane_selection-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\sheetmetal\create-flat-blank\create_flat_blank.bas:1
+OK    create_flat_blank-1.bas: no issues found.
+OK    create_flat_blank-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\recipes\sheetmetal\inspect_sheetmetal_cutlist.bas:1
+WARN  inspect_sheetmetal_cutlist-1.bas:59: 'On Error Resume Next' without checking Err nearby - hides failures.
+OK    inspect_sheetmetal_cutlist-1.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\advanced-topics.md:87
+WARN  advanced-topics-87.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    advanced-topics-87.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\advanced-topics.md:104
+Fragment context: Dim swModel As SldWorks.ModelDoc2
+WARN  advanced-topics-104.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  advanced-topics-104.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    advanced-topics-104.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\advanced-topics.md:118
+Fragment context: Dim swApp As SldWorks.SldWorks
+WARN  advanced-topics-118.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  advanced-topics-118.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    advanced-topics-118.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\advanced-topics.md:151
+WARN  advanced-topics-151.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  advanced-topics-151.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    advanced-topics-151.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\advanced-topics.md:241
+WARN  advanced-topics-241.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    advanced-topics-241.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\advanced-topics.md:358
+Fragment context: Dim swModel As SldWorks.ModelDoc2
+WARN  advanced-topics-358.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  advanced-topics-358.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    advanced-topics-358.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\api-reference.md:152
+Fragment context: Dim swModel As SldWorks.ModelDoc2, Dim swFeat As SldWorks.Feature, Dim swSub As SldWorks.Feature
+WARN  api-reference-152.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  api-reference-152.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    api-reference-152.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\api-reference.md:172
+Fragment context: Dim swModel As SldWorks.ModelDoc2, Dim swSelMgr As SldWorks.SelectionMgr, Dim swComp As SldWorks.Component2
+WARN  api-reference-172.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  api-reference-172.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    api-reference-172.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\api-reference.md:188
+Fragment context: Dim swModel As SldWorks.ModelDoc2
+WARN  api-reference-188.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  api-reference-188.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    api-reference-188.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\api-reference.md:219
+Fragment context: Dim swModel As SldWorks.ModelDoc2
+WARN  api-reference-219.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  api-reference-219.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    api-reference-219.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:5
+WARN  recipes-5.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-5.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-5.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:29
+WARN  recipes-29.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-29.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-29.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:63
+Fragment context: Dim swApp As SldWorks.SldWorks, Dim swModel As SldWorks.ModelDoc2
+WARN  recipes-63.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-63.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-63.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:91
+Fragment context: Dim swModel As SldWorks.ModelDoc2
+WARN  recipes-91.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-91.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-91.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:99
+Fragment context: Dim swApp As SldWorks.SldWorks
+WARN  recipes-99.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-99.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-99.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:142
+Fragment context: Dim swModel As SldWorks.ModelDoc2
+WARN  recipes-142.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-142.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-142.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:155
+WARN  recipes-155.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-155.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-155.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:179
+Fragment context: Dim swPart As SldWorks.PartDoc
+WARN  recipes-179.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-179.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-179.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:188
+Fragment context: Dim swModel As SldWorks.ModelDoc2
+WARN  recipes-188.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-188.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+INFO  recipes-188.bas: contains non-ASCII characters - import a cp1250 copy (--cp1250) or paste via clipboard.
+OK    recipes-188.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:196
+Fragment context: Dim swModel As SldWorks.ModelDoc2
+WARN  recipes-196.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-196.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-196.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:208
+Fragment context: Dim swModel As SldWorks.ModelDoc2
+WARN  recipes-208.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-208.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-208.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:237
+Fragment context: Dim swComp As SldWorks.Component2
+WARN  recipes-237.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-237.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-237.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:252
+WARN  recipes-252.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-252.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:262
+WARN  recipes-262.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-262.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:276
+WARN  recipes-276.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-276.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:283
+WARN  recipes-283.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-283.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:291
+WARN  recipes-291.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    recipes-291.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:307
+Fragment context: Dim swApp As SldWorks.SldWorks, Dim swModel As SldWorks.ModelDoc2
+WARN  recipes-307.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+OK    recipes-307.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\recipes.md:333
+Fragment context: Dim swApp As SldWorks.SldWorks, Dim swDrw As SldWorks.ModelDoc2
+WARN  recipes-333.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  recipes-333.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+WARN  recipes-333.bas:4: OpenDoc result not checked for Nothing.
+OK    recipes-333.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\tools-and-ready-macros.md:47
+Fragment context: Dim swApp As SldWorks.SldWorks
+WARN  tools-and-ready-macros-47.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  tools-and-ready-macros-47.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    tools-and-ready-macros-47.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\vba-com-semantics.md:12
+Fragment context: Dim swModel As SldWorks.ModelDoc2
+WARN  vba-com-semantics-12.bas: swApp is used but never obtained (Set swApp = Application.SldWorks).
+WARN  vba-com-semantics-12.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    vba-com-semantics-12.bas: all checked API members, argument counts and constants exist.
+Checking C:\Users\micha\OneDrive\Dokumenty\Repozytoria\solidworks_macro_skill\references\vba-com-semantics.md:33
+WARN  vba-com-semantics-33.bas: No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.
+OK    vba-com-semantics-33.bas: all checked API members, argument counts and constants exist.
+Checked 58 VBA assets/fragments; 0 error(s). Installed API check enabled.

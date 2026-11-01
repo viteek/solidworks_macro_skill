@@ -1,0 +1,29 @@
+{
+  "macro": "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\recipes\\modeling\\hole-linear-pattern\\hole_linear_pattern.bas",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "TestMacro",
+  "macro_sha256": "9323d0d8711eaafc5e43d79a7366978a84e25d37afac1b76bce383cb5eab76cb",
+  "project_format": "swb",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\hole_linear\\hole_linear.sldprt",
+  "seconds": 2.1,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": true,
+  "run_error": "OK",
+  "observation_ok": true,
+  "observation_error": 0,
+  "observer_sha256": "4a494f55031663bf65f65a6161349d845eaa48547875f5f0d4a62765c3e46968",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\hole_linear\\hole_linear.sldprt"
+  ],
+  "expectations_failed": [],
+  "status": "PASS",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

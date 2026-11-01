@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-reopen",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": false,
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "macro_sha256": "b075a5492e35eb82dd2e662fd9ca982f84aa632bd4ab6356ea8b641e2d19aded",
+  "observer_sha256": "27d063c3eaf4962acf3e36edc0c1b1b69e3b3450763341e03c3ff9519e0aa384",
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-reopen\\positive-sheet-copy.sldprt",
+      "sha256": "ba1d79cc35a12a714ab680543fc2884a48053f8762e6d1451ff8fc1f55ee94f7"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-reopen\\inspection.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-reopen\\metrics.json",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-reopen\\runner.json"
+  ],
+  "allowed_dialogs": []
+}

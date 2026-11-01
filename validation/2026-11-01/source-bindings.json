@@ -1,0 +1,89 @@
+[
+  {
+    "case": "sketch",
+    "macro": "recipes\\modeling\\sketch-extrude\\sketch_extrude.bas",
+    "macro_sha256": "7aec74594bc5d2915e619f90d10cedbb36581603b1f69bdcc7a1c4fffbab4781",
+    "macro_matches": true,
+    "observer_matches": true
+  },
+  {
+    "case": "modify",
+    "macro": "recipes\\modeling\\feature-modification\\modify_extrude.bas",
+    "macro_sha256": "5b403e09abe1c7f018f9e646f467fc8db8abc70427cdc8d6ffa604f83963a34b",
+    "macro_matches": true,
+    "observer_matches": true
+  },
+  {
+    "case": "configurations",
+    "macro": "recipes\\modeling\\configuration-variants\\configuration_variants.bas",
+    "macro_sha256": "190eb46ed98601e1633a57ecf59ff48b7e97df7970fe4568a2e8a81420ff9142",
+    "macro_matches": true,
+    "observer_matches": true
+  },
+  {
+    "case": "hole_linear",
+    "macro": "recipes\\modeling\\hole-linear-pattern\\hole_linear_pattern.bas",
+    "macro_sha256": "7c537811cad1e56b661d83dd954045f0f8f7b33e27c5931923872eb26e7f5468",
+    "macro_matches": true,
+    "observer_matches": true
+  },
+  {
+    "case": "revolve",
+    "macro": "recipes\\modeling\\revolve\\revolve_ring.bas",
+    "macro_sha256": "47dd6cbf3faa0490be10bdada9c06653e33ef322eca64800e72b5b69b9c2f51c",
+    "macro_matches": true,
+    "observer_matches": true
+  },
+  {
+    "case": "circular",
+    "macro": "recipes\\modeling\\circular-pattern\\circular_pattern.bas",
+    "macro_sha256": "64f22ff97756fa477a60bd57e1cefb336bb13255e27b8a61bc5208ed549dff57",
+    "macro_matches": true,
+    "observer_matches": true
+  },
+  {
+    "case": "sketch3d",
+    "macro": "recipes\\modeling\\sketch-3d\\sketch_3d.bas",
+    "macro_sha256": "dd0ad1a6aa23f3775fd036c7fd2df1d667860c5547334b4163ba44bf96540b87",
+    "macro_matches": true,
+    "observer_matches": true
+  },
+  {
+    "case": "plane",
+    "macro": "recipes\\selection\\plane-selection\\plane_selection.bas",
+    "macro_sha256": "57716c800a858c26af0115d0c9ad3b01b7f6f5110b0a0b197d6366a3b077095c",
+    "macro_matches": true,
+    "observer_matches": true
+  },
+  {
+    "case": "persistent",
+    "macro": "recipes\\selection\\plane-selection\\plane_selection.bas",
+    "macro_sha256": "0f3e590f51ee1a397b443379bdd63a7bf982449782bb128b595caa99c1bcf6c5",
+    "macro_matches": true,
+    "observer_matches": true
+  },
+  {
+    "case": "assembly_context_mate.bas",
+    "source_matches": true
+  },
+  {
+    "case": "create_three_views.bas",
+    "source_matches": true
+  },
+  {
+    "case": "insert_component_transform.bas",
+    "source_matches": true
+  },
+  {
+    "case": "inspect_drawing_semantics.bas",
+    "source_matches": true
+  },
+  {
+    "case": "inspect_sheetmetal_cutlist.bas",
+    "source_matches": true
+  },
+  {
+    "case": "mate_reference.bas",
+    "source_matches": true
+  }
+]

@@ -1,0 +1,19 @@
+# Opt-in SOLIDWORKS integration
+
+Live execution is optional and manually dispatched through `.github/workflows/integration.yml`. It does not run on pull requests or pushes. Provision a dedicated Windows x64 self-hosted runner labelled `solidworks-test`, logged into an interactive desktop with a licensed SOLIDWORKS installation, Python 3.12 + pywin32, and exactly one running SOLIDWORKS process with no documents open. A background service without the interactive desktop is not an equivalent setup. Dispatch only a reviewed repository ref; the workflow runs that checkout with desktop-user privileges.
+
+## Discover and prepare the actual installation
+
+`python scripts/verify_environment.py --json environment.json --require-api` reads local type libraries without starting/connecting to SOLIDWORKS. Discovery checks `SOLIDWORKS_API_DIR`, conventional `C:\Program Files\SOLIDWORKS Corp*\SOLIDWORKS`, and `C:\Program Files\Dassault Systemes\SOLIDWORKS*\SOLIDWORKS`, including 3DEXPERIENCE installations such as `SOLIDWORKS 3DEXPERIENCE R2026x`. Supply an explicit reviewed installation directory when several releases coexist. Type-library metadata does not establish UI language or full release/SP; record those independently.
+
+Prepare disposable fixture copies with every resolved dependency inside one test root. Review the complete source/native project and optional source observer. Create a draft using `--create-profile`; declare input hashes, outputs (including the absolute runner report), prepared macro/observer hashes and `entry_point`, then review and confirm copies. See [runner safety](../../references/runner-safety.md) and [whole-project compilation](../../references/vba-projects-and-testing.md). Workflow dispatch does not create or approve profiles.
+
+## Dispatch inputs and expected outputs
+
+Provide absolute paths on that runner for `macro`, `profile`, `open_document` and `report`. The report must be a declared distinct `.json` output. Native `.swp` files also require `module` and `entry`; text macros can use the reviewed defaults. `observer` is optional and must already be included in the reviewed observer hash. The workflow does not expose source/observer constant substitutions; prepare reviewed constants beforehand or invoke the CLI manually with identical profile-bound overrides. `installation_dir` optionally selects the actual library folder; `timeout_seconds` bounds the Python wait.
+
+Set `model_changes: true` only after reviewing an edit-enabled profile; only then does the workflow append `--confirm-model-changes`. It always uses strict dialogs and closes test documents only after resolved execution. A profile permitting edits will fail preflight when that Boolean is false. No automatic Yes/No responses, process killing or session recovery are performed.
+
+Inputs are delivered through environment variables and passed as PowerShell argument arrays; input text is not inserted into shell source. The workflow archives environment discovery, runner stdout and a freshly written runner JSON when available. Preserve the independently collected geometry/document observations, export integrity checks, compile evidence, input/reference hashes, preferences and provider/API/save logs as part of the experiment evidence; workflow success alone does not satisfy the six-phase contract.
+
+The workflow concurrency group serializes these dispatches and the runner's durable lock guards other controllers under the same desktop account. A cancelled/timed-out job can leave VBA running. Inspect the desktop, finish the macro, and explicitly recover the durable session only after confirming it stopped. Never automatically retry an `UNKNOWN`/`RUNNING` session. The separate [24-task A/B suite](../../benchmarks/README.md) remains `NOT_TESTED` until its exact fixtures, all measurements and phase-specific evidence have been collected; isolated metric/STEP smoke results do not complete that suite.

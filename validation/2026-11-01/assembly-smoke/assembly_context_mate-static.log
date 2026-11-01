@@ -1,0 +1,3 @@
+WARN  assembly_context_mate.bas:181: GetModelDoc2 result not checked for Nothing (lightweight/suppressed components).
+
+OK    assembly_context_mate.bas: all checked API members, argument counts and constants exist.

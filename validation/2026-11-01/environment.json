@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "platform": "Windows-11-10.0.22631-SP0",
+  "python": "3.12.3",
+  "python_executable": "C:\\Users\\micha\\.codex\\tmp\\solidworks-macro-quality-venv\\Scripts\\python.exe",
+  "modules": {
+    "pythoncom": true,
+    "win32com": true,
+    "ezdxf": true,
+    "shapely": true,
+    "OCP": true
+  },
+  "type_libraries": [
+    {
+      "path": "C:\\Program Files\\Dassault Systemes\\SOLIDWORKS 3DEXPERIENCE R2026x\\SOLIDWORKS\\sldworks.tlb",
+      "exists": true,
+      "status": "READABLE",
+      "guid": "{83A33D31-27C5-11CE-BFD4-00400513BB57}",
+      "lcid": 0,
+      "major": 34,
+      "minor": 0,
+      "type_count": 1023,
+      "sha256": "e71e9834f3ca4de85a321b9147c6805b34808e36a8b48149ab6a14bb41a7d6f4"
+    },
+    {
+      "path": "C:\\Program Files\\Dassault Systemes\\SOLIDWORKS 3DEXPERIENCE R2026x\\SOLIDWORKS\\swconst.tlb",
+      "exists": true,
+      "status": "READABLE",
+      "guid": "{4687F359-55D0-4CD3-B6CF-2EB42C11F989}",
+      "lcid": 0,
+      "major": 34,
+      "minor": 0,
+      "type_count": 983,
+      "sha256": "f918998d27bf3a0d58b6de082c5a520edc852303bd772cb18458126fe9fddf38"
+    },
+    {
+      "path": "C:\\Program Files\\Dassault Systemes\\SOLIDWORKS 3DEXPERIENCE R2026x\\SOLIDWORKS\\swcommands.tlb",
+      "exists": true,
+      "status": "READABLE",
+      "guid": "{0AC1DE9F-3FBC-4C25-868D-7D4E9139CCE0}",
+      "lcid": 0,
+      "major": 34,
+      "minor": 0,
+      "type_count": 2,
+      "sha256": "b010cd72aaf103e897b5dbbb5faa8481ce333c829417a0fb6cce1cdbcad1612d"
+    }
+  ],
+  "api_status": "AVAILABLE",
+  "compilation_status": "NOT_TESTED",
+  "live_status": "NOT_PROBED",
+  "note": "Type-library versions are observed; release/SP/UI language require integration evidence.",
+  "live_environment": {
+    "solidworks_version": "2026",
+    "service_pack": "SP4.0",
+    "api_revision": "34.4.0",
+    "architecture": "x64",
+    "ui_language": "pl-PL",
+    "source": "retained live runner reports; UI language observed before CLI-only constraint"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "task_id": "T20",
+  "family": "sheetmetal_export",
+  "title": "Export STEP and inspect reimport",
+  "fixture": {
+    "id": "base-part",
+    "revision": "1"
+  },
+  "fixture_instructions": "Use base-part recipe. Output empty; pin AP214 export settings in manifest and record original source hash. Configure importer to SI units.",
+  "request": "Export outputs/base.step and independently reimport into temporary document without saving source; measure one solid and volume.",
+  "api_candidates": [
+    "IModelDocExtension.SaveAs",
+    "ISldWorks.LoadFile4",
+    "IPartDoc.GetBodies2"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "base.step",
+      "op": "file",
+      "file": "outputs/base.step",
+      "min_bytes": 20,
+      "contains": [
+        "ISO-10303-21;",
+        "END-ISO-10303-21;"
+      ]
+    },
+    {
+      "id": "reimport_solid_body_count",
+      "path": "/reimport/solid_body_count",
+      "op": "equals",
+      "expected": 1
+    },
+    {
+      "id": "reimport_volume_m3",
+      "path": "/reimport/volume_m3",
+      "op": "number",
+      "expected": 5e-05,
+      "abs_tol": 1e-09
+    },
+    {
+      "id": "export_error_code",
+      "path": "/export/error_code",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

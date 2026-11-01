@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "task_id": "T06",
+  "family": "selection_modeling",
+  "title": "Create a dimensioned boss",
+  "fixture": {
+    "id": "blank-part",
+    "revision": "1"
+  },
+  "fixture_instructions": "Create empty part from recorded metric template, named blank.sldprt; no user sketches or bodies. Front Plane is standard XY plane; note localized plane name in fixture manifest.",
+  "request": "Create centered 100 x 50 mm rectangle and 10 mm blind boss in positive Z; name feature Base.",
+  "api_candidates": [
+    "ISketchManager.CreateCenterRectangle",
+    "IFeatureManager.FeatureExtrusion2",
+    "IPartDoc.GetBodies2"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "solid_body_count",
+      "path": "/solid_body_count",
+      "op": "equals",
+      "expected": 1
+    },
+    {
+      "id": "feature_exists_Base",
+      "path": "/feature_exists/Base",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "volume_m3",
+      "path": "/volume_m3",
+      "op": "number",
+      "expected": 5e-05,
+      "abs_tol": 1e-10
+    },
+    {
+      "id": "bbox_width_m",
+      "path": "/bbox/width_m",
+      "op": "number",
+      "expected": 0.1,
+      "abs_tol": 1e-06
+    },
+    {
+      "id": "bbox_height_m",
+      "path": "/bbox/height_m",
+      "op": "number",
+      "expected": 0.05,
+      "abs_tol": 1e-06
+    },
+    {
+      "id": "bbox_depth_m",
+      "path": "/bbox/depth_m",
+      "op": "number",
+      "expected": 0.01,
+      "abs_tol": 1e-06
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

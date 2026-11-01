@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "task_id": "T18",
+  "family": "sheetmetal_export",
+  "title": "Export one bend with bend lines",
+  "fixture": {
+    "id": "bent-sheet",
+    "revision": "1"
+  },
+  "fixture_instructions": "Create same flat-sheet blank then 90 degree edge flange along the 100 mm edge, flange length 20 mm with outer virtual sharp reference, radius 2 mm, thickness 2 mm, K=.5. Save Default folded; record one bend baseline.",
+  "request": "Export geometry+bend lines to outputs/bent.dxf; verify exactly one straight bend line and unchanged folded configuration.",
+  "api_candidates": [
+    "IPartDoc.ExportToDWG2",
+    "IFeature.IsSuppressed2"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "bent.dxf",
+      "op": "file",
+      "file": "outputs/bent.dxf",
+      "min_bytes": 20,
+      "contains": [
+        "SECTION",
+        "ENTITIES",
+        "EOF"
+      ]
+    },
+    {
+      "id": "dxf_bend_line_count",
+      "path": "/dxf/bend_line_count",
+      "op": "equals",
+      "expected": 1
+    },
+    {
+      "id": "dxf_closed_outer_contours",
+      "path": "/dxf/closed_outer_contours",
+      "op": "equals",
+      "expected": 1
+    },
+    {
+      "id": "active_configuration",
+      "path": "/active_configuration",
+      "op": "equals",
+      "expected": "Default"
+    },
+    {
+      "id": "flat_pattern_suppressed",
+      "path": "/flat_pattern_suppressed",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

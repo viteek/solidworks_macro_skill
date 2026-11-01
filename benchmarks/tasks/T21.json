@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "task_id": "T21",
+  "family": "errors_resilience",
+  "title": "Handle missing active document",
+  "fixture": {
+    "id": "no-active-document",
+    "revision": "1"
+  },
+  "fixture_instructions": "Start isolated SOLIDWORKS session with zero open documents. Capture session inventory; use a JSON fixture manifest recording empty document set instead of a CAD binary.",
+  "request": "Attempt active-part operation; return controlled NO_ACTIVE_DOCUMENT diagnostic and make no files or document changes.",
+  "api_candidates": [
+    "ISldWorks.ActiveDoc",
+    "ISldWorks.GetDocumentCount"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "outcome",
+      "path": "/outcome",
+      "op": "equals",
+      "expected": "NO_ACTIVE_DOCUMENT"
+    },
+    {
+      "id": "handled",
+      "path": "/handled",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "open_document_count_after",
+      "path": "/open_document_count_after",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "files_created",
+      "path": "/files_created",
+      "op": "equals",
+      "expected": []
+    },
+    {
+      "id": "unhandled_errors",
+      "path": "/unhandled_errors",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

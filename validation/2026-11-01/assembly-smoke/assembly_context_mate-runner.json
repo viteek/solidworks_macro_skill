@@ -1,0 +1,27 @@
+{
+  "macro": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\assembly_context_mate.bas",
+  "entry": "main",
+  "solidworks": "34.4.0",
+  "module": "TestMacro",
+  "macro_sha256": "9e64707365f528fd5542e2c2b306f2e5bb0fe5d409848c17c95d1001a87e8c3d",
+  "project_format": "swb",
+  "compilation_status": "NOT_TESTED",
+  "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\fixture.SLDASM",
+  "seconds": 1.2,
+  "timed_out": false,
+  "macro_still_running": false,
+  "run_ok": true,
+  "run_error": "OK",
+  "dialogs": [],
+  "compile_error": false,
+  "runtime_error": false,
+  "documents_left_open": [],
+  "closed_test_documents": [
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\block.sldprt",
+    "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\fixture.sldasm"
+  ],
+  "expectations_failed": [],
+  "status": "PASS",
+  "session_state": "IDLE",
+  "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+}

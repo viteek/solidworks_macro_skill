@@ -1,0 +1,105 @@
+{
+  "status": "PASS",
+  "failures": [],
+  "source_sha256": {
+    "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\recipes\\sheetmetal\\create-flat-blank\\create_flat_blank.bas": "51c20c356176539072baa7e952421997647ccf5169985e2a1490966282d89887",
+    "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\assets\\templates\\source_metrics_template.bas": "512a7ac3d1785351177ed9d80988d99b362ee73c7dbb58e2997e029d22e1e6a2",
+    "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\recipes\\sheetmetal\\inspect_sheetmetal_cutlist.bas": "a6cea02b7a493072d8bd840796c641c547e25cdf743e9505c5b9f6ec6b7c2ef0",
+    "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\assets\\diagnostic-macros\\save_fixture_copy.bas": "dac27b5be2a0bd68aa0dcc23579e36190cb5669db19abaa36f66b759a5f44fa1"
+  },
+  "blank_sha256": "8339c62260e50fe38146ae26472bba87c407b2f2e7eeb0764d70149100716190",
+  "sources_unchanged": true,
+  "profile": {
+    "schema_version": 1,
+    "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive",
+    "reviewed": true,
+    "copies_confirmed": true,
+    "allow_model_changes": true,
+    "entry_point": {
+      "module": "TestMacro",
+      "procedure": "main"
+    },
+    "macro_sha256": "5823edc974997240cdd850ea5822b4c27a4f8fc3bb38a5f65e4756a40b58d220",
+    "observer_sha256": "6ae600f686ae9ca18a25696ebaf42b1cb9d572750950f7c8cdfaa02cfbd08df1",
+    "inputs": [
+      {
+        "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\blank-copy.sldprt",
+        "sha256": "8339c62260e50fe38146ae26472bba87c407b2f2e7eeb0764d70149100716190"
+      }
+    ],
+    "outputs": [
+      "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\macro.log",
+      "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\metrics.json",
+      "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\inspection.log",
+      "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\save.log",
+      "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\flat-blank.sldprt",
+      "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\runner.json"
+    ],
+    "allowed_dialogs": []
+  },
+  "runner": {
+    "macro": "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\recipes\\sheetmetal\\create-flat-blank\\create_flat_blank.bas",
+    "entry": "main",
+    "solidworks": "34.4.0",
+    "module": "TestMacro",
+    "macro_sha256": "5823edc974997240cdd850ea5822b4c27a4f8fc3bb38a5f65e4756a40b58d220",
+    "project_format": "swb",
+    "compilation_status": "NOT_TESTED",
+    "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\blank-copy.sldprt",
+    "seconds": 3.3,
+    "timed_out": false,
+    "macro_still_running": false,
+    "run_ok": true,
+    "run_error": "OK",
+    "observation_ok": true,
+    "observation_error": 0,
+    "observer_sha256": "6ae600f686ae9ca18a25696ebaf42b1cb9d572750950f7c8cdfaa02cfbd08df1",
+    "dialogs": [],
+    "compile_error": false,
+    "runtime_error": false,
+    "documents_left_open": [],
+    "closed_test_documents": [
+      "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\blank-copy.sldprt"
+    ],
+    "expectations_failed": [],
+    "status": "PASS",
+    "session_state": "IDLE",
+    "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+  },
+  "metrics": {
+    "schema_version": 1,
+    "units": "mm",
+    "source_path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\blank-copy.sldprt",
+    "configuration": "Domy\u015blna",
+    "bodies": [
+      {
+        "volume_mm3": 10000,
+        "area_mm2": 10600,
+        "centroid_mm": [
+          50,
+          25,
+          -1
+        ],
+        "bounds_mm": [
+          0,
+          0,
+          -2,
+          100,
+          50,
+          0
+        ]
+      }
+    ]
+  },
+  "inspection_result": "RESULT inspect_sheetmetal_cutlist PASS",
+  "outputs": {
+    "macro": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\macro.log",
+    "metrics": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\metrics.json",
+    "inspection": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\inspection.log",
+    "save": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\save.log",
+    "fixture": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\flat-blank.sldprt",
+    "runner": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\sheetmetal-positive\\runner.json"
+  },
+  "project_compilation": "NOT_TESTED",
+  "scope": "unbent base flange only; no bend/export certification"
+}

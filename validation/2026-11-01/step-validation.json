@@ -1,0 +1,112 @@
+{
+  "status": "PUBLISHED",
+  "cam_status": "NOT_CONFIGURED",
+  "source_sha256": "9ed66787ac645bb6bd1a7218c3e4778f33541c93ef26f74d280a562bef23880f",
+  "job_folder": null,
+  "target": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\validated.step",
+  "runner": {
+    "macro": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\.sw-validation-3s3n2amp\\job.bas",
+    "entry": "main",
+    "solidworks": "34.4.0",
+    "module": "TestMacro",
+    "macro_sha256": "23bc16ce75781e4922c3c9a8af5acc2fbe4d3c6f4f9216008f476994bc954fac",
+    "project_format": "swb",
+    "compilation_status": "NOT_TESTED",
+    "opened": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\.sw-validation-3s3n2amp\\fixture.sldprt",
+    "seconds": 1.2,
+    "timed_out": false,
+    "macro_still_running": false,
+    "run_ok": true,
+    "run_error": "OK",
+    "dialogs": [],
+    "compile_error": false,
+    "runtime_error": false,
+    "documents_left_open": [],
+    "closed_test_documents": [
+      "c:\\users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\.sw-validation-3s3n2amp\\fixture.sldprt"
+    ],
+    "expectations_failed": [],
+    "status": "PASS",
+    "session_state": "IDLE",
+    "session_marker": "C:\\Users\\micha\\AppData\\Local\\solidworks-macro-runner\\session.json"
+  },
+  "macro_log": "EXPORTED;Export warnings=0",
+  "source_unchanged": true,
+  "source_configuration": "Default",
+  "published": true,
+  "sha256": "dd8a051aca172a7d33dfafed019fd8e79219bf57d29811fa5270ff395f336825",
+  "backup": null,
+  "validation": {
+    "status": "PASS",
+    "cam_status": "NOT_CONFIGURED",
+    "source_solid_count": 1,
+    "imported_solid_count": 1,
+    "tolerances": {
+      "linear_mm": 0.01,
+      "relative": 0.0001,
+      "area_mm2": 0.01,
+      "volume_mm3": 0.01
+    },
+    "matches": [
+      {
+        "source_body": 0,
+        "imported_body": 0,
+        "deltas": {
+          "volume_mm3": {
+            "absolute_error": 1.1368683772161603e-13,
+            "limit": 0.0798795623019006,
+            "ok": true
+          },
+          "area_mm2": {
+            "absolute_error": 4.547473508864641e-13,
+            "limit": 0.0640520930341225,
+            "ok": true
+          },
+          "centroid_mm": {
+            "max_axis_error_mm": 3.552713678800501e-15,
+            "limit_mm": 0.01,
+            "ok": true
+          },
+          "bounds_mm": {
+            "max_axis_error_mm": 4.440892098500626e-15,
+            "limit_mm": 0.01,
+            "ok": true
+          }
+        }
+      }
+    ],
+    "issues": [],
+    "format": "STEP",
+    "sha256": "dd8a051aca172a7d33dfafed019fd8e79219bf57d29811fa5270ff395f336825",
+    "imported_metrics": {
+      "units": "mm",
+      "bodies": [
+        {
+          "volume_mm3": 698.7956230190059,
+          "area_mm2": 540.5209303412246,
+          "centroid_mm": [
+            8.270793452440292e-16,
+            -4.97668922754772e-16,
+            -5.371793429404846
+          ],
+          "bounds_mm": [
+            -5.000000000000004,
+            -5.000000000000004,
+            -10.000000000000002,
+            5.000000000000004,
+            5.000000000000004,
+            0.0
+          ]
+        }
+      ],
+      "source_length_contexts": [
+        {
+          "dimension": 3,
+          "length_unit_type": "StepBasic_SiUnitAndLengthUnit"
+        }
+      ],
+      "kernel": "OpenCascade / cadquery-ocp 7.9.3.1.1"
+    },
+    "source_configuration": "Default"
+  }
+}

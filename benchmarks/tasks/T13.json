@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "task_id": "T13",
+  "family": "drawings",
+  "title": "Enumerate sheets and actual views",
+  "fixture": {
+    "id": "two-sheet-drawing",
+    "revision": "1"
+  },
+  "fixture_instructions": "Create A4 landscape drawing: Sheet1 has Front and Top model views of base-part, Sheet2 has Right model view. Rename views Front, Top, Right. No sheet-format model views; activate Sheet1 and save.",
+  "request": "Enumerate both sheets and three model views, excluding per-sheet container view; restore Sheet1.",
+  "api_candidates": [
+    "IDrawingDoc.GetSheetNames",
+    "IDrawingDoc.GetFirstView",
+    "IView.GetNextView"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "sheets",
+      "path": "/sheets",
+      "op": "unordered_equals",
+      "expected": [
+        "Sheet1",
+        "Sheet2"
+      ]
+    },
+    {
+      "id": "model_views",
+      "path": "/model_views",
+      "op": "unordered_equals",
+      "expected": [
+        "Sheet1/Front",
+        "Sheet1/Top",
+        "Sheet2/Right"
+      ]
+    },
+    {
+      "id": "model_view_count",
+      "path": "/model_view_count",
+      "op": "equals",
+      "expected": 3
+    },
+    {
+      "id": "active_sheet",
+      "path": "/active_sheet",
+      "op": "equals",
+      "expected": "Sheet1"
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

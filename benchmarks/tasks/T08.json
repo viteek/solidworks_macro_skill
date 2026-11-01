@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "task_id": "T08",
+  "family": "selection_modeling",
+  "title": "Edit existing dimension and rebuild",
+  "fixture": {
+    "id": "dimension-part",
+    "revision": "1"
+  },
+  "fixture_instructions": "Use base-part with boss depth dimension explicitly named Depth in feature Base (Depth@Base=10 mm). Save baseline; record persistent feature ID.",
+  "request": "Change Depth@Base to 20 mm, rebuild, preserve Base feature identity and one body.",
+  "api_candidates": [
+    "IModelDoc2.Parameter",
+    "IDimension.SystemValue",
+    "IModelDoc2.EditRebuild3"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "dimensions_Depth@Base",
+      "path": "/dimensions/Depth@Base",
+      "op": "number",
+      "expected": 0.02,
+      "abs_tol": 1e-08
+    },
+    {
+      "id": "volume_m3",
+      "path": "/volume_m3",
+      "op": "number",
+      "expected": 0.0001,
+      "abs_tol": 1e-10
+    },
+    {
+      "id": "solid_body_count",
+      "path": "/solid_body_count",
+      "op": "equals",
+      "expected": 1
+    },
+    {
+      "id": "base_identity_preserved",
+      "path": "/base_identity_preserved",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "rebuild_errors",
+      "path": "/rebuild_errors",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "task_id": "T14",
+  "family": "drawings",
+  "title": "Change one note text",
+  "fixture": {
+    "id": "noted-drawing",
+    "revision": "1"
+  },
+  "fixture_instructions": "Use two-sheet-drawing recipe. Add free note named ReleaseNote with text DRAFT on Sheet1 and KeepNote with text KEEP on Sheet2. Save baseline.",
+  "request": "Change ReleaseNote to RELEASED while keeping KeepNote and all three model views.",
+  "api_candidates": [
+    "INote.GetText",
+    "INote.SetText",
+    "IAnnotation.GetName"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "notes_ReleaseNote",
+      "path": "/notes/ReleaseNote",
+      "op": "equals",
+      "expected": "RELEASED"
+    },
+    {
+      "id": "notes_KeepNote",
+      "path": "/notes/KeepNote",
+      "op": "equals",
+      "expected": "KEEP"
+    },
+    {
+      "id": "model_view_count",
+      "path": "/model_view_count",
+      "op": "equals",
+      "expected": 3
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

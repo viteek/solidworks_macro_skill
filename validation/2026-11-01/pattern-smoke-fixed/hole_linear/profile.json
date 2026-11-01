@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\hole_linear",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": true,
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "macro_sha256": "9323d0d8711eaafc5e43d79a7366978a84e25d37afac1b76bce383cb5eab76cb",
+  "observer_sha256": "4a494f55031663bf65f65a6161349d845eaa48547875f5f0d4a62765c3e46968",
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\hole_linear\\hole_linear.sldprt",
+      "sha256": "a8acf842bff5f1770fc7974cd172b45081e9c2b98c82dfd0f3c93d927f530c41"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\hole_linear\\macro.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\hole_linear\\observed.json",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\hole_linear\\runner.json"
+  ],
+  "allowed_dialogs": []
+}

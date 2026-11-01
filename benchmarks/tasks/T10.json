@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "task_id": "T10",
+  "family": "assemblies",
+  "title": "Insert component with transform",
+  "fixture": {
+    "id": "empty-assembly",
+    "revision": "1"
+  },
+  "fixture_instructions": "Save empty top.sldasm and 100 x 50 x 10 mm part insert.sldprt. No components in top. Record absolute fixture paths; set identity part transform.",
+  "request": "Insert one resolved insert.sldprt instance at translation (0.1,0.2,0.3) m with identity rotation.",
+  "api_candidates": [
+    "IAssemblyDoc.AddComponent5",
+    "IComponent2.Transform2",
+    "IMathTransform.ArrayData"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "instance_count",
+      "path": "/instance_count",
+      "op": "equals",
+      "expected": 1
+    },
+    {
+      "id": "transform_tx_m",
+      "path": "/transform/tx_m",
+      "op": "number",
+      "expected": 0.1,
+      "abs_tol": 1e-08
+    },
+    {
+      "id": "transform_ty_m",
+      "path": "/transform/ty_m",
+      "op": "number",
+      "expected": 0.2,
+      "abs_tol": 1e-08
+    },
+    {
+      "id": "transform_tz_m",
+      "path": "/transform/tz_m",
+      "op": "number",
+      "expected": 0.3,
+      "abs_tol": 1e-08
+    },
+    {
+      "id": "rotation_rows",
+      "path": "/rotation_rows",
+      "op": "equals",
+      "expected": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

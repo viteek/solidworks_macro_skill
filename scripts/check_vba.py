@@ -15,6 +15,137 @@ Exit code 1 if any ERROR was found.
 import re
 import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from check_api import DECL_RE, PROC_RE, parse_decl_list, split_args, join_continuations
+
+# Only known Boolean members are inferred in direct conditions. A declared Boolean
+# assignment additionally provides the expected result type for other SW members.
+BOOLEAN_MEMBERS = {'save3', 'saveas', 'exporttodwg2', 'getsaveflag', 'issuppressed',
+                   'ishidden', 'select2', 'select4', 'selectbyid2', 'showconfiguration2',
+                   'activateSheet', 'setsheets', 'modifydefinition', 'accessselections',
+                   'excludefrombom', 'forcerebuild3', 'editrebuild3', 'issheetmetal', 'getuserpreferencetoggle'}
+BOOLEAN_MEMBERS = {name.lower() for name in BOOLEAN_MEMBERS}
+SW_TYPES = {'modeldoc2', 'sldworks', 'assemblydoc', 'partdoc', 'drawingdoc', 'feature',
+            'component2', 'modeldocextension', 'selectionmgr', 'entity', 'exportpdfdata'}
+NUMERIC_MEMBERS = {'gettype', 'getselectedobjectcount2', 'getselectedobjecttype3',
+                   'getselectedobjectmark', 'getuserpreferenceintegervalue', 'get6',
+                   'add3', 'setsystemvalue3', 'setsuppression2', 'resolvealllightweightcomponents'}
+
+
+def boolean_issues(lines):
+    """Bounded, procedure-scoped provenance analysis; not a VBA type checker."""
+    module_types, types, origins, module_origins = {}, {}, set(), set()
+    in_proc = False
+    with_roots = []
+    inferred_objects = set()
+
+    def sw_root(name):
+        kind = types.get(name.lower(), ('', False))[0].lower()
+        return kind.startswith('sldworks.') or kind in SW_TYPES
+
+    for number, logical in join_continuations(lines):
+        proc = PROC_RE.match(logical)
+        if proc:
+            in_proc = True
+            types, origins, with_roots = dict(module_types), set(module_origins), []
+            inferred_objects = set()
+            for parameter in split_args(proc.group(3)):
+                parameter = re.sub(r'^(?:(?:ByVal|ByRef|Optional|ParamArray)\s+)+', '', parameter.strip(), flags=re.I)
+                types.update(parse_decl_list(parameter))
+            continue
+        if re.match(r'\s*End\s+(?:Sub|Function|Property)\b', logical, re.I):
+            in_proc = False
+            types, origins, with_roots = dict(module_types), set(module_origins), []
+            continue
+        declaration = DECL_RE.match(logical)
+        if declaration:
+            declared = parse_decl_list(declaration.group(1))
+            types.update(declared)
+            if not in_proc:
+                module_types.update(declared)
+            continue
+        wm = re.match(r'\s*With\s+(\w+)', logical, re.I)
+        if wm:
+            with_roots.append(wm.group(1))
+            continue
+        if re.match(r'\s*End\s+With', logical, re.I):
+            if with_roots:
+                with_roots.pop()
+            continue
+        # Strings have been blanked, so colons/Then/Else inside messages cannot split code.
+        for statement in re.split(r':|\b(?:Then|Else)\b', logical, flags=re.I):
+            if with_roots:
+                statement = re.sub(r'(?<![\w.])\.(?=\w)', with_roots[-1] + '.', statement)
+            assignment = re.match(r'\s*(Set\s+)?(\w+)\s*=\s*(.+)', statement, re.I)
+            if assignment:
+                is_object, name, expression = assignment.groups()
+                name = name.lower()
+                root = re.match(r'\s*(\w+)(?:\.\w+)*', expression)
+                if is_object and root:
+                    target_kind = types.get(name, ('',))[0].lower()
+                    if sw_root(root.group(1)) and (name in inferred_objects or target_kind in ('', 'object', 'variant')):
+                        types[name] = ('SldWorks.InferredObject', False)
+                        inferred_objects.add(name)
+                    elif not sw_root(root.group(1)) and (name in inferred_objects or target_kind in ('object', 'variant')):
+                        types[name] = ('Object', False)
+                        inferred_objects.discard(name)
+                elif types.get(name, ('',))[0].lower() == 'boolean':
+                    # Comparisons normalize COM truth values to a VBA Boolean.
+                    depth, comparison = 0, False
+                    exp = expression.strip()
+                    while exp.startswith('(') and exp.endswith(')'):
+                        balance, encloses = 0, True
+                        for index, char in enumerate(exp):
+                            balance += (char == '(') - (char == ')')
+                            if balance == 0 and index < len(exp) - 1:
+                                encloses = False
+                                break
+                        if not encloses:
+                            break
+                        exp = exp[1:-1].strip()
+                    for char in exp:
+                        depth += (char == '(') - (char == ')')
+                        if depth == 0 and char in '=<>':
+                            comparison = True
+                    source = re.match(r'(?:Not\s+)?\(*(\w+)(?:\.\w+)*\.(\w+)', exp, re.I)
+                    contaminated = not comparison and ((source and sw_root(source.group(1))
+                        and source.group(2).lower() not in NUMERIC_MEMBERS) or exp.lower() in origins)
+                    if contaminated:
+                        origins.add(name)
+                        if re.match(r'Not\b', exp, re.I):
+                            yield number, 'Unsafe Not on a SOLIDWORKS COM Boolean assignment; compare the call with False.'
+                    else:
+                        origins.discard(name)
+                if not re.search(r'\bNot\b', expression, re.I):
+                    continue
+            else:
+                condition = re.search(r'\b(?:If|ElseIf|While|Until)\b(.*)', statement, re.I)
+                if not condition:
+                    continue
+                expression = condition.group(1)
+            # Parenthesized zero literals have the same semantics as bare literals.
+            while re.search(r'\(\s*(?:False|0)\s*\)', expression, re.I):
+                expression = re.sub(r'\(\s*(False|0)\s*\)', r'\1', expression, flags=re.I)
+            # Explicit zero comparisons are safe, including Not (ok = False).
+            expression = re.sub(r'\b\w+\b\s*(?:<>|=)\s*(?:False|0)\b', '', expression, flags=re.I)
+            expression = re.sub(r'\b(?:False|0)\s*(?:<>|=)\s*\w+\b', '', expression, flags=re.I)
+            for name in origins:
+                if re.search(r'\b' + re.escape(name) + r'\b', expression, re.I):
+                    yield number, f"'{name}' holds a SOLIDWORKS COM Boolean; compare explicitly with False (= False / <> False)."
+                    break
+            for call in re.finditer(r'\b(\w+)(?:\.\w+)*\.(\w+)\b', expression):
+                if not sw_root(call.group(1)) or call.group(2).lower() not in BOOLEAN_MEMBERS:
+                    continue
+                tail = expression[call.end():].lstrip()
+                if tail.startswith('('):
+                    depth = 0
+                    for index, char in enumerate(tail):
+                        depth += (char == '(') - (char == ')')
+                        if depth == 0:
+                            tail = tail[index + 1:]
+                            break
+                if not re.match(r'\s*\)*\s*(?:<>|=)\s*(?:False|0)\b', tail, re.I):
+                    yield number, f"'{call.group(0)}' returns a COM Boolean; compare explicitly with False."
 
 OBSOLETE = {
     r"\.OpenDoc[2-5]?\s*\(": "OpenDoc6",
@@ -29,7 +160,6 @@ OBSOLETE = {
     r"\.GetSelectedObjectType2\b": "GetSelectedObjectType3",
     r"\.GetRootComponent2?\b": "GetRootComponent3(True)",
     r"\.GetModelDoc\b(?!2)": "GetModelDoc2",
-    r"\.GetBodies\b(?!2)": "GetBodies2",
     r"\.ForceRebuild2\b": "ForceRebuild3",
     r"\.EditRebuild\b(?!3)": "EditRebuild3",
     r"(?<![Bb]ody)\.GetMassProperties\b": "Extension.CreateMassProperty (Body2.GetMassProperties is fine)",
@@ -46,6 +176,8 @@ VBA_RESERVED = {
     "resume", "return", "rset", "seek", "select", "set", "single", "static", "step", "stop", "string",
     "sub", "then", "to", "true", "type", "typeof", "unlock", "until", "variant", "wend", "while", "with",
     "withevents", "write", "xor",
+    # VBA language spec 3.3.5.2 special forms; Circle caused silent .swb compile failures.
+    "array", "circle", "inputb", "lbound", "scale", "ubound",
 }
 
 
@@ -62,7 +194,7 @@ def strip_comment(line: str) -> str:
     return line
 
 
-def check(path: Path) -> int:
+def check(path: Path, snippet=False) -> int:
     raw = path.read_bytes()
     try:
         text = raw.decode("utf-8")
@@ -71,15 +203,17 @@ def check(path: Path) -> int:
     lines = text.splitlines()
     code = [strip_comment(l) for l in lines]
     joined = "\n".join(code)
+    part_receivers = {m.group(1).lower() for m in re.finditer(
+        r'\b(\w+)\s+As\s+(?:SldWorks\.)?PartDoc\b', joined, re.I)}
     issues = []
 
     def add(level, lineno, msg):
         issues.append((level, lineno, msg))
 
-    if not re.search(r"^\s*Option\s+Explicit\b", joined, re.I | re.M):
+    if not snippet and not re.search(r"^\s*Option\s+Explicit\b", joined, re.I | re.M):
         add("ERROR", 0, "Missing 'Option Explicit' - typos become silent new variables.")
 
-    if not re.search(r"^\s*(Public\s+|Private\s+)?Sub\s+main\s*\(", joined, re.I | re.M):
+    if not snippet and not re.search(r"^\s*(Public\s+|Private\s+)?Sub\s+main\s*\(", joined, re.I | re.M):
         add("WARN", 0, "No 'Sub main()' - SOLIDWORKS runs 'main' by default.")
 
     # Every public parameterless Sub is a possible entry point for Tools > Macro > Run
@@ -100,25 +234,8 @@ def check(path: Path) -> int:
     if not has_handler:
         add("WARN", 0, "No 'On Error GoTo <label>' handler - errors leave SW state (graphics, tree) unrestored.")
 
-    # Booleans returned by the SOLIDWORKS API (SaveAs, Save3, ExportToDWG2, GetSaveFlag...) arrive in
-    # VBA as 1 instead of -1: `Not result` is then ALSO True and `result = True` is False.
-    # Verified on SOLIDWORKS 2024 SP5. Track Boolean variables that receive API call results.
-    builtin_types = {"object", "variant", "string", "long", "integer", "double", "single", "boolean", "byte",
-                     "date", "currency", "collection", "dictionary", "filesystemobject", "textstream", "file",
-                     "folder", "regexp", "stream", "recordset", "connection"}
-    sw_vars, non_sw_vars = set(), set()
-    for m in re.finditer(r"\b(\w+)\s*(?:\([^)]*\))?\s+As\s+(?:New\s+)?([\w.]+)", joined, re.I):
-        t = m.group(2).lower()
-        base = t.split(".")[-1]
-        if t.startswith("sldworks.") or (base not in builtin_types and not t.startswith(("scripting.", "vba.", "adodb.", "vbscript_regexp"))):
-            sw_vars.add(m.group(1).lower())
-        else:
-            non_sw_vars.add(m.group(1).lower())
-    api_bools = set()
-    bool_vars = {m.group(1).lower() for m in re.finditer(r"\b(\w+)\s+As\s+Boolean\b", joined, re.I)}
-    for m in re.finditer(r"^\s*(\w+)\s*=\s*\w+(?:\.\w+)*\.\w+\b(?!\s*(?:<>|=|<|>))", joined, re.I | re.M):
-        if m.group(1).lower() in bool_vars:
-            api_bools.add(m.group(1).lower())
+    for number, message in boolean_issues(lines):
+        add('ERROR', number, message)
 
     for i, l in enumerate(code, 1):
         s = l.strip()
@@ -134,27 +251,6 @@ def check(path: Path) -> int:
 
         if s.count('"') % 2 == 1:
             add("ERROR", i, "Odd number of quotes - unterminated string literal (syntax error).")
-
-        for m in re.finditer(r"\bNot\s+\(?\s*(\w+)\b(\s*\.\s*\w+)?", s):
-            name, member = m.group(1), m.group(2)
-            tail = re.split(r"\b(?:Then|And|Or|AndAlso|OrElse)\b", s[m.end():], flags=re.I)[0]
-            if re.search(r"\bIs\s+Nothing\b|\bIs\s+\w", tail, re.I) or name.lower() in ("isempty", "isnull", "isarray", "isnumeric", "isobject", "isdate"):
-                continue   # Not (x Is Nothing) / Not IsEmpty(v) - fine
-            # only objects that are SOLIDWORKS-typed (declared As SldWorks.X / a SW interface) or sw-prefixed;
-            # Dictionary/Collection/FileSystemObject return real VB Booleans
-            nl = name.lower()
-            is_sw = nl in sw_vars or (nl.startswith("sw") and nl not in non_sw_vars)
-            if member and is_sw:
-                add("ERROR", i, f"'Not {name}{member.strip()}(...)': SOLIDWORKS returns True as 1, so Not gives True too. "
-                                "Write 'If <call> = False Then' or 'ok = (<call> <> False)'.")
-                break
-            if not member and name.lower() in api_bools:
-                add("ERROR", i, f"'Not {name}': {name} holds a SOLIDWORKS API result (True = 1, Not 1 = True). "
-                                f"Use 'If {name} = False Then', or assign '{name} = (<call> <> False)'.")
-                break
-        cond = re.search(r"\b(?:If|ElseIf|While|Until)\b(.*?)(?:\bThen\b|$)", s, re.I)
-        if cond and re.search(r"=\s*True\b", cond.group(1), re.I):
-            add("WARN", i, "Comparing with '= True' fails for SOLIDWORKS API Booleans (True = 1). Use 'If x Then' or 'x <> False'.")
 
         # Dim a, b As Long  -> a is Variant
         m = re.match(r"(Dim|Private|Public|Static)\s+(.+)", s, re.I)
@@ -176,6 +272,10 @@ def check(path: Path) -> int:
             if re.search(pat, l):
                 add("WARN", i, f"Obsolete API call - prefer {repl}.")
                 break
+        # IBodyFolder.GetBodies is current; only IPartDoc.GetBodies is superseded.
+        obsolete_bodies = re.search(r'\b(\w+)\.GetBodies\b(?!2)', l, re.I)
+        if obsolete_bodies and obsolete_bodies.group(1).lower() in part_receivers:
+            add('WARN', i, 'Obsolete IPartDoc.GetBodies call - prefer GetBodies2.')
 
         # Unit sanity: assigning large literals to SystemValue (meters)
         m = re.search(r"\.SystemValue\s*=\s*([0-9.]+)", l)

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "task_id": "T15",
+  "family": "drawings",
+  "title": "Export all sheets to PDF",
+  "fixture": {
+    "id": "two-sheet-drawing",
+    "revision": "1"
+  },
+  "fixture_instructions": "Use two-sheet-drawing recipe; output directory initially empty and writable. Hash source drawing and referenced part before run. Pin PDF export settings in manifest.",
+  "request": "Export Sheet1 and Sheet2 to outputs/all-sheets.pdf; inspect exported PDF independently for two pages and sheet identifiers.",
+  "api_candidates": [
+    "IExportPdfData.SetSheets",
+    "IModelDocExtension.SaveAs"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "all-sheets.pdf",
+      "op": "file",
+      "file": "outputs/all-sheets.pdf",
+      "min_bytes": 20,
+      "contains": [
+        "%PDF-"
+      ]
+    },
+    {
+      "id": "pdf_page_count",
+      "path": "/pdf/page_count",
+      "op": "equals",
+      "expected": 2
+    },
+    {
+      "id": "pdf/sheet_ids",
+      "path": "/pdf/sheet_ids",
+      "op": "unordered_equals",
+      "expected": [
+        "Sheet1",
+        "Sheet2"
+      ]
+    },
+    {
+      "id": "export_error_code",
+      "path": "/export/error_code",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

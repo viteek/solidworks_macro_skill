@@ -71,8 +71,8 @@ Private Sub TraverseComponent(swParent As SldWorks.Component2)
     For i = 0 To UBound(children)
         Set swComp = children(i)
 
-        If SKIP_SUPPRESSED And swComp.IsSuppressed Then GoTo NextComp
-        If SKIP_EXCLUDED_FROM_BOM And swComp.ExcludeFromBOM Then GoTo NextComp
+        If SKIP_SUPPRESSED And (swComp.IsSuppressed <> False) Then GoTo NextComp
+        If SKIP_EXCLUDED_FROM_BOM And (swComp.ExcludeFromBOM <> False) Then GoTo NextComp
 
         Set swCompModel = swComp.GetModelDoc2
         If swCompModel Is Nothing Then

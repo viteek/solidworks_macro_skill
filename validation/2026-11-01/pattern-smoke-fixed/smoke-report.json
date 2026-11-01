@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "scope": "modeling smoke only, not full project compilation or A/B benchmark",
+  "source_hashes": {
+    "blank": "8339c62260e50fe38146ae26472bba87c407b2f2e7eeb0764d70149100716190",
+    "block": "a8acf842bff5f1770fc7974cd172b45081e9c2b98c82dfd0f3c93d927f530c41"
+  },
+  "sources_unchanged": true,
+  "results": [
+    {
+      "case": "hole_linear",
+      "status": "PASS",
+      "failures": [],
+      "runner_status": "PASS",
+      "observation": {
+        "collection_status": "OK",
+        "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\hole_linear\\hole_linear.sldprt",
+        "document_type": 1,
+        "selection_count": 0,
+        "active_configuration": "Domy\u015blna",
+        "configurations": [
+          "Domy\u015blna"
+        ],
+        "features": [
+          {
+            "name": "Komentarze",
+            "type": "CommentsFolder"
+          },
+          {
+            "name": "Ulubione",
+            "type": "FavoriteFolder"
+          },
+          {
+            "name": "Historia",
+            "type": "HistoryFolder"
+          },
+          {
+            "name": "Zestawy wybrane",
+            "type": "SelectionSetFolder"
+          },
+          {
+            "name": "Sensory",
+            "type": "SensorFolder"
+          },
+          {
+            "name": "Spinacz projektu",
+            "type": "DocsFolder"
+          },
+          {
+            "name": "Adnotacje",
+            "type": "DetailCabinet"
+          },
+          {
+            "name": "Obiekty powierzchniowe",
+            "type": "SurfaceBodyFolder"
+          },
+          {
+            "name": "Obiekty bry\u0142owe",
+            "type": "SolidBodyFolder"
+          },
+          {
+            "name": "\u015awiat\u0142a i kamery",
+            "type": "EnvFolder"
+          },
+          {
+            "name": "Uwagi",
+            "type": "InkMarkupFolder"
+          },
+          {
+            "name": "R\u00f3wnania",
+            "type": "EqnFolder"
+          },
+          {
+            "name": "Materia\u0142 <nieokre\u015blony>",
+            "type": "MaterialFolder"
+          },
+          {
+            "name": "P\u0142aszczyzna przednia",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna g\u00f3rna",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna prawa",
+            "type": "RefPlane"
+          },
+          {
+            "name": "Pocz\u0105tek uk\u0142adu wsp\u00f3\u0142rz\u0119dnych",
+            "type": "OriginProfileFeature"
+          },
+          {
+            "name": "Recipe_Profile",
+            "type": "ProfileFeature",
+            "segment_count": 4,
+            "length_m": 0.12,
+            "constrained_status": 3
+          },
+          {
+            "name": "Recipe_Block",
+            "type": "Extrusion"
+          },
+          {
+            "name": "Recipe_HoleProfile",
+            "type": "ProfileFeature",
+            "segment_count": 1,
+            "length_m": 0.0125663706143592,
+            "constrained_status": 2
+          },
+          {
+            "name": "Recipe_Hole",
+            "type": "ICE"
+          },
+          {
+            "name": "Recipe_ThreeHoles",
+            "type": "LPattern"
+          }
+        ],
+        "solid_body_count": 1,
+        "volume_m3": 7.62300888156923e-06
+      },
+      "macro_sha256": "9323d0d8711eaafc5e43d79a7366978a84e25d37afac1b76bce383cb5eab76cb",
+      "observer_sha256": "4a494f55031663bf65f65a6161349d845eaa48547875f5f0d4a62765c3e46968",
+      "session_state": "IDLE",
+      "compilation_status": "NOT_TESTED"
+    },
+    {
+      "case": "circular",
+      "status": "PASS",
+      "failures": [],
+      "runner_status": "PASS",
+      "observation": {
+        "collection_status": "OK",
+        "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\circular\\circular.sldprt",
+        "document_type": 1,
+        "selection_count": 0,
+        "active_configuration": "Domy\u015blna",
+        "configurations": [
+          "Domy\u015blna"
+        ],
+        "features": [
+          {
+            "name": "Komentarze",
+            "type": "CommentsFolder"
+          },
+          {
+            "name": "Ulubione",
+            "type": "FavoriteFolder"
+          },
+          {
+            "name": "Historia",
+            "type": "HistoryFolder"
+          },
+          {
+            "name": "Zestawy wybrane",
+            "type": "SelectionSetFolder"
+          },
+          {
+            "name": "Sensory",
+            "type": "SensorFolder"
+          },
+          {
+            "name": "Spinacz projektu",
+            "type": "DocsFolder"
+          },
+          {
+            "name": "Adnotacje",
+            "type": "DetailCabinet"
+          },
+          {
+            "name": "Obiekty powierzchniowe",
+            "type": "SurfaceBodyFolder"
+          },
+          {
+            "name": "Obiekty bry\u0142owe",
+            "type": "SolidBodyFolder"
+          },
+          {
+            "name": "\u015awiat\u0142a i kamery",
+            "type": "EnvFolder"
+          },
+          {
+            "name": "Uwagi",
+            "type": "InkMarkupFolder"
+          },
+          {
+            "name": "R\u00f3wnania",
+            "type": "EqnFolder"
+          },
+          {
+            "name": "Materia\u0142 <nieokre\u015blony>",
+            "type": "MaterialFolder"
+          },
+          {
+            "name": "P\u0142aszczyzna przednia",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna g\u00f3rna",
+            "type": "RefPlane"
+          },
+          {
+            "name": "P\u0142aszczyzna prawa",
+            "type": "RefPlane"
+          },
+          {
+            "name": "Pocz\u0105tek uk\u0142adu wsp\u00f3\u0142rz\u0119dnych",
+            "type": "OriginProfileFeature"
+          },
+          {
+            "name": "Recipe_DiskProfile",
+            "type": "ProfileFeature",
+            "segment_count": 1,
+            "length_m": 0.125663706143592,
+            "constrained_status": 2
+          },
+          {
+            "name": "Recipe_Disk",
+            "type": "Extrusion"
+          },
+          {
+            "name": "Recipe_DiskHoleProfile",
+            "type": "ProfileFeature",
+            "segment_count": 1,
+            "length_m": 0.0125663706143592,
+            "constrained_status": 2
+          },
+          {
+            "name": "Recipe_DiskHole",
+            "type": "ICE"
+          },
+          {
+            "name": "Recipe_FourDiskHoles",
+            "type": "CirPattern"
+          }
+        ],
+        "solid_body_count": 1,
+        "volume_m3": 1.20637157897848e-05
+      },
+      "macro_sha256": "6d3873cd5d5264658e05e46238c7681c206927446d2085bdc4146fc4e93831b9",
+      "observer_sha256": "92cc3f7d8bde9776ece0000cd8304d8e5954c6d5ee8a59cc3c0e6e35d422ee73",
+      "session_state": "IDLE",
+      "compilation_status": "NOT_TESTED"
+    }
+  ]
+}

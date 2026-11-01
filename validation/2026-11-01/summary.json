@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-11-01T19:26:05.118059+00:00",
+  "scope": "bounded local validation, not full A/B or cross-version certification",
+  "checks": [
+    {
+      "check": "unittest",
+      "command": [
+        "C:\\Users\\micha\\.codex\\tmp\\solidworks-macro-quality-venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 28.05,
+      "status": "PASS",
+      "tests_run": 107
+    },
+    {
+      "check": "examples-api",
+      "command": [
+        "C:\\Users\\micha\\.codex\\tmp\\solidworks-macro-quality-venv\\Scripts\\python.exe",
+        "-B",
+        "scripts/check_examples.py",
+        "--api"
+      ],
+      "exit_code": 0,
+      "seconds": 1.02,
+      "status": "PASS",
+      "checked": 58,
+      "errors": 0
+    },
+    {
+      "check": "environment",
+      "command": [
+        "C:\\Users\\micha\\.codex\\tmp\\solidworks-macro-quality-venv\\Scripts\\python.exe",
+        "-B",
+        "scripts/verify_environment.py",
+        "--require-api",
+        "--json",
+        "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\validation\\2026-11-01\\environment.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.33,
+      "status": "PASS"
+    },
+    {
+      "check": "skill",
+      "command": [
+        "C:\\Users\\micha\\.codex\\tmp\\solidworks-macro-quality-venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\micha\\.codex\\skills\\.system\\skill-creator\\scripts\\quick_validate.py",
+        "."
+      ],
+      "exit_code": 0,
+      "seconds": 0.19,
+      "status": "PASS"
+    },
+    {
+      "check": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.06,
+      "status": "PASS"
+    }
+  ],
+  "modeling_passed": 9,
+  "modeling_cases": 9,
+  "modeling_sources_unchanged": true,
+  "assembly_recipe_passes": 6,
+  "sheetmetal_create_and_reopen": "PASS",
+  "sheetmetal_final_runner": "PASS",
+  "full_project_compile": "NOT_TESTED",
+  "full_24_task_AB": "NOT_TESTED",
+  "other_versions": "NOT_TESTED",
+  "license": "PENDING_AUTHOR_SELECTION",
+  "source_bindings_match": true,
+  "git_base_commit": "53d6a817a5a9b56dbda58abf2dbbb190b7210b43",
+  "source_tree": "local uncommitted changes",
+  "final_session_state": "IDLE",
+  "final_open_documents": 0
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "test_root": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\circular",
+  "reviewed": true,
+  "copies_confirmed": true,
+  "allow_model_changes": true,
+  "entry_point": {
+    "module": "TestMacro",
+    "procedure": "main"
+  },
+  "macro_sha256": "6d3873cd5d5264658e05e46238c7681c206927446d2085bdc4146fc4e93831b9",
+  "observer_sha256": "92cc3f7d8bde9776ece0000cd8304d8e5954c6d5ee8a59cc3c0e6e35d422ee73",
+  "inputs": [
+    {
+      "path": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\circular\\circular.sldprt",
+      "sha256": "8339c62260e50fe38146ae26472bba87c407b2f2e7eeb0764d70149100716190"
+    }
+  ],
+  "outputs": [
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\circular\\macro.log",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\circular\\observed.json",
+    "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\pattern-smoke-fixed\\circular\\runner.json"
+  ],
+  "allowed_dialogs": []
+}

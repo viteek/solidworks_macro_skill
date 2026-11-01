@@ -26,8 +26,7 @@ import sys
 try:
     import pythoncom
 except ImportError:
-    print("pywin32 is required: pip install pywin32")
-    sys.exit(2)
+    pythoncom = None
 
 TKIND_ENUM, TKIND_INTERFACE, TKIND_DISPATCH, TKIND_COCLASS = 0, 3, 4, 5
 VT_PTR, VT_USERDEFINED = 26, 29
@@ -47,6 +46,8 @@ VBA_KEYWORDS = {
 
 class TypeLibIndex:
     def __init__(self, sw_dir):
+        if pythoncom is None:
+            raise RuntimeError("pywin32 is required to read SOLIDWORKS type libraries")
         self.types = {}      # lower name -> (display name, {lower member: [funcdesc-like dicts]})
         self.consts = {}     # lower const -> (enum name, display name)
         self.enums = {}      # lower enum name -> {lower member}
@@ -273,7 +274,7 @@ def check(path, idx):
             if not cands:
                 owners = idx.owners.get(member.lower(), [])
                 if owners:
-                    add("WARN", ln, f"{tname} has no member '{member}' - it belongs to {', '.join(sorted(owners)[:4])}. "
+                    add("ERROR", ln, f"{tname} has no member '{member}' - it belongs to {', '.join(sorted(owners)[:4])}. "
                                     f"VBA resolves it at run time (error 438 if the object is another type); "
                                     f"prefer a variable of that type (e.g. Set swAssy = swModel).")
                 else:
@@ -300,7 +301,7 @@ def check(path, idx):
                             break
                 else:
                     return
-            elif statement_start and not re.match(r"\s*(\.|=|$)", rest) and not re.match(r"\s*(Then|To|And|Or|Is|<|>|&|\+|-|\*|/)", rest, re.I):
+            elif statement_start and not re.match(r"\s*(\.|=|$)", rest) and not re.match(r"\s*(?:(?:Then|To|And|Or|Is)\b|<|>|&|\*|/)", rest, re.I):
                 argtext = rest.strip()
                 pos = len(line)
             if argtext is not None and f["kind"] not in (INVOKE_PROPERTYPUT, INVOKE_PROPERTYPUTREF):
@@ -396,7 +397,10 @@ def check(path, idx):
 
 
 def default_sw_dir():
-    for c in glob.glob(r"C:\Program Files\SOLIDWORKS Corp*\SOLIDWORKS"):
+    candidates = ([os.environ['SOLIDWORKS_API_DIR']] if os.environ.get('SOLIDWORKS_API_DIR') else [])
+    candidates += glob.glob(r"C:\Program Files\SOLIDWORKS Corp*\SOLIDWORKS")
+    candidates += glob.glob(r"C:\Program Files\Dassault Systemes\SOLIDWORKS*\SOLIDWORKS")
+    for c in candidates:
         if os.path.exists(os.path.join(c, "sldworks.tlb")):
             return c
     return r"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS"

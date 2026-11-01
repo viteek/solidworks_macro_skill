@@ -1,0 +1,16 @@
+[
+  "C:\\Users\\micha\\.codex\\tmp\\solidworks-macro-quality-venv\\Scripts\\python.exe",
+  "-B",
+  "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\scripts\\run_in_solidworks.py",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\saved-input-rejected\\probe.bas",
+  "--open",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\saved-input-rejected\\copy.sldprt",
+  "--profile",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\saved-input-rejected\\profile.json",
+  "--confirm-model-changes",
+  "--close-opened",
+  "--timeout",
+  "30",
+  "--json",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\saved-input-rejected\\runner.json"
+]

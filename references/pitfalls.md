@@ -12,13 +12,17 @@ the most common reasons a "reviewed" macro silently does nothing.
 
 1. **API Booleans arrive as 1, not -1.** `SaveAs`, `Save3`, `ExportToDWG2`, `GetSaveFlag`,
    `IsSuppressed`, `SelectByID2`, `Select4`, `ForceRebuild3`, `EditRebuild3`, `ActivateSheet`,
-   `ExportPdfData.SetSheets`, `SetSuppression2`, `GetUserPreferenceToggle`... return True as 1.
+   `ExportPdfData.SetSheets`, `GetUserPreferenceToggle`... may return nonstandard nonzero truth values.
+   Numeric status methods such as `Component2.SetSuppression2` must be checked against their enum,
+   not treated as COM Booleans.
    In VBA `Not 1` is -2, so **`Not result` is True for success too**, and `result = True` is False.
    `CBool()` does not normalize it. Exceptions seen: `Body2.IsSheetMetal`, `Feature.Select2` (-1).
-   - OK: `If swModel.Save3(...) Then`, `If swModel.Save3(...) = False Then`, `ok = (call <> False)`.
+   - Required: `If swModel.Save3(...) = False Then`, `If swFeat.IsSuppressed <> False Then`, `ok = (call <> False)`.
    - Wrong: `If Not swModel.Save3(...) Then`, `ok = call: If Not ok Then`, `If call = True Then`,
      `If Not swFeat.IsSuppressed Then` (true for every feature!).
-   `check_vba.py` flags these.
+   Also avoid implicit `If result Then` for an unnormalized COM result. `check_vba.py` tracks
+   bounded procedure-local provenance; it is not a full VBA compiler or interprocedural type analyzer.
+   See [the common COM rule](vba-com-semantics.md).
 2. **`ExportToDWG2` on a part loaded as an assembly component fails on the first call** (returns
    False, no file), whatever the arguments. Such documents are invisible and not active. Fix that
    works: `swApp.ActivateDoc3 partTitle, False, swDontRebuildActiveDoc, err` before exporting (then

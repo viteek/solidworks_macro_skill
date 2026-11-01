@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "task_id": "T07",
+  "family": "selection_modeling",
+  "title": "Create centered through hole",
+  "fixture": {
+    "id": "base-part",
+    "revision": "1"
+  },
+  "fixture_instructions": "Use base-part recipe with planar top face at Z=10 mm; no other features. Save baseline and clear selection.",
+  "request": "Cut a centered diameter 10 mm through hole normal to top face; name cut CenterHole.",
+  "api_candidates": [
+    "ISketchManager.CreateCircleByRadius",
+    "IFeatureManager.FeatureCut4",
+    "IFeature.GetTypeName2"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "solid_body_count",
+      "path": "/solid_body_count",
+      "op": "equals",
+      "expected": 1
+    },
+    {
+      "id": "feature_exists_CenterHole",
+      "path": "/feature_exists/CenterHole",
+      "op": "equals",
+      "expected": true
+    },
+    {
+      "id": "hole_diameter_m",
+      "path": "/hole_diameter_m",
+      "op": "number",
+      "expected": 0.01,
+      "abs_tol": 1e-08
+    },
+    {
+      "id": "volume_m3",
+      "path": "/volume_m3",
+      "op": "number",
+      "expected": 4.921460183660255e-05,
+      "abs_tol": 1e-10
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

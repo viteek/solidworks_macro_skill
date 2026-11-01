@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "task_id": "T11",
+  "family": "assemblies",
+  "title": "Add one coincident mate",
+  "fixture": {
+    "id": "two-blocks",
+    "revision": "1"
+  },
+  "fixture_instructions": "Create assembly with fixed BlockA-1 at origin and floating BlockB-1 translated +30 mm Z; same centered base-part geometry. No mates. Name A top planar face MateA and B bottom face MateB via entity naming. Save baseline.",
+  "request": "Add aligned coincident mate between named faces, name it Contact, rebuild; report mate objects and face separation.",
+  "api_candidates": [
+    "IAssemblyDoc.AddMate5",
+    "IMate2.Type",
+    "IMate2.MateEntity",
+    "IModelDoc2.EditRebuild3"
+  ],
+  "evaluation": "Independent post-run collector supplies each JSON pointer from reopened/traversed CAD objects or independently parsed exports. File assertions read actual artifacts. See ../README.md for six-phase evidence and safety contract.",
+  "assertions": [
+    {
+      "id": "mate_count",
+      "path": "/mate_count",
+      "op": "equals",
+      "expected": 1
+    },
+    {
+      "id": "mates_Contact_type",
+      "path": "/mates/Contact/type",
+      "op": "equals",
+      "expected": "coincident"
+    },
+    {
+      "id": "mates_Contact_entity_count",
+      "path": "/mates/Contact/entity_count",
+      "op": "equals",
+      "expected": 2
+    },
+    {
+      "id": "contact_separation_m",
+      "path": "/contact_separation_m",
+      "op": "number",
+      "expected": 0,
+      "abs_tol": 1e-07
+    },
+    {
+      "id": "rebuild_errors",
+      "path": "/rebuild_errors",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_unintended_saves",
+      "path": "/safety/unintended_saves",
+      "op": "equals",
+      "expected": 0
+    },
+    {
+      "id": "safety_source_hashes_unchanged",
+      "path": "/safety/source_hashes_unchanged",
+      "op": "equals",
+      "expected": true
+    }
+  ],
+  "live_evidence_status": "NOT_TESTED"
+}

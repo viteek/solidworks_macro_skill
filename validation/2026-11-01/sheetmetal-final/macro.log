@@ -1,0 +1,1 @@
+RESULT create_flat_blank OK; sheet_metal=1; solid_bodies=1; volume_m3=0,00001; thickness_m=0,002; flat_patterns=1; cut_list_folders=1

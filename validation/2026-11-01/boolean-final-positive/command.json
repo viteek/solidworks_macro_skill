@@ -1,0 +1,21 @@
+[
+  "C:\\Users\\micha\\.codex\\tmp\\solidworks-macro-quality-venv\\Scripts\\python.exe",
+  "-B",
+  "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\scripts\\run_in_solidworks.py",
+  "C:\\Users\\micha\\OneDrive\\Dokumenty\\Repozytoria\\solidworks_macro_skill\\assets\\diagnostic-macros\\boolean_probe.bas",
+  "--open",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-final-positive\\copy.sldprt",
+  "--profile",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-final-positive\\profile.json",
+  "--confirm-model-changes",
+  "--define",
+  "RESULT_PATH=\"C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-final-positive\\macro.log\"",
+  "--expect-text",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-final-positive\\macro.log",
+  "RESULT=PASS",
+  "--close-opened",
+  "--timeout",
+  "30",
+  "--json",
+  "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\boolean-final-positive\\runner.json"
+]

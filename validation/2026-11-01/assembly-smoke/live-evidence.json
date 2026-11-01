@@ -1,0 +1,144 @@
+{
+  "results": [
+    {
+      "case": "fixture",
+      "status": "PASS",
+      "session_state": "IDLE",
+      "input_files_unchanged": true,
+      "runner": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\fixture-runner.json",
+      "macro_sha256": "872d668361e09a73e640ac964f83582fb80ab65a844435e02347349fabb6e7af"
+    },
+    {
+      "case": "mate_reference",
+      "status": "PASS",
+      "session_state": "IDLE",
+      "input_files_unchanged": true,
+      "runner": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\mate_reference-runner.json",
+      "macro_sha256": "9d66798d1a2824682d1e3f05971b4b7fcaeaea6d6a1e44807ae8fd55f8f534e1"
+    },
+    {
+      "case": "assembly_context_mate",
+      "status": "PASS",
+      "session_state": "IDLE",
+      "input_files_unchanged": true,
+      "runner": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\assembly_context_mate-runner.json",
+      "macro_sha256": "9e64707365f528fd5542e2c2b306f2e5bb0fe5d409848c17c95d1001a87e8c3d"
+    },
+    {
+      "case": "insert_component_transform",
+      "status": "PASS",
+      "session_state": "IDLE",
+      "input_files_unchanged": true,
+      "runner": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\insert_component_transform-runner.json",
+      "macro_sha256": "8f3ea0bdc43b04a13e4442ac6909dd933c603f26aff6d683af521841e2634789"
+    },
+    {
+      "case": "create_three_views",
+      "status": "PASS",
+      "session_state": "IDLE",
+      "input_files_unchanged": true,
+      "runner": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\create_three_views-runner.json",
+      "macro_sha256": "e2ecdb6b2bc0bee7e6cec9383f1849f02e769e0e93c2d4c5f516ca0c178d3a16"
+    },
+    {
+      "case": "inspect_drawing_semantics",
+      "status": "PASS",
+      "session_state": "IDLE",
+      "input_files_unchanged": true,
+      "runner": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\inspect_drawing_semantics-runner.json",
+      "macro_sha256": "e7af45ce890b1905f61f115ee01ca188c764a84c9f05035fed156d880766bdf9"
+    },
+    {
+      "case": "inspect_sheetmetal_cutlist",
+      "status": "PASS",
+      "session_state": "IDLE",
+      "input_files_unchanged": true,
+      "runner": "C:\\Users\\micha\\.codex\\tmp\\sw-audit-fxy61gm3\\assembly-smoke-live2\\inspect_sheetmetal_cutlist-runner.json",
+      "macro_sha256": "6a218605f40b8364f3f19a5308bda92b7f451c256c89be67adf7d38a7c702b4f"
+    }
+  ],
+  "schema_version": 1,
+  "evidence_kind": "bounded_live_smoke",
+  "environment": {
+    "solidworks_revision": "34.4.0",
+    "solidworks_version": "2026",
+    "service_pack": "SP4",
+    "platform": "Windows",
+    "interaction": "reviewed CLI/COM runner; no dialog answers or screen control"
+  },
+  "full_project_compilation": "NOT_TESTED",
+  "limitations": [
+    "MateReference tested with three planar faces; optional one/two-slot and negative cases not live tested",
+    "Drawing semantic inspection fixture has three model views and no GTol/weld/BOM annotations",
+    "Sheetmetal/cut-list diagnostic tested on ordinary solid part only; positive sheetmetal and cut-list cases not live tested"
+  ],
+  "independent_drawing_observation": "RESULT drawing_observer PASS; model_views=3; input_restored=True",
+  "fixtures": {
+    "blank.sldprt": {
+      "sha256": "8339c62260e50fe38146ae26472bba87c407b2f2e7eeb0764d70149100716190",
+      "bytes": 26773
+    },
+    "block.sldprt": {
+      "sha256": "a8acf842bff5f1770fc7974cd172b45081e9c2b98c82dfd0f3c93d927f530c41",
+      "bytes": 46016
+    },
+    "assembly.asmdot": {
+      "sha256": "e1c22591824d49f073944e6b5a97270a183479fe2d836e512f8efc78d7c5a172",
+      "bytes": 19705
+    },
+    "drawing.drwdot": {
+      "sha256": "a8c5c284ef5b0a0fd95042af9c17ddee29ce5996318b7b94c46d0c000345dc37",
+      "bytes": 15891
+    },
+    "fixture.sldasm": {
+      "sha256": "5289aeb18b8b2c9e09d92bd4c8691bb502af42f9b6e590048927e79ae8e6c745",
+      "bytes": 37021
+    },
+    "fixture.slddrw": {
+      "sha256": "4ef423c55327d560314e225fdf56e20dcda52019fdf852f7ba856977539ce133",
+      "bytes": 24711
+    },
+    "drawing-observer.bas": {
+      "sha256": "acfc9c85b0da309ecde6f395266477c604b2d37a37e422b6a45414ba50975d54",
+      "bytes": 2884
+    }
+  },
+  "prepared_source_verification": [
+    {
+      "case": "fixture",
+      "prepared_source_matches_run": true
+    },
+    {
+      "case": "mate_reference",
+      "prepared_source_matches_run": true
+    },
+    {
+      "case": "assembly_context_mate",
+      "prepared_source_matches_run": true
+    },
+    {
+      "case": "insert_component_transform",
+      "prepared_source_matches_run": true
+    },
+    {
+      "case": "create_three_views",
+      "prepared_source_matches_run": true
+    },
+    {
+      "case": "inspect_drawing_semantics",
+      "prepared_source_matches_run": true
+    },
+    {
+      "case": "inspect_sheetmetal_cutlist",
+      "prepared_source_matches_run": true
+    }
+  ],
+  "source_snapshots": {
+    "assembly_context_mate.bas": "a8d60cf97ba6432df9e613a47c04063646e64d52c95f5f589fb9d2c38b387f77",
+    "create_three_views.bas": "f9f8e6def9d0aa24094ba31ea06ee717a72519919025e5bdf02adda0d4411500",
+    "insert_component_transform.bas": "a5f4f20899129c63901b9b1463dba6e3bcf737c3377c0570059493cf9983827f",
+    "inspect_drawing_semantics.bas": "5bceacc78e2295281e4d209e28b79f4d0bd3cd22f16e0306fb830d2eb588f158",
+    "inspect_sheetmetal_cutlist.bas": "a6cea02b7a493072d8bd840796c641c547e25cdf743e9505c5b9f6ec6b7c2ef0",
+    "mate_reference.bas": "da81e924433a325cc59fcd4349e6ae0e36192c4704a16aeac6a973bb69883264"
+  }
+}
