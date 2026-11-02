@@ -354,7 +354,14 @@ def main():
                     raise ValueError('Observer must expose Sub main()')
             elif a.observe_define:
                 raise ValueError('--observe-define requires --observe')
-            outputs = a.expect_file + [p for p, _ in a.expect_text] + ([a.json] if a.json else [])
+            expected_outputs = a.expect_file + [p for p, _ in a.expect_text]
+            if a.json:
+                for path in expected_outputs:
+                    if (canonical(a.json) == canonical(path)
+                            or (Path(a.json).exists() and Path(path).exists()
+                                and os.path.samefile(a.json, path))):
+                        raise ValueError('--json must be distinct from --expect-file and --expect-text')
+            outputs = expected_outputs + ([a.json] if a.json else [])
             if a.create_profile:
                 root = Path(a.test_root or Path(a.open).parent).resolve(strict=True)
                 data = {'schema_version': 1, 'test_root': str(root), 'reviewed': False,

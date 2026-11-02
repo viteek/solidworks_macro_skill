@@ -61,7 +61,8 @@ End Sub
 Private Sub ProcessFile(filePath As String)
     Dim model As SldWorks.ModelDoc2
     Dim errors As Long, warnings As Long, openedByMacro As Boolean
-    Dim message As String, status As String
+    Dim message As String, status As String, closeFailure As String
+    Dim stillLoaded As Boolean
     On Error GoTo Failed
     status = "ERROR"
     If IsLoaded(filePath) Then
@@ -95,14 +96,30 @@ Failed:
     message = Err.Number & ": " & Err.Description
     Resume Cleanup
 Cleanup:
-    If Not TryLog(Csv(filePath) & ";" & status & ";" & Csv(message)) Then logHealthy = False
     On Error Resume Next
     If openedByMacro And Not model Is Nothing Then
         ' Only a verified owned document is closed; audit does not run ApplyChanges.
+        Err.Clear
         swApp.CloseDoc model.GetTitle
+        If Err.Number <> 0 Then
+            closeFailure = Err.Number & ": " & Err.Description
+        Else
+            ' CloseDoc has no return value; confirm the document is no longer loaded.
+            Err.Clear
+            stillLoaded = IsLoaded(filePath)
+            If Err.Number <> 0 Then
+                closeFailure = "Close verification failed: " & Err.Number & ": " & Err.Description
+            ElseIf stillLoaded Then
+                closeFailure = "Document remains loaded after CloseDoc"
+            End If
+        End If
     End If
-    If Err.Number <> 0 Then Debug.Print "Close failed: " & Err.Description
     On Error GoTo 0
+    If closeFailure <> "" Then
+        message = "Processing status=" & status & "; " & message & "; Close failed or unconfirmed: " & closeFailure
+        status = "ERROR"
+    End If
+    If Not TryLog(Csv(filePath) & ";" & status & ";" & Csv(message)) Then logHealthy = False
 End Sub
 
 Private Sub InspectModel(model As SldWorks.ModelDoc2)

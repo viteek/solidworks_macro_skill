@@ -180,6 +180,19 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(status, 2)
         self.assertEqual(report['status'], 'PREFLIGHT_FAILED')
 
+    def test_json_collision_with_expectations_is_rejected_before_execution(self):
+        for option in ('--expect-file', '--expect-text'):
+            with self.subTest(option=option):
+                self.report.write_text('preserve')
+                alias = str(self.root / '.' / self.report.name)
+                args = [option, alias] + (['needle'] if option == '--expect-text' else [])
+                status, report, _ = self.invoke(*args)
+                self.assertEqual(status, 2)
+                self.assertEqual(report['status'], 'PREFLIGHT_FAILED')
+                self.assertFalse(report['macro_executed'])
+                self.assertEqual(self.report.read_text(), 'preserve')
+                self.assertEqual(self.macro_calls, [])
+
     def test_native_project_is_run_without_text_conversion(self):
         self.macro = self.root / 'complete-project.swp'
         self.macro.write_bytes(b'\xd0\xcf\x11\xe0\x00\x81binary-project')

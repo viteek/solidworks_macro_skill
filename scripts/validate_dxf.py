@@ -35,6 +35,7 @@ OPTIONAL_KEYS = {'linetypes', 'ignored_entities', 'description'}
 EXPECTED_KEYS = {'width_mm', 'height_mm', 'net_area_mm2', 'hole_count', 'outer_contours', 'bend_entities',
                  'dimension_tolerance_mm', 'area_tolerance_mm2'}
 MAX_POINTS = 200000
+MAX_ENTITIES = 50000
 
 
 def validate_profile(profile):
@@ -142,8 +143,8 @@ def validate_dxf(path, profile):
     counts, ignored_counts, role_sources = Counter(), Counter(), Counter()
     tolerance = profile['topology_tolerance_mm']
     point_count = 0
-    for entity in document.modelspace():
-        if sum(counts.values()) >= 50000:
+    for entity_index, entity in enumerate(document.modelspace()):
+        if entity_index >= MAX_ENTITIES:
             issue('RESOURCE_LIMIT', 'Too many entities for this screening profile')
             break
         kind, layer = entity.dxftype(), entity.dxf.layer

@@ -36,8 +36,8 @@ PACKAGE = HERE.parent
 
 
 def publish_validated(stage, target, validator, overwrite=False):
-    stage, target = Path(stage).resolve(), Path(target).resolve()
-    if stage == target or stage.is_symlink() or not stage.is_file() or stage.stat().st_size == 0:
+    stage, target = Path(stage), Path(target).resolve()
+    if stage.is_symlink() or not stage.is_file() or stage.stat().st_size == 0 or stage.resolve() == target:
         raise ValueError('Publication requires a distinct nonempty regular staging file')
     if target.exists() and not overwrite:
         raise FileExistsError('Final output already exists (use --overwrite to keep it as a backup and replace)')
@@ -45,7 +45,7 @@ def publish_validated(stage, target, validator, overwrite=False):
     validation = validator(stage)
     if validation.get('status') != 'PASS':
         return {'status': 'BLOCKED_VALIDATION', 'validation': validation, 'published': False}
-    if validation.get('sha256') != before or file_hash(stage) != before:
+    if stage.is_symlink() or validation.get('sha256') != before or file_hash(stage) != before:
         raise ValueError('Validated byte identity changed before publication')
     backup = None
     if target.exists():
