@@ -195,7 +195,7 @@ def run_step(folder, name, macro, opened, defines, outputs, expected, live, time
     for define in defines:
         command += ['--define', define]
     for path, text in expected:
-        command += ['--expect-text', str(path), text]
+        command += ['--expect-result', str(path), text]
     if observer:
         command += ['--observe', str(observer)]
     (folder / (name + '-command.json')).write_text(json.dumps(command, indent=2), encoding='utf-8')

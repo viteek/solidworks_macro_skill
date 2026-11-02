@@ -88,8 +88,8 @@ def main():
         command += ['--observe-define', item]
     for key in ('metrics', 'inspection', 'fixture'):
         command += ['--expect-file', str(outputs[key])]
-    command += ['--expect-text', str(outputs['macro']), 'RESULT create_flat_blank OK',
-                '--expect-text', str(outputs['save']), 'RESULT=PASS']
+    command += ['--expect-result', str(outputs['macro']), 'RESULT create_flat_blank OK',
+                '--expect-result', str(outputs['save']), 'RESULT=PASS']
     (folder / 'command.json').write_text(json.dumps(command, indent=2), encoding='utf-8')
     if not args.run:
         print('Prepared only:', folder)

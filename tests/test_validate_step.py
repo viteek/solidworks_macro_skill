@@ -33,6 +33,19 @@ class StepResourceTests(unittest.TestCase):
             self.assertEqual(result['sha256'], 'hash')
             parser.assert_called_once_with(path)
 
+    def test_input_changed_during_analysis_is_refused(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'model.step'
+            path.write_bytes(b'original')
+            def parse_while_replaced(parsed):
+                parsed.write_bytes(b'replaced')
+                return {}
+            with patch.object(validate_step, 'read_step_metrics', side_effect=parse_while_replaced), \
+                    patch.object(validate_step, 'compare_metrics', return_value={'status': 'PASS'}) as compare:
+                with self.assertRaisesRegex(ValueError, 'INPUT_CHANGED'):
+                    validate_step.validate_step(path, {}, {})
+            compare.assert_not_called()
+
     def test_timeout_terminates_then_kills_unresponsive_worker(self):
         process = Mock()
         process.communicate.side_effect = [subprocess.TimeoutExpired('worker', 1),

@@ -105,7 +105,7 @@ Cleanup:
     On Error GoTo 0
     If Len(failureText) <> 0 Then resultText = failureText
     If Len(cleanupText) <> 0 Then
-        resultText = "FAIL revolve_ring cleanup: " & cleanupText & "; prior=" & Replace(resultText, "RESULT ", "")
+        resultText = "FAIL revolve_ring cleanup: " & cleanupText & "; prior=" & Replace(resultText, "RESULT revolve_ring OK; ", "")
     End If
     On Error GoTo LogFailed
     If resultOpened <> False Then

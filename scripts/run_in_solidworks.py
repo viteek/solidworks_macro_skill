@@ -20,6 +20,8 @@ How it works
 - --expect-file checks output freshness; --expect-text checks only appended text, or the contents
   of a new log or a log whose previous byte prefix changed. Identical content is conservatively
   treated as unchanged, even after replacement. Prefer an appended per-run result or run ID.
+  --expect-result requires the final new line to start with an exact status prefix; a log whose
+  final line is FAIL/CANCELLED never satisfies --expect-text either.
 - Timeout/blocked dialog: report without further COM calls or document cleanup. The macro may
   still be running in SOLIDWORKS; the timeout does not cancel it. A durable UNKNOWN/RUNNING
   marker blocks further runs until explicit --recover-session after inspection.
@@ -279,6 +281,33 @@ def new_log_text(previous, current):
         return raw.decode('cp1250', errors='replace')
 
 
+FAILURE_STATUS = re.compile(r'^(?:RESULT[ =](?:\S+ )?)?(?:FAIL|CANCELLED)\b')
+
+
+def terminal_line(text):
+    """The last non-empty line carries the run's final status."""
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    return lines[-1] if lines else ''
+
+
+def check_log_text(content, needle):
+    """Substring check that never accepts a log ending in a failure status."""
+    if needle not in content:
+        return f"text {needle!r} not found"
+    if FAILURE_STATUS.match(terminal_line(content)):
+        return f"text {needle!r} found, but the final status line reports failure"
+    return None
+
+
+def check_log_result(content, prefix):
+    """The final line must start with PREFIX followed by end of line, ';' or whitespace."""
+    line = terminal_line(content)
+    rest = line[len(prefix):]
+    if not line.startswith(prefix) or (rest and rest[0] != ';' and not rest[0].isspace()):
+        return f"final status line {line!r} does not start with {prefix!r}"
+    return None
+
+
 def file_snapshot(path):
     """Capture content and identity, rather than relying on a wall-clock threshold."""
     try:
@@ -335,7 +364,11 @@ def main():
     ap.add_argument("--expect-file", action="append", default=[],
                     help="file that must exist and be written during this run (repeatable)")
     ap.add_argument("--expect-text", nargs=2, action="append", default=[], metavar=("FILE", "TEXT"),
-                    help="newly appended/replaced text in FILE must contain TEXT (repeatable)")
+                    help="newly appended/replaced text in FILE must contain TEXT and must not end in a "
+                         "FAIL/CANCELLED status line (repeatable)")
+    ap.add_argument("--expect-result", nargs=2, action="append", default=[], metavar=("FILE", "PREFIX"),
+                    help="the last non-empty newly written line in FILE must start with PREFIX, followed by "
+                         "end of line, ';' or whitespace (repeatable; preferred acceptance check)")
     ap.add_argument("--json", help="write the report here")
     a = ap.parse_args()
     a.report_authorized = False
@@ -387,7 +420,7 @@ def main():
                     raise ValueError('Observer must expose Sub main()')
             elif a.observe_define:
                 raise ValueError('--observe-define requires --observe')
-            expected_outputs = a.expect_file + [p for p, _ in a.expect_text]
+            expected_outputs = a.expect_file + [p for p, _ in a.expect_text + a.expect_result]
             if a.json:
                 for path in expected_outputs:
                     if (canonical(a.json) == canonical(path)
@@ -548,7 +581,7 @@ def execute_macro(a, test_root, norm, state):
     for f in a.output_identities:
         revalidate_output(f, a.test_profile.data['test_root'], a.output_identities[f])
     previous_files = {f: file_snapshot(f) for f in a.expect_file}
-    previous_logs = {f: read_log(f) for f, _ in a.expect_text}
+    previous_logs = {f: read_log(f) for f, _ in a.expect_text + a.expect_result}
     watcher = DialogWatcher(pid, a.answer, strict, a.test_profile.data['allowed_dialogs'])
     watcher.start()
     result = {}
@@ -663,15 +696,17 @@ def execute_macro(a, test_root, norm, state):
             expect_failures.append(f"missing: {f}")
         elif current == previous_files[f]:
             expect_failures.append(f"not written by this run (unchanged file): {f}")
-    for f, needle in a.expect_text:
+    log_checks = ([(f, needle, check_log_text) for f, needle in a.expect_text]
+                  + [(f, prefix, check_log_result) for f, prefix in a.expect_result])
+    for f, needle, check in log_checks:
         try:
             revalidate_output(f, a.test_profile.data['test_root'], a.output_identities[f])
         except (OSError, ValueError) as error:
             expect_failures.append(str(error))
             continue
-        content = new_log_text(previous_logs[f], read_log(f))
-        if needle not in content:
-            expect_failures.append(f"text {needle!r} not found in {f}")
+        problem = check(new_log_text(previous_logs[f], read_log(f)), needle)
+        if problem:
+            expect_failures.append(f"{problem} in {f}")
     report["expectations_failed"] = expect_failures
 
     if report["run_ok"] is False and not watcher.dialogs and report["run_error"] == "OK":

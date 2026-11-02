@@ -52,6 +52,19 @@ class ResultTests(unittest.TestCase):
         self.obs['values']['length'] = float('nan')
         self.assertEqual(self.check()['status'], 'FAIL')
 
+    def test_json_pointer_array_indices_follow_rfc_6901(self):
+        values = {'items': [10, 20], 'a/b': 1, 'm~n': 2}
+        self.assertEqual(vr.pointer(values, '/items/1'), 20)
+        self.assertEqual(vr.pointer(values, '/items/0'), 10)
+        self.assertEqual(vr.pointer(values, '/a~1b'), 1)
+        self.assertEqual(vr.pointer(values, '/m~0n'), 2)
+        for path in ('/items/01', '/items/00', '/items/+1', '/items/-', '/items/١', '/m~2n'):
+            with self.subTest(path=path), self.assertRaises(KeyError):
+                vr.pointer(values, path)
+        self.obs['values'] = {'length': [.1]}
+        self.spec['assertions'][0]['path'] = '/length/00'
+        self.assertEqual(self.check()['status'], 'NOT_TESTED')
+
     def test_missing_runtime_and_unbacked_claim_are_not_tested(self):
         del self.obs['evidence']['runtime']
         self.assertEqual(self.check()['phases']['result']['status'], 'NOT_TESTED')

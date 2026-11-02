@@ -75,7 +75,7 @@ Cleanup:
     On Error GoTo 0
     If Len(failureText) <> 0 Then resultText = failureText
     If Len(cleanupText) <> 0 Then
-        resultText = "FAIL modify_extrude cleanup: " & cleanupText & "; prior=" & Replace(resultText, "RESULT ", "")
+        resultText = "FAIL modify_extrude cleanup: " & cleanupText & "; prior=" & Replace(resultText, "RESULT modify_extrude OK; ", "")
     End If
     On Error GoTo LogFailed
     If resultOpened <> False Then

@@ -8,6 +8,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import check_examples
+import run_in_solidworks
 
 
 class ExampleTests(unittest.TestCase):
@@ -36,18 +37,29 @@ class ExampleTests(unittest.TestCase):
 
 
 class RecipeResultTests(unittest.TestCase):
-    def test_cleanup_failure_line_cannot_repeat_the_success_marker(self):
-        # --expect-text is a substring match, so "FAIL ...; prior=RESULT x OK" would pass.
+    def test_cleanup_failure_line_cannot_repeat_the_success_status(self):
+        # Rebuild each recipe's cleanup-failure line from its VBA literals and run it
+        # through the runner's own log checks.
         root = Path(__file__).resolve().parents[1] / 'recipes'
-        pattern = re.compile(r'"; prior=" & (.+)$')
+        failure = re.compile(r'resultText = "(FAIL (\w+) cleanup: )" & cleanupText & "; prior=" & '
+                             r'Replace\(resultText, "([^"]*)", ""\)')
         found = 0
         for path in sorted(root.rglob('*.bas')):
-            for number, line in enumerate(path.read_text(encoding='utf-8').splitlines(), 1):
-                match = pattern.search(line)
-                if match:
-                    found += 1
-                    self.assertEqual(match.group(1).strip(), 'Replace(resultText, "RESULT ", "")',
-                                     f'{path.relative_to(root)}:{number}')
+            source = path.read_text(encoding='utf-8')
+            for match in failure.finditer(source):
+                found += 1
+                head, name, removed = match.groups()
+                success = re.search(r'resultText = "(RESULT ' + name + r' OK; [^"]*)"', source)
+                self.assertIsNotNone(success, path)
+                prior = success.group(1).replace(removed, '')
+                line = head + 'restore failed; prior=' + prior + '1\n'
+                self.assertNotIn(' OK', ' ' + prior, path)
+                for needle in ('OK', name + ' OK', 'RESULT ' + name + ' OK'):
+                    with self.subTest(recipe=name, needle=needle):
+                        self.assertIsNotNone(run_in_solidworks.check_log_text(line, needle))
+                        self.assertIsNotNone(run_in_solidworks.check_log_result(line, needle))
+        self.assertEqual(found, len(list(root.rglob('*.bas'))) - len(
+            [p for p in root.rglob('*.bas') if 'prior=' not in p.read_text(encoding='utf-8')]))
         self.assertGreater(found, 0)
 
 

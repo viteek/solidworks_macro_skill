@@ -123,6 +123,14 @@ def validate_dxf(path, profile):
     path = Path(path)
     check_file_size(path)
     source_hash = file_hash(path)
+    result = analyse_dxf(path, profile, source_hash)
+    # The parser reads the file separately; a report must describe the hashed bytes.
+    if file_hash(path) != source_hash:
+        raise ValueError('INPUT_CHANGED: DXF changed during analysis')
+    return result
+
+
+def analyse_dxf(path, profile, source_hash):
     document = ezdxf.readfile(path)
     audit = document.audit()
     issues, warnings = [], []

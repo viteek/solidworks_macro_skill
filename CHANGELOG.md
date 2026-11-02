@@ -2,9 +2,15 @@
 
 ## Unreleased
 
-- Recipe cleanup-failure lines no longer repeat the `RESULT <recipe> OK` marker in `prior=`, so a
-  substring `--expect-text` check cannot report PASS after a failed cleanup. Regression test added.
-  Retained live evidence in `validation/2026-11-01` predates this change.
+- Runner: new `--expect-result FILE PREFIX` requires the last newly written log line to start with an
+  exact status (followed by `;`, whitespace or end of line). `--expect-text` now fails whenever the
+  final new line is a FAIL/CANCELLED status, so `FAIL ...; prior=... OK` never passes with `OK`.
+  Smoke harnesses and SKILL.md use `--expect-result`.
+- Recipe cleanup-failure lines no longer repeat `RESULT <recipe> OK` or `<recipe> OK` in `prior=`.
+- DXF and STEP validators re-hash the input after analysis and refuse a file changed meanwhile.
+- JSON Pointer array indices follow RFC 6901 (no leading zeros, ASCII digits only, valid `~` escapes).
+- `scripts/check_skill.py` validates SKILL.md frontmatter, version and routed paths; it runs in CI.
+- Retained live evidence in `validation/2026-11-01` predates these changes.
 
 ## 3.0.0-dev - 2026-11-01
 

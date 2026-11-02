@@ -129,6 +129,18 @@ class EntityLimitTests(unittest.TestCase):
             file_hash.assert_not_called()
             readfile.assert_not_called()
 
+    def test_input_changed_during_analysis_is_refused(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'flat.dxf'
+            path.write_bytes(b'original')
+            def analyse_while_replaced(parsed, profile, source_hash):
+                parsed.write_bytes(b'replaced')
+                return {'status': 'PASS', 'sha256': source_hash}
+            with patch.object(validate_dxf, 'validate_profile'), \
+                    patch.object(validate_dxf, 'analyse_dxf', side_effect=analyse_while_replaced):
+                with self.assertRaisesRegex(ValueError, 'INPUT_CHANGED'):
+                    validate_dxf.validate_dxf(path, {})
+
     def test_file_size_limit_is_inclusive(self):
         with patch.object(Path, 'stat', return_value=Mock(st_size=validate_dxf.MAX_FILE_BYTES)):
             validate_dxf.check_file_size(Path('source.dxf'))

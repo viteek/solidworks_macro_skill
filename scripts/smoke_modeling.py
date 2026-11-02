@@ -89,9 +89,9 @@ def run_case(case, root, sources, live, timeout):
                '--profile', str(profile_path), '--open', str(source), '--confirm-model-changes',
                '--define', defines[0], '--observe', str(observer), '--observe-define', obs_defines[0],
                '--close-opened', '--timeout', str(timeout), '--json', str(runner_report),
-               '--expect-text', str(log), 'RESULT ' + label + ' OK']
+               '--expect-result', str(log), 'RESULT ' + label + ' OK']
     if case == 'persistent':
-        command += ['--expect-text', str(observed), 'RESULT persistent_roundtrip OK']
+        command += ['--expect-result', str(observed), 'RESULT persistent_roundtrip OK']
     else:
         command += ['--expect-file', str(observed)]
     (folder / 'command.json').write_text(json.dumps(command, indent=2), encoding='utf-8')

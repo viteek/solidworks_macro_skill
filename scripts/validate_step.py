@@ -183,6 +183,9 @@ def validate_step(path, source_metrics, tolerances, max_bytes=DEFAULT_MAX_BYTES)
         raise ValueError('STEP input exceeds maximum size of %d bytes' % max_bytes)
     digest = file_hash(path)
     actual = read_step_metrics(path)
+    # The parser reads the file separately; a report must describe the hashed bytes.
+    if file_hash(path) != digest:
+        raise ValueError('INPUT_CHANGED: STEP changed during analysis')
     result = compare_metrics(source_metrics, actual, tolerances)
     result.update(format='STEP', sha256=digest, imported_metrics=actual,
                   source_configuration=source_metrics.get('configuration'))

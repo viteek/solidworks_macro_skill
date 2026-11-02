@@ -37,6 +37,7 @@ Python 3.10+ is required. The offline suite runs on Windows/Linux without SOLIDW
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-test.txt
+.\.venv\Scripts\python.exe -B scripts/check_skill.py
 .\.venv\Scripts\python.exe -B -m unittest discover -s tests -v
 .\.venv\Scripts\python.exe -B scripts/check_examples.py
 ```

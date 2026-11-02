@@ -9,6 +9,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
+import re
 import sys
 
 INPUT_PHASES = ('static', 'api', 'project_compile', 'runtime', 'safety')
@@ -133,9 +134,12 @@ def pointer(values, path):
         raise ValueError('Expected JSON pointer: ' + path)
     current = values
     for part in path[1:].split('/'):
+        if re.search(r'~(?![01])', part):
+            raise KeyError(part)
         part = part.replace('~1', '/').replace('~0', '~')
         if isinstance(current, list):
-            if not part.isdigit():
+            # RFC 6901: ASCII digits without leading zeros; '-' and '01' are not indices.
+            if not re.fullmatch(r'0|[1-9][0-9]*', part):
                 raise KeyError(part)
             current = current[int(part)]
         elif isinstance(current, dict):

@@ -20,7 +20,7 @@ fully constrained profile and `RESULT sketch_extrude OK...`. Volume absolute tol
 1e-11 m³; dimension/constraint geometry still requires live acceptance.
 
 Optional `RESULT_PATH=""` disables file output. Set it to a fresh file in the reviewed
-private test directory for runner `--expect-text <path> "RESULT sketch_extrude OK"`.
+private test directory for runner `--expect-result <path> "RESULT sketch_extrude OK"`.
 The macro refuses an existing result file, creates a new log, and writes OK only after
 its assertions and protected cleanup; exceptions write FAIL when the log was opened. No directories are created.
 It never saves/closes the CAD document. `AddToDB` is restored; errors may leave a partial

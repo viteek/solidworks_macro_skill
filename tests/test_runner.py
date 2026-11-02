@@ -54,7 +54,7 @@ class RunnerTests(unittest.TestCase):
         profile = self.root / 'profile.json'
         outputs = [str(self.report)]
         for index, value in enumerate(args):
-            if value in ('--expect-text', '--expect-file'):
+            if value in ('--expect-text', '--expect-result', '--expect-file'):
                 outputs.append(args[index + 1])
         profile_data = {
             'schema_version': 1, 'test_root': str(self.root), 'reviewed': True, 'copies_confirmed': True,
@@ -410,16 +410,41 @@ class RunnerTests(unittest.TestCase):
         self.invoke('--answer', 'ok')
         self.assertEqual(self.generated_code, code)
 
-    def check_log(self, before, after, expected_status, encoding='utf-8'):
+    def check_log(self, before, after, expected_status, encoding='utf-8', option='--expect-text', needle='OK'):
         log = self.root / 'macro.log'
+        log.unlink(missing_ok=True)
+        self.report.unlink(missing_ok=True)
         if before is not None:
             log.write_text(before, encoding=encoding)
         def operation():
             if after is not None:
                 log.write_text(after, encoding=encoding)
-        status, report, _ = self.invoke('--expect-text', str(log), 'OK', operation=operation)
-        self.assertEqual(report['status'], expected_status)
+        status, report, _ = self.invoke(option, str(log), needle, operation=operation)
+        self.assertEqual(report['status'], expected_status, report.get('expectations_failed'))
         self.assertEqual(status, 0 if expected_status == 'PASS' else 1)
+
+    def test_cleanup_failure_line_never_passes_any_log_expectation(self):
+        # RunMacro2 succeeds; only the macro's own log reports the cleanup failure.
+        log = 'FAIL sketch_extrude cleanup: AddToDB restore failed; prior=sketch_extrude OK; fully_constrained=3\n'
+        cases = (('--expect-text', 'OK'), ('--expect-text', 'sketch_extrude OK'),
+                 ('--expect-result', 'RESULT sketch_extrude OK'), ('--expect-result', 'OK'))
+        for option, needle in cases:
+            with self.subTest(option=option, needle=needle):
+                self.check_log(None, log, 'FAIL', option=option, needle=needle)
+
+    def test_failure_after_success_line_is_a_failure(self):
+        log = 'RESULT sketch_extrude OK; volume_m3=1\nRESULT sketch_extrude FAIL cleanup\n'
+        for option, needle in (('--expect-text', 'OK'), ('--expect-result', 'RESULT sketch_extrude OK')):
+            with self.subTest(option=option):
+                self.check_log(None, log, 'FAIL', option=option, needle=needle)
+
+    def test_expect_result_requires_the_final_line_prefix_and_a_boundary(self):
+        self.check_log(None, 'RESULT sketch_extrude OK; volume_m3=1\n', 'PASS',
+                       option='--expect-result', needle='RESULT sketch_extrude OK')
+        self.check_log(None, 'RESULT drawing_observer PASS; model_views=30\n', 'FAIL',
+                       option='--expect-result', needle='RESULT drawing_observer PASS; model_views=3')
+        self.check_log(None, 'note: RESULT x OK\n', 'FAIL', option='--expect-result', needle='RESULT x OK')
+        self.check_log('RESULT x OK\n', None, 'FAIL', option='--expect-result', needle='RESULT x OK')
 
     def test_old_success_does_not_satisfy_expectation(self):
         self.check_log('OK old run\n', None, 'FAIL')

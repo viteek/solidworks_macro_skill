@@ -96,8 +96,10 @@ cp1250 for VBA import - see pitfalls.md).
      before cleanup, under the same timeout and durable session. Pin its prepared hash in the profile.
      Check actual dimensions, feature parameters, mate orientation, component transforms or exported
      geometry; a success message alone is insufficient.
-   - Prefer `--expect-file <output>` (output freshness) / `--expect-text <log> "OK"` (only newly appended
-     text, or a new log/changed byte prefix; old success lines do not count). Byte-identical log
+   - Prefer `--expect-file <output>` (output freshness) / `--expect-result <log> "RESULT <name> OK"`
+     (the last newly written line must start with that exact status, followed by `;`, a space or end
+     of line; old success lines do not count). `--expect-text` is only a substring hint and never
+     passes when the final line is a FAIL/CANCELLED status. Byte-identical log
      replacement is conservatively treated as unchanged; prefer appended per-run results or run IDs.
      These check concrete output in
      addition to macro execution. Dialogs are unanswered by default. `--answer` needs an exact
