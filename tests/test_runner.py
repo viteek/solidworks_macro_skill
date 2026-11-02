@@ -423,6 +423,54 @@ class RunnerTests(unittest.TestCase):
     def test_new_log_is_checked(self):
         self.check_log(None, 'OK new run\n', 'PASS')
 
+    def test_expect_text_rejects_log_replaced_by_external_symlink(self):
+        log = self.root / 'macro.log'
+        log.write_text('old run\n')
+        with tempfile.TemporaryDirectory(prefix='sw-runner-external-') as directory:
+            external = Path(directory) / 'external.log'
+            external.write_text('OK external\n')
+            probe = self.root / 'link-probe'
+            try:
+                probe.symlink_to(external)
+            except OSError as error:
+                self.skipTest(f'Symlink creation unavailable: {error}')
+            probe.unlink()
+
+            def operation():
+                log.unlink()
+                log.symlink_to(external)
+
+            with patch.object(runner, 'read_log', wraps=runner.read_log) as read_log:
+                status, report, _ = self.invoke('--expect-text', str(log), 'OK', operation=operation)
+            self.assertEqual(status, 1)
+            self.assertEqual(report['status'], 'FAIL')
+            self.assertTrue(report['expectations_failed'])
+            self.assertEqual(read_log.call_count, 1)
+
+    def test_expect_text_does_not_read_after_identity_validation_failure(self):
+        log = self.root / 'macro.log'
+        log.write_text('old run\n')
+        changed = False
+        validate = runner.revalidate_output
+
+        def operation():
+            nonlocal changed
+            log.write_text('OK untrusted\n')
+            changed = True
+
+        def revalidate(path, root, identity):
+            if changed and path == str(log):
+                raise ValueError('output identity changed')
+            return validate(path, root, identity)
+
+        with patch.object(runner, 'revalidate_output', side_effect=revalidate):
+            with patch.object(runner, 'read_log', wraps=runner.read_log) as read_log:
+                status, report, _ = self.invoke('--expect-text', str(log), 'OK', operation=operation)
+        self.assertEqual(status, 1)
+        self.assertEqual(report['status'], 'FAIL')
+        self.assertIn('output identity changed', report['expectations_failed'])
+        self.assertEqual(read_log.call_count, 1)
+
     def test_utf16_append_failure_does_not_reuse_old_success(self):
         self.check_log('OK old run\n', 'OK old run\nERROR new run\n', 'FAIL', encoding='utf-16')
 

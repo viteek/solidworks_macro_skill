@@ -415,7 +415,7 @@ def main():
             if a.test_profile.data.get('observer_sha256') != expected_observer:
                 raise ValueError('Observer changed or differs from the reviewed profile')
             a.test_profile.validate_request(a.open, outputs, a.pick_folder, a.confirm_model_changes)
-            a.output_identities = {path: output_identity(path, a.test_profile.data['test_root']) for path in a.expect_file}
+            a.output_identities = {path: output_identity(path, a.test_profile.data['test_root']) for path in expected_outputs}
             if a.json:
                 protected = {canonical(path) for path in (a.macro, a.profile, a.open, a.observe) if path}
                 if Path(a.json).suffix.lower() != '.json' or canonical(a.json) in protected:
@@ -544,7 +544,7 @@ def execute_macro(a, test_root, norm, state):
         if not path or norm(path) not in a.test_profile.inputs:
             raise ValueError(f'Opening the copy loaded an undeclared document: {path!r}')
 
-    for f in a.expect_file:
+    for f in a.output_identities:
         revalidate_output(f, a.test_profile.data['test_root'], a.output_identities[f])
     previous_files = {f: file_snapshot(f) for f in a.expect_file}
     previous_logs = {f: read_log(f) for f, _ in a.expect_text}
@@ -663,6 +663,11 @@ def execute_macro(a, test_root, norm, state):
         elif current == previous_files[f]:
             expect_failures.append(f"not written by this run (unchanged file): {f}")
     for f, needle in a.expect_text:
+        try:
+            revalidate_output(f, a.test_profile.data['test_root'], a.output_identities[f])
+        except (OSError, ValueError) as error:
+            expect_failures.append(str(error))
+            continue
         content = new_log_text(previous_logs[f], read_log(f))
         if needle not in content:
             expect_failures.append(f"text {needle!r} not found in {f}")

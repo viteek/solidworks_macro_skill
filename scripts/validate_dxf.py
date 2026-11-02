@@ -27,6 +27,7 @@ from shapely.ops import polygonize_full, unary_union
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # sibling imports also under python -I
 from validation_reports import file_hash, positive, report_path, write_report  # noqa: E402,F401
+from publication_paths import publication_target  # noqa: E402
 
 SUPPORTED = {'LINE', 'ARC', 'CIRCLE', 'LWPOLYLINE', 'SPLINE', 'ELLIPSE'}
 PROFILE_KEYS = {'schema_version', 'name', 'units', 'layers', 'curve_tolerance_mm',
@@ -281,10 +282,11 @@ def validate_dxf(path, profile):
 
 def normalize_dxf(source, target, layer_map, profile):
     """Explicit copy-only unit/layer conversion; invalid results are never published."""
-    validate_profile(profile)
-    source, target = Path(source).resolve(), Path(target).resolve()
+    target = publication_target(target)
+    source = Path(source).resolve()
     if target.exists() or source == target:
         raise FileExistsError('Normalization never overwrites a source or existing output')
+    validate_profile(profile)
     if not isinstance(layer_map, dict) or any(layer not in profile['layers'] for layer in layer_map.values()):
         raise ValueError('Mapping destinations must be exact configured layer names')
     check_file_size(source)

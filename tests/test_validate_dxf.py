@@ -1,11 +1,84 @@
 import itertools
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import validate_dxf
+
+
+class NormalizationPublicationTests(unittest.TestCase):
+    def test_simulated_symlink_rejected_before_validation_or_parsing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / 'target.dxf'
+            with patch.object(Path, 'is_symlink', autospec=True, side_effect=lambda path: path == target), \
+                    patch.object(validate_dxf, 'validate_profile') as profile_check, \
+                    patch.object(validate_dxf.ezdxf, 'readfile') as readfile:
+                with self.assertRaisesRegex(ValueError, 'symlink'):
+                    validate_dxf.normalize_dxf(Path(directory) / 'source.dxf', target, {}, {})
+            profile_check.assert_not_called()
+            readfile.assert_not_called()
+
+    def test_dangling_external_symlink_rejected_without_creating_destination(self):
+        with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as external:
+            target = Path(directory) / 'target.dxf'
+            destination = Path(external) / 'missing.dxf'
+            try:
+                target.symlink_to(destination)
+            except OSError as error:
+                if getattr(error, 'winerror', None) == 1314:
+                    self.skipTest(f'Symlink privilege unavailable: {error}')
+                raise
+            with patch.object(validate_dxf, 'validate_profile') as profile_check, \
+                    patch.object(validate_dxf.ezdxf, 'readfile') as readfile:
+                with self.assertRaisesRegex(ValueError, 'symlink'):
+                    validate_dxf.normalize_dxf(Path(directory) / 'source.dxf', target, {}, {})
+            profile_check.assert_not_called()
+            readfile.assert_not_called()
+            self.assertTrue(target.is_symlink())
+            self.assertFalse(destination.exists())
+
+    def test_regular_target_publication_and_existing_target_rejected(self):
+        profile = {'schema_version': 1, 'name': 'test', 'units': 'mm',
+                   'layers': {'CUT': 'cut'}, 'curve_tolerance_mm': 0.1,
+                   'topology_tolerance_mm': 0.01, 'allowed_entities': ['LWPOLYLINE'], 'expected': {}}
+        with tempfile.TemporaryDirectory() as directory:
+            source, target = Path(directory) / 'source.dxf', Path(directory) / 'target.dxf'
+            document = validate_dxf.ezdxf.new()
+            document.units = 4
+            document.modelspace().add_lwpolyline([(0, 0), (10, 0), (10, 10), (0, 10)], close=True,
+                                                 dxfattribs={'layer': 'CUT'})
+            document.saveas(source)
+            result = validate_dxf.normalize_dxf(source, target, {}, profile)
+            self.assertEqual(result['status'], 'PASS')
+            self.assertTrue(result['normalization']['published'])
+            original = target.read_bytes()
+            with self.assertRaises(FileExistsError):
+                validate_dxf.normalize_dxf(source, target, {}, profile)
+            self.assertEqual(target.read_bytes(), original)
+            with self.assertRaises(FileExistsError):
+                validate_dxf.normalize_dxf(source, source, {}, profile)
+
+    def test_target_appearing_during_validation_is_not_replaced(self):
+        profile = {'schema_version': 1, 'name': 'test', 'units': 'mm',
+                   'layers': {'CUT': 'cut'}, 'curve_tolerance_mm': 0.1,
+                   'topology_tolerance_mm': 0.01, 'allowed_entities': ['LINE'], 'expected': {}}
+        with tempfile.TemporaryDirectory() as directory:
+            source, target = Path(directory) / 'source.dxf', Path(directory) / 'target.dxf'
+            document = validate_dxf.ezdxf.new()
+            document.units = 4
+            document.saveas(source)
+
+            def validate(stage, unused_profile):
+                target.write_bytes(b'concurrent')
+                return {'status': 'PASS'}
+
+            with patch.object(validate_dxf, 'validate_dxf', side_effect=validate):
+                with self.assertRaises(FileExistsError):
+                    validate_dxf.normalize_dxf(source, target, {}, profile)
+            self.assertEqual(target.read_bytes(), b'concurrent')
 
 
 class EntityLimitTests(unittest.TestCase):
@@ -44,6 +117,7 @@ class EntityLimitTests(unittest.TestCase):
         }
         with patch.object(Path, 'stat', return_value=Mock(st_size=validate_dxf.MAX_FILE_BYTES + 1)), \
                 patch.object(Path, 'exists', return_value=False), \
+                patch.object(Path, 'is_symlink', return_value=False), \
                 patch.object(validate_dxf, 'file_hash') as file_hash, \
                 patch.object(validate_dxf.ezdxf, 'readfile') as readfile:
             for operation in (

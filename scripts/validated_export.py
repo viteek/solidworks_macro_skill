@@ -35,6 +35,7 @@ sys.path.insert(0, str(HERE))  # sibling imports also under python -I
 from validation_reports import file_hash, write_report  # noqa: E402
 from runner_safety import code_hash
 from run_in_solidworks import prepare_code
+from publication_paths import publication_target
 
 PACKAGE = HERE.parent
 
@@ -42,17 +43,6 @@ PACKAGE = HERE.parent
 def validate_step_export(path, source_metrics, tolerances, timeout):
     from validate_step import run_isolated
     return run_isolated(path, source_metrics, tolerances, timeout=timeout)
-
-
-def publication_target(target):
-    target = Path(target)
-    if target.is_symlink():
-        raise ValueError('Final output must not be a symlink')
-    # Resolve parent directories, but never follow the final path component.
-    target = target.parent.resolve() / target.name
-    if target.is_symlink():
-        raise ValueError('Final output must not be a symlink')
-    return target
 
 
 def publish_validated(stage, target, validator, overwrite=False):
