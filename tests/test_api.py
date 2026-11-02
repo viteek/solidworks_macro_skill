@@ -90,6 +90,13 @@ class ApiTests(unittest.TestCase):
             'body.GetExtremePoint -1, 0, 0, x, y, z\ndrawing.ActivateSheet originalSheet')
         self.assertEqual(errors, 0, output)
 
+    def test_procedure_with_array_parameter_keeps_all_parameters(self):
+        match = check_api.PROC_RE.match('Private Sub Fill(values() As Double, model As SldWorks.ModelDoc2)')
+        self.assertEqual(match.group(3), 'values() As Double, model As SldWorks.ModelDoc2')
+        self.assertIsNone(match.group(4))
+        match = check_api.PROC_RE.match('Function Area(sizes() As Double) As Double')
+        self.assertEqual((match.group(3), match.group(4)), ('sizes() As Double', 'Double'))
+
 
 @unittest.skipUnless(check_api.pythoncom is not None and
                      os.path.isfile(os.path.join(check_api.default_sw_dir(), 'sldworks.tlb')),

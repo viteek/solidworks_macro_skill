@@ -94,6 +94,16 @@ class BooleanTests(unittest.TestCase):
             'Set fso = CreateObject("Scripting.FileSystemObject")\nok = fso.FileExists("x")\nIf Not ok Then Exit Sub')
         self.assertEqual(errors, 0, output)
 
+    def test_not_on_function_returning_raw_api_boolean_is_rejected(self):
+        function = ('End Sub\nPrivate Function SaveIt(model As SldWorks.ModelDoc2) As Boolean\n'
+                    '    SaveIt = {}\nEnd Function\nPrivate Sub unused()')
+        errors, output = self.check_code('Dim model As SldWorks.ModelDoc2',
+            'If Not SaveIt(model) Then Exit Sub\n' + function.format('model.Save3(1, 0, 0)'))
+        self.assertGreater(errors, 0, output)
+        errors, output = self.check_code('Dim model As SldWorks.ModelDoc2',
+            'If Not SaveIt(model) Then Exit Sub\n' + function.format('(model.Save3(1, 0, 0) <> False)'))
+        self.assertEqual(errors, 0, output)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -183,7 +183,7 @@ def split_args(s):
 
 
 DECL_RE = re.compile(r"^\s*(?:Dim|Private|Public|Static|Global)\s+(?!Sub\b|Function\b|Const\b|Declare\b|Type\b|Enum\b|Property\b)(.+)$", re.I)
-PROC_RE = re.compile(r"^\s*(?:Public\s+|Private\s+|Friend\s+)?(?:Static\s+)?(Sub|Function|Property\s+(?:Get|Let|Set))\s+(\w+)\s*\((.*?)\)\s*(?:As\s+([\w.]+))?", re.I)
+PROC_RE = re.compile(r"^\s*(?:Public\s+|Private\s+|Friend\s+)?(?:Static\s+)?(Sub|Function|Property\s+(?:Get|Let|Set))\s+(\w+)\s*\((.*)\)\s*(?:As\s+([\w.]+))?\s*$", re.I)
 CONST_RE = re.compile(r"^\s*(?:Private\s+|Public\s+|Global\s+)?Const\s+(.+)$", re.I)
 VAR_ITEM_RE = re.compile(r"^(?:WithEvents\s+)?(\w+)[$%&!#@]?\s*(\([^)]*\))?\s*(?:As\s+(?:New\s+)?([\w.]+))?", re.I)
 

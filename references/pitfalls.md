@@ -31,6 +31,13 @@ the most common reasons a "reviewed" macro silently does nothing.
 3. **Bend lines in flat-pattern DXF need bit 8.** With SheetMetalOptions 1+4 (the documented "bend
    lines" bit) the DXF has no bend lines; with 1+8 or 1+4+8 they appear (linetype CENTERX2). Bit 2048
    adds the bounding box. Use `1 + 4 + 8` (+16 merge faces) and tell the user to check one DXF.
+   **Not guaranteed even with bit 8 (measured):** a U-channel built by macro from a company template
+   has a bend-lines sketch with 2 segments, yet NO export variant wrote them (masks 5/9/13/15, folded or
+   flattened, `swDisplayBendLines` on, sketch unblanked, `ExportFlatPatternView`) - while a SOLIDWORKS
+   sample part got 19 bend lines with mask 9/13. Root cause not found (part/template-dependent).
+   So a macro that must deliver bend lines has to CHECK the DXF (count CENTER*/PHANTOM linetype entities
+   against the bends in the FlatPattern feature) and report missing ones - never claim them blindly.
+   Fallback to offer: export the flat pattern from a drawing flat-pattern view (not measured here).
    Some parts export no bend lines with any option (seen on a SOLIDWORKS sample part whose flat
    pattern still lists a Bend-Lines sketch) - don't burn time on it: report which files have none and
    suggest checking that part's flat pattern manually or exporting from a drawing flat-pattern view.
@@ -54,13 +61,23 @@ the most common reasons a "reviewed" macro silently does nothing.
    the wrong file. Batch macros over several folders/copies must check
    `LCase(swModel.GetPathName) = LCase(requestedPath)` after opening and skip/log on mismatch; close what
    you open before moving on. When testing on copies, close the user's same-named files first.
-8. **Names that are VBA keywords break compilation silently.** A variable called `eNum`, `type`, `name`
+8. **Part creation (measured):** `AddDimension2` opens a modal "Modyfikuj" box when the user option
+   "input dimension value" is on - switch `swInputDimValOnCreate` off and restore it; standard planes are
+   `Płaszczyzna przednia/górna/prawa` - select the first three `RefPlane` features by order;
+   `CreateCenterRectangle` returns 6 segments; feature methods return Nothing (no error) on failure;
+   `SetMaterialPropertyName2` silently ignores unknown material names - read back; `GetBodies2(...)(0)`
+   inline indexing raised error 13; in a new unsaved part `CreateMassProperty` reports density 1 (use
+   `CreateMassProperty2`); a `Dimension` kept across `ShowConfiguration2` writes into the old configuration;
+   use `ForceRebuild3` after per-configuration changes. Details: `part-modeling.md`.
+9. **VBA precedence: `&` binds tighter than `Not`.** `"x=" & Not (a Is Nothing) & "..."` tries to negate a
+   string (error 13). Parenthesize: `"x=" & (Not (a Is Nothing))`.
+10. **Names that are VBA keywords break compilation silently.** A variable called `eNum`, `type`, `name`
    of a Sub like `Open`/`Close`/`Get`/`Put`... is a syntax error; as a `.swb`/RunMacro2 run it just
    doesn't start. Use prefixed names (`enumVal`, `docType`). `check_vba.py` flags declared names that
    are keywords.
-9. **VBA file I/O fails on paths longer than ~255 characters** (run-time 52/53/76) - deep PDM folders,
+11. **VBA file I/O fails on paths longer than ~255 characters** (run-time 52/53/76) - deep PDM folders,
    long temp paths. Keep logs/output in short paths or warn when `Len(path) > 250`.
-10. **A macro can "run fine" and produce nothing.** Every test above returned no error dialog. Always
+12. **A macro can "run fine" and produce nothing.** Every test above returned no error dialog. Always
    check the *result* (files exist, values changed), not just that the macro finished.
 
 ## Correctness traps

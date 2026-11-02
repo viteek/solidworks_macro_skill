@@ -15,6 +15,16 @@
 - DXF and STEP validators re-hash the input after analysis and refuse a file changed meanwhile.
 - JSON Pointer array indices follow RFC 6901 (no leading zeros, ASCII digits only, valid `~` escapes).
 - `scripts/check_skill.py` validates SKILL.md frontmatter, version and routed paths; it runs in CI.
+- Merged the separate 2.3.0 "creating parts" line (installed locally, never in this repository):
+  `references/part-modeling.md`, `assets/templates/create_part_template.bas`, `scripts/api_signature.py`,
+  measured part-creation and bend-line pitfalls, `check_vba.py` detection of `Not F(...)` on a Boolean
+  function that returns a raw COM Boolean, and the `check_api.py` array-parameter fix.
+  The template's material default is now neutral (`SOLIDWORKS Materials`, no material set).
+  Under the 3.0 runner the template reports `UNDECLARED_DOCUMENT` (it creates a new document), so it is
+  not runner-verified; its live evidence remains the 2.3.0 run on SW 2024 SP5.
+- Runner: `--pid` selects one of several SOLIDWORKS sessions via the Running Object Table; without it
+  more than one SLDWORKS.exe is still refused. `CREATED` counts as a success status.
+  The 2.3.0 active-sketch refusal is covered by the existing empty-session preflight.
 - Retained live evidence in `validation/2026-11-01` predates these changes.
 
 ## 3.0.0-dev - 2026-11-01
@@ -41,6 +51,24 @@
 - Final review: edit permission allows in-memory changes only; saved input changes now fail hash
   checks for every resolved run. Evidence CLIs require fresh output files, and assembly smoke
   requires both a successful process exit and confirmed PASS/IDLE status.
+
+## 2.3.0 - 2026-10-30 - creating parts
+
+- New `references/part-modeling.md`: build loop, templates/units, planes by type, sketching, dimensions,
+  verified feature calls (FeatureExtrusion3 / FeatureCut4 / FeatureFillet3), face/edge selection,
+  materials, sheet-metal base flange, configuration families, result checks.
+- New `assets/templates/create_part_template.bas`: parametric plate (sketch -> extrude -> holes -> fillets
+  -> material -> volume/size self-check -> SaveAs, no overwrite). Verified live on SW 2024 SP5.
+- New `scripts/api_signature.py`: exact signatures from the installed type library (`--find`).
+- Measured on SW 2024 SP5 (PL) and documented: AddDimension2 opens a modal "Modyfikuj" box
+  (swInputDimValOnCreate), localized plane/feature names, CreateCenterRectangle = 6 segments, feature
+  calls return Nothing silently, unknown material names silently ignored,
+  CreateMassProperty density 1 in a new part (use CreateMassProperty2), Dimension objects bound to the
+  configuration active when obtained, ForceRebuild3 vs EditRebuild3, ThickenDir of an outer-drawn open
+  profile, flat-pattern DXF of macro-built sheet metal had no bend lines with any export variant.
+- Runner: `--pid` (several SOLIDWORKS sessions), refuses while the user edits a sketch.
+- check_api.py: no false "not declared" for array parameters (`x() As Double`).
+- Evaluated on 3 modeling tasks (plate with holes, profile family, sheet-metal U) against no-skill runs.
 
 ## 2.2.1 - 2026-10-30
 

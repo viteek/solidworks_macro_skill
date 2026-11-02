@@ -38,6 +38,8 @@ def boolean_issues(lines):
     in_proc = False
     with_roots = []
     inferred_objects = set()
+    # Functions declared As Boolean that return a raw COM Boolean (F = obj.Method(...)).
+    function_name, api_functions = None, set()
 
     def sw_root(name):
         kind = types.get(name.lower(), ('', False))[0].lower()
@@ -52,8 +54,15 @@ def boolean_issues(lines):
             for parameter in split_args(proc.group(3)):
                 parameter = re.sub(r'^(?:(?:ByVal|ByRef|Optional|ParamArray)\s+)+', '', parameter.strip(), flags=re.I)
                 types.update(parse_decl_list(parameter))
+            function_name = None
+            if proc.group(1).lower() == 'function' and (proc.group(4) or '').lower() == 'boolean':
+                function_name = proc.group(2).lower()
+                types[function_name] = ('Boolean', False)
             continue
         if re.match(r'\s*End\s+(?:Sub|Function|Property)\b', logical, re.I):
+            if function_name and function_name in origins:
+                api_functions.add(function_name)
+            function_name = None
             in_proc = False
             types, origins, with_roots = dict(module_types), set(module_origins), []
             continue
@@ -146,6 +155,12 @@ def boolean_issues(lines):
                             break
                 if not re.match(r'\s*\)*\s*(?:<>|=)\s*(?:False|0)\b', tail, re.I):
                     yield number, f"'{call.group(0)}' returns a COM Boolean; compare explicitly with False."
+    # Call sites may precede the function, so check them after the whole module is known.
+    for number, logical in join_continuations(lines):
+        for call in re.finditer(r'\bNot\s+\(*\s*(\w+)\s*\(', logical, re.I):
+            if call.group(1).lower() in api_functions:
+                yield number, (f"'Not {call.group(1)}(...)': it returns a SOLIDWORKS COM Boolean unchanged "
+                               f"(True = 1, Not 1 = True). Normalize inside it: {call.group(1)} = (<call> <> False).")
 
 OBSOLETE = {
     r"\.OpenDoc[2-5]?\s*\(": "OpenDoc6",

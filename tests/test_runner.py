@@ -42,7 +42,7 @@ class RunnerTests(unittest.TestCase):
         self.macro.write_text('Option Explicit\nSub main()\nEnd Sub\n')
         self.report = self.root / 'report.json'
 
-    def invoke(self, *args, operation=None, dialog=False, buttons=None, allowed=False, with_profile=True, dependencies=None, existing_docs=None, second_dialog=False, reviewed_module='TestMacro', observe_operation=None, attachment_error=None, run_error=0, api_return=None, mutating=False):
+    def invoke(self, *args, operation=None, dialog=False, buttons=None, allowed=False, with_profile=True, dependencies=None, existing_docs=None, second_dialog=False, reviewed_module='TestMacro', observe_operation=None, attachment_error=None, run_error=0, api_return=None, mutating=False, pids=(123,)):
         release = threading.Event()
         finished = threading.Event()
         busy = threading.Event()
@@ -137,7 +137,10 @@ class RunnerTests(unittest.TestCase):
             stack.enter_context(patch.object(runner.w32, 'GetActiveObject', return_value=sw, side_effect=attachment_error))
             stack.enter_context(patch.object(runner.w32.dynamic, 'Dispatch', side_effect=lambda x: x))
             stack.enter_context(patch.object(runner.w32, 'GetObject', return_value=types.SimpleNamespace(
-                ExecQuery=lambda _: [types.SimpleNamespace(ProcessId=123)])))
+                ExecQuery=lambda _: [types.SimpleNamespace(ProcessId=pid) for pid in pids])))
+            self.connected_pids = []
+            stack.enter_context(patch.object(runner, 'connect', side_effect=lambda pid: (
+                self.connected_pids.append(pid), sw)[1]))
             stack.enter_context(patch.object(runner.pythoncom, 'CoInitialize'))
             def uninitialize():
                 if threading.current_thread() is not threading.main_thread():
@@ -226,6 +229,25 @@ class RunnerTests(unittest.TestCase):
         status, report, _ = self.invoke()
         self.assertEqual(status, 2)
         self.assertEqual(report['status'], 'BLOCKED_SESSION')
+
+    def test_several_solidworks_processes_require_an_explicit_pid(self):
+        status, report, _ = self.invoke(pids=(123, 456))
+        self.assertNotEqual(report['status'], 'PASS')
+        self.assertIn('--pid', report.get('error', '') + report.get('exception', ''))
+        self.assertEqual(self.macro_calls, [])
+
+    def test_pid_selects_that_session_through_the_running_object_table(self):
+        status, report, _ = self.invoke('--pid', '456', pids=(123, 456))
+        self.assertEqual(report['status'], 'PASS', report)
+        self.assertEqual(set(self.connected_pids), {456})
+        self.assertEqual(self.macro_calls, ['TestMacro'])
+
+    def test_pid_that_is_not_running_is_refused_before_execution(self):
+        status, report, _ = self.invoke('--pid', '999', pids=(123, 456))
+        self.assertNotEqual(report['status'], 'PASS')
+        self.assertIn('999', report.get('error', '') + report.get('exception', ''))
+        self.assertEqual(self.connected_pids, [])
+        self.assertEqual(self.macro_calls, [])
 
     def test_profile_is_required_before_connecting_to_solidworks(self):
         status, report, _ = self.invoke(with_profile=False)

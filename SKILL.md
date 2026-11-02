@@ -1,6 +1,6 @@
 ---
 name: solidworks-macros
-description: Write, fix, test, explain and refactor SOLIDWORKS API automation - VBA macros (.swp/.bas), VSTA (VB.NET/C#) macros, standalone C#/VB.NET/Python programs driving SOLIDWORKS via COM, and macros for Batch+/Toolbar+/Task Scheduler. Use this skill whenever the user mentions SOLIDWORKS/SolidWorks/SW macros, "makro SolidWorks", the SOLIDWORKS API (ModelDoc2, SldWorks, IAssemblyDoc, swconst...), a macro error (run-time error 91, 438...), or wants to automate anything in SOLIDWORKS - batch export to PDF/DXF/STEP, flat patterns, custom properties (właściwości), BOM/assembly traversal, cut-lists, drawings, configurations, dimensions/equations, renaming or processing many files - even if they don't say "macro" or "API".
+description: Write, fix, test, explain and refactor SOLIDWORKS API automation - VBA macros (.swp/.bas), VSTA (VB.NET/C#) macros, standalone C#/VB.NET/Python programs driving SOLIDWORKS via COM, and macros for Batch+/Toolbar+/Task Scheduler. Use this skill whenever the user mentions SOLIDWORKS/SolidWorks/SW macros, "makro SolidWorks", the SOLIDWORKS API (ModelDoc2, SldWorks, IAssemblyDoc, swconst...), a macro error (run-time error 91, 438...), or wants to automate anything in SOLIDWORKS - creating/modeling parts by macro (new part, sketches, extrudes, holes, fillets, sheet metal, parametric families/configurations), batch export to PDF/DXF/STEP, flat patterns, custom properties (właściwości), BOM/assembly traversal, cut-lists, drawings, configurations, dimensions/equations, renaming or processing many files - even if they don't say "macro" or "API".
 metadata:
   version: "3.0.0-dev"
 ---
@@ -50,13 +50,18 @@ cp1250 for VBA import - see pitfalls.md).
      same-named files, checks the returned path, closes only what it opened, CSV log appended per file,
      no dialogs unless `SHOW_MESSAGES`.
    - `source_metrics_template.bas` - read-only body metrics (mm) for STEP validation.
+   - `create_part_template.bas` - builds a part: template → plane by type → sketch → extrude → holes →
+     fillets → material → self-check (volume, size) → SaveAs. For any geometry-creating macro read
+     `references/part-modeling.md` first.
 
 4. **Look up the API.** `references/api-reference.md` (objects, methods, enum values),
    `references/recipes.md` (context-dependent snippets: properties, PDF/DXF/STEP export, flat patterns, mass,
    precise bounding box, dimensions, configurations, drawings, BOM, files, performance) and
    `references/advanced-topics.md` (cut-lists, BOM quantities, equations, component names, selection
    without disturbing the user, events, progress bar, version checks, stand-alone exe...).
-   Never invent an API member - the user can't diagnose it. If unsure and web access exists, check the
+   Never invent an API member - the user can't diagnose it. For methods with long argument lists
+   (feature creation has 15-30) print the exact signature: `python scripts/api_signature.py
+   FeatureManager.FeatureExtrusion3` (`--find <text>` lists matching members). If unsure and web access exists, check the
    CodeStack page (`https://raw.githubusercontent.com/xarial/codestack/master/solidworks-api/<topic>/index.md`)
    or help.solidworks.com; otherwise say clearly what is unverified.
 

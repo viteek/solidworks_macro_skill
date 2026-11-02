@@ -283,7 +283,7 @@ def new_log_text(previous, current):
 
 # A status-shaped final line ("RESULT name STATUS", "RESULT=STATUS", "STATUS;...") is accepted only
 # with a known success status, so new negative states (ERROR_CLEANUP, *_FAILED, START...) fail closed.
-SUCCESS_STATUSES = {'OK', 'PASS', 'PASSED', 'SUCCESS', 'DONE', 'EXPORTED', 'OBSERVED', 'SAVED', 'AUDIT'}
+SUCCESS_STATUSES = {'OK', 'PASS', 'PASSED', 'SUCCESS', 'DONE', 'EXPORTED', 'OBSERVED', 'SAVED', 'AUDIT', 'CREATED'}
 # Result line format: "RESULT=STATUS", "RESULT STATUS" or "RESULT NAME STATUS", where NAME is
 # [A-Za-z0-9_.-]+, STATUS is upper case and ends at ';', ':', whitespace or end of line. Anything
 # else that starts with RESULT falls through to LEADING_STATUS ("RESULT"), which is not a success.
@@ -378,6 +378,7 @@ def main():
     ap.add_argument('--module', help='module name (required with --entry for a native .swp project)')
     ap.add_argument('--observe', help='reviewed VBA observer run after successful macro, before cleanup')
     ap.add_argument('--observe-define', action='append', default=[], help='NAME=VALUE for the observer only')
+    ap.add_argument("--pid", type=int, help="SOLIDWORKS process to use when several are running")
     ap.add_argument("--timeout", type=float, default=600)
     ap.add_argument("--close-opened", action="store_true",
                     help="close documents that are new after the run AND lie inside the test root (unsaved changes "
@@ -534,15 +535,36 @@ def main():
         return failure('PREFLIGHT_FAILED', error)
 
 
+def connect(pid):
+    """Attach to the SOLIDWORKS session of this process (Running Object Table 'SolidWorks_PID_<pid>');
+    never starts a new SOLIDWORKS."""
+    rot = pythoncom.GetRunningObjectTable()
+    ctx = pythoncom.CreateBindCtx(0)
+    for moniker in rot:
+        if moniker.GetDisplayName(ctx, None) == f"SolidWorks_PID_{pid}":
+            return w32.dynamic.Dispatch(rot.GetObject(moniker).QueryInterface(pythoncom.IID_IDispatch))
+    raise RuntimeError(f"SOLIDWORKS PID {pid} is not registered for automation")
+
+
+def attach(pid, explicit):
+    # Preserve COM exception identity: rejected/busy attachment is unresolved too.
+    return connect(pid) if explicit else w32.dynamic.Dispatch(w32.GetActiveObject("SldWorks.Application"))
+
+
 def execute_macro(a, test_root, norm, state):
     pythoncom.CoInitialize()
-    # Preserve COM exception identity: rejected/busy attachment is unresolved too.
-    sw = w32.dynamic.Dispatch(w32.GetActiveObject("SldWorks.Application"))
     pids = [p.ProcessId for p in w32.GetObject("winmgmts:").ExecQuery(
         "SELECT ProcessId FROM Win32_Process WHERE Name='SLDWORKS.exe'")]
-    if len(pids) != 1:
-        raise ValueError(f"Expected exactly one SLDWORKS.exe process, found {len(pids)}")
-    pid = pids[0]
+    if a.pid is not None:
+        if a.pid not in pids:
+            raise ValueError(f"No SLDWORKS.exe with PID {a.pid} (running: {pids})")
+        pid = a.pid
+    elif len(pids) == 1:
+        pid = pids[0]
+    else:
+        raise ValueError(f"Expected exactly one SLDWORKS.exe process, found {len(pids)} ({pids}); "
+                         "choose one with --pid (PowerShell: Get-Process SLDWORKS | Select Id,MainWindowTitle)")
+    sw = attach(pid, a.pid is not None)
     state.set_process(pid)
 
     tmpdir = tempfile.mkdtemp(prefix="swrun_")
@@ -616,7 +638,7 @@ def execute_macro(a, test_root, norm, state):
     def run():
         pythoncom.CoInitialize()
         try:
-            s = w32.dynamic.Dispatch(w32.GetActiveObject("SldWorks.Application"))
+            s = attach(pid, a.pid is not None)
             e = w32.VARIANT(pythoncom.VT_BYREF | pythoncom.VT_I4, 0)
             result["ok"] = bool(s.RunMacro2(swb, a.module, entry, 1, e))  # 1 = unload after run
             result["err"] = e.value
