@@ -111,6 +111,53 @@ class ResultTests(unittest.TestCase):
                 self.assertNotIn('Traceback', result.stderr)
                 self.assertFalse(output.exists())
 
+    def test_file_assertion_rejects_malformed_contains_and_schema_version(self):
+        for invalid in ('AB', [None], 12, {'item': 'A'}):
+            with self.subTest(contains=invalid):
+                self.spec['assertions'] = [{'id': 'file', 'op': 'file', 'file': 'part.step',
+                                            'contains': invalid}]
+                with self.assertRaisesRegex(ValueError, 'contains must be a list of strings'):
+                    vr.validate_spec(self.spec)
+        self.spec['assertions'] = [{'id': 'length', 'path': '/length', 'op': 'number', 'expected': .1}]
+        self.spec['schema_version'] = True
+        with self.assertRaisesRegex(ValueError, 'schema_version'):
+            vr.validate_spec(self.spec)
+
+    def test_object_fields_reject_wrong_types_via_api_and_cli(self):
+        spec_path = self.root / 'spec.json'
+        obs_path = self.root / 'observations.json'
+        output = self.root / 'report.json'
+        fields = [('spec', ()), ('observations', ()), ('spec', ('fixture',)),
+                  ('observations', ('fixture',)), ('observations', ('environment',)),
+                  ('observations', ('provenance',)), ('observations', ('evidence',)),
+                  ('observations', ('values',))]
+        fields += [('observations', ('evidence', phase)) for phase in vr.INPUT_PHASES]
+        for document, path in fields:
+            for invalid in (None, [], 123, 'invalid'):
+                with self.subTest(document=document, path=path, invalid=invalid):
+                    spec, obs = copy.deepcopy(self.spec), copy.deepcopy(self.obs)
+                    if not path:
+                        if document == 'spec':
+                            spec = invalid
+                        else:
+                            obs = invalid
+                    else:
+                        parent = spec if document == 'spec' else obs
+                        for key in path[:-1]:
+                            parent = parent[key]
+                        parent[path[-1]] = invalid
+                    with self.assertRaises(ValueError):
+                        vr.verify(spec, obs, self.root)
+                    spec_path.write_text(json.dumps(spec), encoding='utf-8')
+                    obs_path.write_text(json.dumps(obs), encoding='utf-8')
+                    result = subprocess.run(
+                        [sys.executable, str(Path(vr.__file__)), '--spec', str(spec_path),
+                         '--observations', str(obs_path), '--evidence-root', str(self.root),
+                         '--output', str(output)], capture_output=True, text=True, check=False)
+                    self.assertEqual(result.returncode, 3, result.stderr)
+                    self.assertNotIn('Traceback', result.stderr)
+                    self.assertFalse(output.exists())
+
     def test_stale_macro_missing_version_and_incomplete_safety(self):
         (self.root / 'macro.bas').write_text('changed')
         with self.assertRaises(ValueError):

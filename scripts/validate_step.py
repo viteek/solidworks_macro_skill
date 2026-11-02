@@ -2,12 +2,14 @@
 
 Checks solid validity/count and per-body volume, area, centroid and world-axis bounds.
 This metric comparison is NOT a Boolean shape-equivalence proof or a CAM toolpath simulation.
+The CLI limits input size and analysis time, but does not impose an OS memory limit.
 """
 import argparse
 import importlib.metadata
 import json
 import math
 import os
+import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 import sys
@@ -16,6 +18,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))  # sibling imports also
 from validation_reports import file_hash, positive, report_path, write_report  # noqa: E402
 
 _dll_handles = []
+DEFAULT_MAX_BYTES = 50 * 1024 * 1024
+DEFAULT_TIMEOUT_SECONDS = 120.0
+TERMINATE_GRACE_SECONDS = 2.0
 
 
 def load_ocp():
@@ -171,7 +176,11 @@ def read_step_metrics(path):
             'kernel': 'OpenCascade / cadquery-ocp ' + importlib.metadata.version('cadquery-ocp')}
 
 
-def validate_step(path, source_metrics, tolerances):
+def validate_step(path, source_metrics, tolerances, max_bytes=DEFAULT_MAX_BYTES):
+    if isinstance(max_bytes, bool) or not isinstance(max_bytes, int) or max_bytes <= 0:
+        raise ValueError('Maximum input size must be a positive integer')
+    if Path(path).stat().st_size > max_bytes:
+        raise ValueError('STEP input exceeds maximum size of %d bytes' % max_bytes)
     digest = file_hash(path)
     actual = read_step_metrics(path)
     result = compare_metrics(source_metrics, actual, tolerances)
@@ -180,12 +189,60 @@ def validate_step(path, source_metrics, tolerances):
     return result
 
 
+def run_isolated(path, source_metrics, tolerances, max_bytes=DEFAULT_MAX_BYTES,
+                 timeout=DEFAULT_TIMEOUT_SECONDS):
+    if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError('timeout must be finite and greater than zero')
+    request = json.dumps({'path': str(path), 'source_metrics': source_metrics,
+                          'tolerances': tolerances, 'max_bytes': max_bytes})
+    process = subprocess.Popen([sys.executable, '-I', str(Path(__file__).resolve()), '--worker'],
+                               stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                               stderr=subprocess.DEVNULL, text=True, encoding='utf-8')
+    try:
+        stdout, _ = process.communicate(request, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        process.terminate()
+        try:
+            process.communicate(timeout=TERMINATE_GRACE_SECONDS)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.communicate()
+        raise TimeoutError('STEP analysis exceeded %.3g seconds' % timeout)
+    if process.returncode != 0:
+        raise RuntimeError('STEP analysis worker exited with code %s' % process.returncode)
+    try:
+        response = json.loads(stdout)
+        if not isinstance(response, dict) or 'status' not in response:
+            raise ValueError('missing status')
+    except (ValueError, TypeError) as error:
+        raise RuntimeError('Invalid response from STEP analysis worker') from error
+    return response
+
+
+def worker_main():
+    # Native parser output must not corrupt the JSON protocol on stdout.
+    protocol = os.fdopen(os.dup(sys.stdout.fileno()), 'w', encoding='utf-8')
+    os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
+    try:
+        request = json.load(sys.stdin)
+        result = validate_step(request['path'], request['source_metrics'], request['tolerances'],
+                               request['max_bytes'])
+    except Exception as error:
+        result = {'status': 'ERROR', 'cam_status': 'NOT_CONFIGURED', 'exception': str(error)}
+    with protocol:
+        json.dump(result, protocol, allow_nan=False)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('source')
     parser.add_argument('--source-metrics', required=True)
     parser.add_argument('--tolerances', required=True)
     parser.add_argument('--json', required=True)
+    parser.add_argument('--max-bytes', type=int, default=DEFAULT_MAX_BYTES,
+                        help='Maximum STEP input bytes (default: 50 MiB)')
+    parser.add_argument('--timeout', type=float, default=DEFAULT_TIMEOUT_SECONDS,
+                        help='Analysis timeout in seconds (default: 120); no memory limit is imposed')
     args = parser.parse_args()
     try:
         output = report_path(args.json, [args.source, args.source_metrics, args.tolerances])
@@ -194,7 +251,7 @@ def main():
     try:
         metrics = json.loads(Path(args.source_metrics).read_text(encoding='utf-8'))
         tolerances = json.loads(Path(args.tolerances).read_text(encoding='utf-8'))
-        result = validate_step(args.source, metrics, tolerances)
+        result = run_isolated(args.source, metrics, tolerances, args.max_bytes, args.timeout)
     except Exception as error:
         result = {'status': 'ERROR', 'cam_status': 'NOT_CONFIGURED', 'exception': str(error)}
     write_report(output, result)
@@ -203,4 +260,7 @@ def main():
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    if sys.argv[1:] == ['--worker']:
+        worker_main()
+    else:
+        raise SystemExit(main())

@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import stat
 from pathlib import Path
 import time
 
@@ -28,6 +29,44 @@ def inside(path, root):
         return os.path.commonpath([canonical(path), canonical(root)]) == canonical(root) and canonical(path) != canonical(root)
     except ValueError:
         return False
+
+
+def output_identity(path, root):
+    """Validate the lexical path and capture identities of existing components."""
+    path = Path(os.path.abspath(path))
+    root = Path(root)
+    if not inside(path, root):
+        raise ValueError(f'Output outside test_root: {path}')
+    try:
+        relative = path.relative_to(root)
+    except ValueError as error:
+        raise ValueError(f'Output outside test_root: {path}') from error
+    identities = {}
+    current = Path(root.anchor)
+    components = root.parts[1:] + relative.parts
+    for part in (None, *components):
+        if part is not None:
+            current = current / part
+        try:
+            info = current.lstat()
+        except FileNotFoundError:
+            continue
+        if stat.S_ISLNK(info.st_mode) or getattr(info, 'st_file_attributes', 0) & 0x400:
+            raise ValueError(f'Output path contains a link or reparse point: {current}')
+        if current == path and not stat.S_ISREG(info.st_mode):
+            raise ValueError(f'Output path is not a regular file: {current}')
+        # Directory identity must remain stable. The final regular output file may
+        # legitimately be atomically replaced by the macro, so track it by path,
+        # reject links, but do not require its inode to remain unchanged.
+        if current != path:
+            identities[str(current)] = (info.st_dev, info.st_ino)
+    return canonical(path), identities
+
+
+def revalidate_output(path, root, before):
+    location, identities = output_identity(path, root)
+    if location != before[0] or any(identities.get(p) != identity for p, identity in before[1].items()):
+        raise ValueError(f'Output path or identity changed since preflight: {path}')
 
 
 class TestProfile:

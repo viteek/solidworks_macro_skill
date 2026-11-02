@@ -86,6 +86,31 @@ class ProfileTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.load(outputs=[str(link / 'escape.step')])
 
+    def test_output_revalidation_detects_symlink_substitution_but_allows_atomic_file_replace(self):
+        output = self.root / 'out.step'
+        output.write_bytes(b'old')
+        identity = safety.output_identity(output, self.root)
+        replacement = self.root / 'replacement.step'
+        replacement.write_bytes(b'new')
+        replacement.replace(output)
+        safety.revalidate_output(output, self.root, identity)
+
+        outside = self.root.parent / 'outside.step'
+        outside.write_bytes(b'outside')
+        output.unlink()
+        try:
+            output.symlink_to(outside)
+        except OSError as error:
+            self.skipTest(f'Symlinks require privileges on this Windows host: {error}')
+        with self.assertRaisesRegex(ValueError, 'link or reparse point'):
+            safety.revalidate_output(output, self.root, identity)
+
+    def test_output_revalidation_rejects_directory_as_final_component(self):
+        output = self.root / 'out.step'
+        output.mkdir()
+        with self.assertRaisesRegex(ValueError, 'not a regular file'):
+            safety.output_identity(output, self.root)
+
 
 class SessionTests(unittest.TestCase):
     def test_preflight_reporting_never_overwrites_unvalidated_paths(self):

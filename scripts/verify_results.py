@@ -46,25 +46,32 @@ def confined(root, name):
     return target
 
 
+def require_object(value, name):
+    if not isinstance(value, dict):
+        raise ValueError(name + ' must be an object')
+    return value
+
+
 def identity(document):
-    if document.get('schema_version') != 1:
+    require_object(document, 'Document')
+    if type(document.get('schema_version')) is not int or document.get('schema_version') != 1:
         raise ValueError('Expected schema_version 1')
     if not isinstance(document.get('task_id'), str) or not document['task_id']:
         raise ValueError('Missing task_id')
-    fixture = document.get('fixture', {})
+    fixture = require_object(document.get('fixture', {}), 'Fixture')
     if not all(isinstance(fixture.get(k), str) and fixture[k] for k in ('id', 'revision')):
         raise ValueError('Fixture requires nonempty id and revision')
 
 
 def environment(document):
-    env = document.get('environment', {})
+    env = require_object(document.get('environment', {}), 'Environment')
     if not all(isinstance(env.get(k), str) and env[k].strip() for k in ENV_KEYS):
         raise ValueError('Environment requires version, service pack, API revision and architecture')
     return env
 
 
 def provenance(document):
-    value = document.get('provenance', {})
+    value = require_object(document.get('provenance', {}), 'Provenance')
     if not isinstance(value.get('run_id'), str) or not value['run_id']:
         raise ValueError('Provenance requires run_id')
     for key in ('macro_sha256', 'fixture_sha256'):
@@ -87,8 +94,7 @@ def validate_spec(spec):
         raise ValueError('Task requires assertions')
     seen = set()
     for item in assertions:
-        if not isinstance(item, dict):
-            raise ValueError('Assertion must be an object')
+        require_object(item, 'Assertion')
         key = item.get('id')
         if not isinstance(key, str) or not key or key in seen:
             raise ValueError('Missing or duplicate assertion id')
@@ -111,6 +117,13 @@ def validate_spec(spec):
                 raise ValueError('File assertion requires relative file')
             if type(item.get('min_bytes', 1)) is not int or item.get('min_bytes', 1) < 1:
                 raise ValueError('min_bytes must be positive')
+            contains = item.get('contains', [])
+            if not isinstance(contains, list) or any(not isinstance(value, str) for value in contains):
+                raise ValueError('File assertion contains must be a list of strings')
+            digest = item.get('sha256')
+            if digest is not None and (not isinstance(digest, str) or len(digest) != 64
+                                       or any(char not in '0123456789abcdef' for char in digest)):
+                raise ValueError('File assertion sha256 must be a lowercase SHA256 digest')
 
 
 def pointer(values, path):
@@ -183,6 +196,10 @@ def aggregate(statuses):
 def verify(spec, observations, evidence_root):
     validate_spec(spec)
     identity(observations)
+    evidence_map = require_object(observations.get('evidence', {}), 'Evidence')
+    for phase, evidence in evidence_map.items():
+        require_object(evidence, 'Evidence phase ' + str(phase))
+    values = require_object(observations.get('values', {}), 'Values')
     if any(spec[k] != observations[k] for k in ('task_id', 'fixture')):
         raise ValueError('Task/fixture identity mismatch')
     env = environment(observations)
@@ -193,12 +210,13 @@ def verify(spec, observations, evidence_root):
             raise ValueError('Missing/changed provenance artifact: ' + kind)
     phases = {}
     for phase in INPUT_PHASES:
-        evidence = observations.get('evidence', {}).get(phase, {'status': 'NOT_TESTED'})
+        evidence = evidence_map.get(phase, {'status': 'NOT_TESTED'})
         status = evidence.get('status')
         if status not in STATUSES:
             raise ValueError('Invalid evidence status: ' + phase)
         artifacts = evidence.get('artifacts', [])
-        if not isinstance(artifacts, list) or len(artifacts) != len(set(artifacts)):
+        if (not isinstance(artifacts, list) or not all(isinstance(a, str) for a in artifacts)
+                or len(artifacts) != len(set(artifacts))):
             raise ValueError('Invalid/duplicate evidence artifacts: ' + phase)
         files = []
         for name in artifacts:
@@ -210,7 +228,7 @@ def verify(spec, observations, evidence_root):
                          'artifacts': files}
         if status != 'NOT_TESTED' and not backed:
             phases[phase]['reason'] = 'Claim has missing/empty evidence artifacts'
-    results = [evaluate(a, observations.get('values', {}), evidence_root) for a in spec['assertions']]
+    results = [evaluate(a, values, evidence_root) for a in spec['assertions']]
     result_status = aggregate(r['status'] for r in results)
     if result_status == 'PASS' and phases['runtime']['status'] != 'PASS':
         result_status = 'NOT_TESTED'

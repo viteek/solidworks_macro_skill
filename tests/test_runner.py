@@ -82,7 +82,7 @@ class RunnerTests(unittest.TestCase):
             def GetDocuments(self):
                 if busy.is_set():
                     raise AssertionError('COM queried while RunMacro2 is still running')
-                return existing_docs or []
+                return test_case.documents
 
             def GetDocumentDependencies2(self, path, traverse, search, readonly):
                 test_case.assertEqual((path, traverse, readonly), (str(source), True, False))
@@ -95,6 +95,11 @@ class RunnerTests(unittest.TestCase):
 
             def ActivateDoc3(self, *unused):
                 return Document()
+
+            def CloseDoc(self, title):
+                test_case.closed_titles.append(title)
+                if not getattr(test_case, 'refuse_close', False):
+                    test_case.documents = [doc for doc in test_case.documents if doc.GetTitle != title]
 
             def RunMacro2(self, swb, *unused):
                 try:
@@ -114,6 +119,8 @@ class RunnerTests(unittest.TestCase):
                     busy.clear()
                     finished.set()
 
+        self.documents = list(existing_docs or [])
+        self.closed_titles = []
         sw = SolidWorks()
         def start_watcher(watcher):
             if dialog:
@@ -155,6 +162,37 @@ class RunnerTests(unittest.TestCase):
                 release.set()
                 if self.macro_calls:
                     worker_finished.wait(2)
+
+    def test_undeclared_document_is_not_closed(self):
+        external = types.SimpleNamespace(GetPathName=str(self.root / 'unexpected.sldprt'), GetTitle='unexpected')
+        status, report, _ = self.invoke('--close-opened', operation=lambda: self.documents.append(external))
+        self.assertEqual(status, 1)
+        self.assertEqual(report['failure_code'], 'UNDECLARED_DOCUMENT')
+        self.assertEqual(report['documents_left_open'], [external.GetPathName.lower()])
+        self.assertEqual(self.closed_titles, [])
+        self.assertEqual(report['session_state'], 'UNKNOWN')
+
+    def test_close_must_be_verified(self):
+        self.refuse_close = True
+        document = types.SimpleNamespace(GetPathName=str(self.root / 'copy.sldprt'), GetTitle='copy')
+        status, report, _ = self.invoke('--close-opened', operation=lambda: self.documents.append(document))
+        self.assertEqual(status, 1)
+        self.assertEqual(report['failure_code'], 'CLEANUP_FAILED')
+        self.assertEqual(report['documents_left_open'], [document.GetPathName.lower()])
+        self.assertEqual(report['closed_test_documents'], [])
+        self.assertEqual(report['session_state'], 'UNKNOWN')
+
+    def test_output_parent_replacement_is_rejected(self):
+        directory = self.root / 'output'
+        directory.mkdir()
+        output = directory / 'result.txt'
+        def replace_directory():
+            directory.rename(self.root / 'old-output')
+            directory.mkdir()
+            output.write_text('generated')
+        status, report, _ = self.invoke('--expect-file', str(output), operation=replace_directory)
+        self.assertEqual(status, 1)
+        self.assertTrue(any('identity changed' in failure for failure in report['expectations_failed']))
 
     def test_in_memory_mutation_permission_never_allows_saving_a_hashed_input(self):
         status, report, _ = self.invoke('--confirm-model-changes', mutating=True,

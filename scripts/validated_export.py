@@ -6,8 +6,13 @@
 2. DXF: optional explicit unit normalization to mm (--normalize-units), then validate_dxf.py with a
    profile (profiles/solidworks-sheetmetal-mm.json for SOLIDWORKS flat patterns).
    STEP: validate_step.py compares the OpenCascade import with SOLIDWORKS source metrics.
-3. Only a PASSED file, byte-identical to the validated one, is published to the target. An existing
-   target is kept as a .previous-<id> backup (with --overwrite) - never deleted first.
+3. Only a PASSED file, byte-identical to the validated one, is published to the target.
+   Replacing an existing target is disabled: portable atomic backup-and-replace is unavailable.
+
+Publication requires trusted stage and target directories: untrusted processes must not be able
+to modify their entries or files. The cooperative lock is not a security boundary and stale
+locks after a crash require manual inspection. Post-publication verification is a point-in-time
+check, not protection against later changes.
 
 Use on COPIES of parts. No CAM/machine is configured: PASS = declared geometric checks passed.
 
@@ -24,7 +29,6 @@ import subprocess
 import sys
 import tempfile
 import time
-import uuid
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))  # sibling imports also under python -I
@@ -33,6 +37,11 @@ from runner_safety import code_hash
 from run_in_solidworks import prepare_code
 
 PACKAGE = HERE.parent
+
+
+def validate_step_export(path, source_metrics, tolerances, timeout):
+    from validate_step import run_isolated
+    return run_isolated(path, source_metrics, tolerances, timeout=timeout)
 
 
 def publication_target(target):
@@ -50,30 +59,33 @@ def publish_validated(stage, target, validator, overwrite=False):
     stage, target = Path(stage), publication_target(target)
     if stage.is_symlink() or not stage.is_file() or stage.stat().st_size == 0 or stage.resolve() == target:
         raise ValueError('Publication requires a distinct nonempty regular staging file')
-    if target.exists() and not overwrite:
-        raise FileExistsError('Final output already exists (use --overwrite to keep it as a backup and replace)')
-    before = file_hash(stage)
-    validation = validator(stage)
-    if validation.get('status') != 'PASS':
-        return {'status': 'BLOCKED_VALIDATION', 'validation': validation, 'published': False}
-    if stage.is_symlink() or validation.get('sha256') != before or file_hash(stage) != before:
-        raise ValueError('Validated byte identity changed before publication')
-    if target.is_symlink():
-        raise ValueError('Final output must not be a symlink')
-    backup = None
-    if target.exists():
-        original_hash = file_hash(target)
-        backup = target.with_name(target.name + '.previous-' + uuid.uuid4().hex[:8])
-        with target.open('rb') as source, backup.open('xb') as copy:
-            shutil.copyfileobj(source, copy)
-        if file_hash(target) != original_hash or file_hash(backup) != original_hash:
-            raise ValueError('Previous output changed while making its backup')
-        os.replace(stage, target)
-    else:
+    lock = target.with_name(target.name + '.publication-lock')
+    # Exclusive creation coordinates cooperating publishers only; directories must be trusted.
+    with lock.open('x'):
+        pass
+    try:
+        if target.is_symlink():
+            raise ValueError('Final output must not be a symlink')
+        if target.exists():
+            if overwrite:
+                raise ValueError('Overwrite of an existing output is disabled: atomic backup and replacement cannot be guaranteed')
+            raise FileExistsError('Final output already exists')
+        before = file_hash(stage)
+        validation = validator(stage)
+        if validation.get('status') != 'PASS':
+            return {'status': 'BLOCKED_VALIDATION', 'validation': validation, 'published': False}
+        if stage.is_symlink() or validation.get('sha256') != before or file_hash(stage) != before:
+            raise ValueError('Validated byte identity changed before publication')
+        if target.is_symlink():
+            raise ValueError('Final output must not be a symlink')
         os.link(stage, target)  # exclusive creation, even if the target appeared during validation
+        if target.is_symlink() or file_hash(target) != before:
+            raise ValueError('Published output hash differs from validated hash; inspect target and staging file')
         stage.unlink()
-    return {'status': 'PUBLISHED', 'published': True, 'sha256': before,
-            'backup': str(backup) if backup else None, 'validation': validation}
+        return {'status': 'PUBLISHED', 'published': True, 'sha256': before,
+                'backup': None, 'validation': validation}
+    finally:
+        lock.unlink()
 
 
 def build_validation_macro(with_metrics):
@@ -104,8 +116,8 @@ def execute(args):
         raise ValueError('DXF requires --profile')
     if kind in ('.step', '.stp') and not args.tolerances:
         raise ValueError('STEP requires --tolerances')
-    if target.exists() and not args.overwrite:
-        raise FileExistsError('Final target exists; --overwrite keeps it as a backup')
+    if target.exists():
+        raise FileExistsError('Final target exists; replacement is disabled because atomic backup-and-replace is unavailable')
     if not target.parent.is_dir():
         raise ValueError('Target directory does not exist')
     source_hash = file_hash(source)
@@ -164,7 +176,6 @@ def execute(args):
                 return report
         validator = lambda path: validate_dxf(path, profile)  # noqa: E731
     else:
-        from validate_step import validate_step
         source_metrics = json.loads(metrics.read_text(encoding='ascii'))
         if os.path.normcase(str(Path(source_metrics['source_path']).resolve())) != os.path.normcase(str(test_source)):
             raise ValueError('Source metric identity does not match requested part')
@@ -172,7 +183,8 @@ def execute(args):
             raise ValueError('Metrics came from a different source configuration')
         report['source_configuration'] = source_metrics['configuration']
         tolerances = json.loads(Path(args.tolerances).read_text(encoding='utf-8'))
-        validator = lambda path: validate_step(path, source_metrics, tolerances)  # noqa: E731
+        validator = lambda path: validate_step_export(  # noqa: E731
+            path, source_metrics, tolerances, args.timeout)
     report.update(publish_validated(candidate, target, validator, args.overwrite))
     if report.get('status') == 'PUBLISHED':
         shutil.rmtree(job, ignore_errors=True)   # keep the job folder only when something needs inspection
@@ -188,7 +200,7 @@ def main():
     parser.add_argument('--profile', help='DXF validation profile (JSON)')
     parser.add_argument('--normalize-units', action='store_true', help='DXF: convert declared units to mm in a new copy first')
     parser.add_argument('--tolerances', help='STEP tolerances (JSON)')
-    parser.add_argument('--overwrite', action='store_true')
+    parser.add_argument('--overwrite', action='store_true', help='Existing targets are not replaced; atomic backup-and-replace is unavailable')
     parser.add_argument('--timeout', type=float, default=300)
     parser.add_argument('--json', required=True)
     args = parser.parse_args()

@@ -48,7 +48,8 @@ import threading
 import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # sibling imports under python -I
-from runner_safety import TestProfile, SessionState, canonical, inside, code_hash, file_hash
+from runner_safety import (TestProfile, SessionState, canonical, inside, code_hash, file_hash,
+                           output_identity, revalidate_output)
 
 STATE_DIR = Path(os.environ.get('LOCALAPPDATA', tempfile.gettempdir())) / 'solidworks-macro-runner'
 SESSION_PATH = STATE_DIR / 'session.json'
@@ -414,6 +415,7 @@ def main():
             if a.test_profile.data.get('observer_sha256') != expected_observer:
                 raise ValueError('Observer changed or differs from the reviewed profile')
             a.test_profile.validate_request(a.open, outputs, a.pick_folder, a.confirm_model_changes)
+            a.output_identities = {path: output_identity(path, a.test_profile.data['test_root']) for path in a.expect_file}
             if a.json:
                 protected = {canonical(path) for path in (a.macro, a.profile, a.open, a.observe) if path}
                 if Path(a.json).suffix.lower() != '.json' or canonical(a.json) in protected:
@@ -452,14 +454,16 @@ def main():
             a.worker_started, a.session_resolved = False, False
             try:
                 status = execute_macro(a, str(a.test_profile.root), canonical, state)
-                if a.session_resolved or (not a.worker_started and not getattr(a, 'blocked_dialog', False)):
+                if a.session_resolved or (not a.worker_started and not getattr(a, 'inventory_dirty', False)
+                                          and not getattr(a, 'blocked_dialog', False)):
                     state.finish()
                     cleanup_temp(a)
                 else:
                     state.unknown('Timeout, blocked dialog or unresolved COM execution')
                 return status
             except Exception as error:
-                uncertain = a.worker_started or isinstance(error, getattr(pythoncom, 'com_error', ()))
+                uncertain = (a.worker_started or getattr(a, 'inventory_dirty', False)
+                             or isinstance(error, getattr(pythoncom, 'com_error', ())))
                 if uncertain:
                     state.unknown(str(error))
                 else:
@@ -521,6 +525,7 @@ def execute_macro(a, test_root, norm, state):
         if not doc_type(a.open):
             raise ValueError('--open must be a native SOLIDWORKS part, assembly or drawing')
         options = 1 if a.test_profile.data['allow_model_changes'] else 3  # silent + read-only
+        a.inventory_dirty = True
         m = sw.OpenDoc6(os.path.abspath(a.open), doc_type(a.open), options, "", err, warn)
         if m is None:
             raise ValueError(f"Cannot open {a.open}: error {err.value}")
@@ -539,6 +544,8 @@ def execute_macro(a, test_root, norm, state):
         if not path or norm(path) not in a.test_profile.inputs:
             raise ValueError(f'Opening the copy loaded an undeclared document: {path!r}')
 
+    for f in a.expect_file:
+        revalidate_output(f, a.test_profile.data['test_root'], a.output_identities[f])
     previous_files = {f: file_snapshot(f) for f in a.expect_file}
     previous_logs = {f: read_log(f) for f, _ in a.expect_text}
     watcher = DialogWatcher(pid, a.answer, strict, a.test_profile.data['allowed_dialogs'])
@@ -605,16 +612,30 @@ def execute_macro(a, test_root, norm, state):
                        or result.get('observation_error') in UNCERTAIN_RUN_ERRORS)
     safe_to_query = (not macro_still_running and not watcher.blocked
                      and 'exception' not in result and not uncertain_error)
-    a.session_resolved = safe_to_query and 'exception' not in result
+    a.session_resolved = False
     after = open_docs(sw) if safe_to_query else {}
     new_docs = [p for p in after if p not in before]
-    inside_docs = [p for p in new_docs if inside(p, test_root)]
+    undeclared = [p for p in new_docs if not p or norm(p) not in a.test_profile.inputs]
+    inside_docs = [p for p in new_docs if p not in undeclared and inside(p, test_root)]
+    report['undeclared_documents'] = undeclared
+    if undeclared:
+        report['failure_code'] = 'UNDECLARED_DOCUMENT'
     report["documents_left_open"] = new_docs if safe_to_query else None
     if a.close_opened and safe_to_query:
         for p in inside_docs:
             sw.CloseDoc(after[p])           # test copies only - never documents outside the test root
-        report["closed_test_documents"] = inside_docs
-        report["documents_left_open"] = [p for p in new_docs if p not in inside_docs]
+        remaining = open_docs(sw)
+        report["closed_test_documents"] = [p for p in inside_docs if p not in remaining]
+        report["documents_left_open"] = [p for p in remaining if p not in before]
+        additional = [p for p in report['documents_left_open']
+                      if (not p or norm(p) not in a.test_profile.inputs) and p not in undeclared]
+        if additional:
+            undeclared.extend(additional)
+            report['failure_code'] = 'UNDECLARED_DOCUMENT'
+        if any(p in remaining for p in inside_docs):
+            report.setdefault('failure_code', 'CLEANUP_FAILED')
+    a.session_resolved = bool(safe_to_query and not undeclared and
+                              (not a.close_opened or not report['documents_left_open']))
     if previously_active and safe_to_query:
         e3 = w32.VARIANT(pythoncom.VT_BYREF | pythoncom.VT_I4, 0)
         try:
@@ -631,6 +652,11 @@ def execute_macro(a, test_root, norm, state):
         except ValueError as error:
             expect_failures.append(str(error))
     for f in a.expect_file:
+        try:
+            revalidate_output(f, a.test_profile.data['test_root'], a.output_identities[f])
+        except (OSError, ValueError) as error:
+            expect_failures.append(str(error))
+            continue
         current = file_snapshot(f)
         if current is None:
             expect_failures.append(f"missing: {f}")
