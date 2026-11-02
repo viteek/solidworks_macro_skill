@@ -19,7 +19,7 @@ not for ordinary export macros. Requires Windows, Python 3.12 and `requirements-
 |---|---|---|
 | `validate_step.py` | STEP parsed by OpenCascade (independent kernel); explicit length unit in the geometric context (no unit = rejected, never assumed mm); valid closed solids; no loose faces/edges; per-body volume, area, centroid, bounds vs SOLIDWORKS source metrics of the **same configuration** | Metric agreement is not a full shape-equivalence proof |
 | `validate_dxf.py` | Declared units, operation role per entity (linetype, then layer), closed cut contours, holes/net area, self-intersections, overlapping or T-junction cut paths, XY plane, bend count | Screening, not comparison with an approved flat pattern; material model approximate for formed parts (see §4) |
-| `validated_export.py` | Export to a private job folder → validation → publication of the validated bytes only (hash-checked); existing target kept as `.previous-<id>` with `--overwrite` | Parts → STEP/DXF only; assemblies and PDF are not geometry-validated |
+| `validated_export.py` | Export to a private job folder → validation → publication of the validated bytes only (hash-checked); existing targets are never replaced, including with `--overwrite` | Parts → STEP/DXF only; assemblies and PDF are not geometry-validated |
 
 ## 2. Validated export pipeline (runs SOLIDWORKS via `run_in_solidworks.py`)
 
@@ -30,6 +30,7 @@ python scripts/validated_export.py C:\SWTest\PART.sldprt C:\SWTest\out\PART.step
 Statuses: `PUBLISHED` (file created), `BLOCKED_EXPORT` (macro/runner failed - see `runner`, `macro_log`),
 `BLOCKED_VALIDATION` (see `validation.issues`; previous output untouched), `ERROR`. The job folder
 `.sw-validation-*` is deleted after publication and kept otherwise for inspection.
+Existing target files are rejected even when `--overwrite` is supplied; no `.previous-*` backup is created. Choose a new output path.
 Use test copies of parts: `--open` loads them into the user's SOLIDWORKS.
 
 ## 3. Checking existing files (no SOLIDWORKS)
