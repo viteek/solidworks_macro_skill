@@ -34,7 +34,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))  # sibling imports also under python -I
 from validation_reports import file_hash, report_path, write_report  # noqa: E402
 from runner_safety import code_hash
-from run_in_solidworks import prepare_code
+from run_in_solidworks import check_log_result, prepare_code
 from publication_paths import publication_target
 
 PACKAGE = HERE.parent
@@ -122,8 +122,10 @@ def execute(args):
                '--open', str(test_source), '--close-opened', '--timeout', str(args.timeout), '--json', str(runner_report),
                '--define', 'SHOW_MESSAGES=False', '--define', 'OUTPUT_PATH=' + vba_string(raw),
                '--define', 'RESULT_PATH=' + vba_string(log)]
+    # The runner itself must confirm the final EXPORTED status and fresh outputs.
+    command += ['--expect-result', str(log), 'EXPORTED', '--expect-file', str(raw)]
     if with_metrics:
-        command += ['--define', 'METRICS_PATH=' + vba_string(metrics)]
+        command += ['--define', 'METRICS_PATH=' + vba_string(metrics), '--expect-file', str(metrics)]
     if args.configuration:
         command += ['--define', 'CONFIGURATION_NAME=' + vba_string(args.configuration)]
     defines = [command[index + 1] for index, value in enumerate(command) if value == '--define']
@@ -148,7 +150,8 @@ def execute(args):
     report['macro_log'] = log_text.strip()
     report['source_unchanged'] = file_hash(source) == source_hash
     fresh = raw.exists() and raw.stat().st_mtime >= started - 2
-    if report['runner'].get('status') != 'PASS' or 'EXPORTED;' not in log_text or not fresh:
+    final_ok = check_log_result(log_text, 'EXPORTED') is None
+    if report['runner'].get('status') != 'PASS' or not final_ok or not fresh:
         return report
     if not report['source_unchanged']:
         raise ValueError('Source file changed during export; final target was not touched')

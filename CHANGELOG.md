@@ -4,9 +4,12 @@
 
 - Runner: new `--expect-result FILE PREFIX` requires the last newly written log line to start with an
   exact status (followed by `;`, whitespace or end of line). `--expect-text` now fails whenever the
-  final new line is a FAIL/CANCELLED status, so `FAIL ...; prior=... OK` never passes with `OK`.
+  final new line is a status other than a closed set of success statuses (ERROR, ERROR_CLEANUP,
+  *_FAILED, START... fail closed), so `FAIL ...; prior=... OK` never passes with `OK`.
   Smoke harnesses and SKILL.md use `--expect-result`.
 - Recipe cleanup-failure lines no longer repeat `RESULT <recipe> OK` or `<recipe> OK` in `prior=`.
+- `validated_export.py` passes `--expect-result <log> EXPORTED` and `--expect-file` for the raw export
+  (and STEP metrics) to the runner, and checks the final log line instead of searching `EXPORTED;`.
 - DXF and STEP validators re-hash the input after analysis and refuse a file changed meanwhile.
 - JSON Pointer array indices follow RFC 6901 (no leading zeros, ASCII digits only, valid `~` escapes).
 - `scripts/check_skill.py` validates SKILL.md frontmatter, version and routed paths; it runs in CI.

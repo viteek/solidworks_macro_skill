@@ -80,6 +80,44 @@ class ExportIsolationTests(unittest.TestCase):
             self.assertEqual(source.read_bytes(), b'original part')
             self.assertFalse((root / 'out.step').exists())
 
+    def run_exporter(self, root, log_text, raw_bytes=b'ISO-10303-21;'):
+        source = root / 'part.sldprt'
+        source.write_bytes(b'original part')
+        args = argparse.Namespace(source=str(source), target=str(root / 'out.step'),
+            tolerances=str(root / 'tolerances.json'), profile=None, overwrite=False,
+            configuration=None, timeout=10)
+        commands = []
+
+        def subprocess_boundary(command, **unused):
+            commands.append(command)
+            job = Path(command[command.index('--open') + 1]).parent
+            (job / 'raw.step').write_bytes(raw_bytes)
+            (job / 'macro.log').write_text(log_text, encoding='cp1250')
+            report = Path(command[command.index('--json') + 1])
+            report.write_text(json.dumps({'status': 'PASS'}))
+
+        with patch.object(validated_export.subprocess, 'run', side_effect=subprocess_boundary), \
+                patch.object(validated_export, 'publish_validated') as publish:
+            report = validated_export.execute(args)
+        return commands[0], report, publish
+
+    def test_runner_must_confirm_final_export_status_and_fresh_outputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            command, _, _ = self.run_exporter(Path(directory), 'ERROR;not reached\n')
+            job = Path(command[command.index('--open') + 1]).parent
+            pairs = [command[index + 1:index + 3] for index, value in enumerate(command) if value == '--expect-result']
+            self.assertEqual(pairs, [[str(job / 'macro.log'), 'EXPORTED']])
+            files = [command[index + 1] for index, value in enumerate(command) if value == '--expect-file']
+            self.assertEqual(files, [str(job / 'raw.step'), str(job / 'source-metrics.json')])
+
+    def test_export_line_followed_by_cleanup_error_blocks_validation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            _, report, publish = self.run_exporter(root, 'EXPORTED;out\nERROR_CLEANUP; selection restore failed\n')
+            self.assertEqual(report['status'], 'BLOCKED_EXPORT')
+            publish.assert_not_called()
+            self.assertFalse((root / 'out.step').exists())
+
 
 if __name__ == '__main__':
     unittest.main()

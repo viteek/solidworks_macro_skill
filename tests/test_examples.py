@@ -37,6 +37,22 @@ class ExampleTests(unittest.TestCase):
 
 
 class RecipeResultTests(unittest.TestCase):
+    def test_every_bundled_negative_status_fails_a_text_expectation(self):
+        root = Path(__file__).resolve().parents[1]
+        statuses = set()
+        for path in list((root / 'assets').rglob('*.bas')) + list((root / 'recipes').rglob('*.bas')):
+            source = path.read_text(encoding='utf-8')
+            statuses |= set(re.findall(r'"([A-Z][A-Z_]+)(?:[;: ]|")', source))
+            statuses |= set(re.findall(r'"RESULT (?:\w+ )?([A-Z][A-Z_]+)[;: ]', source))
+        self.assertTrue({'ERROR', 'ERROR_CLEANUP', 'FAIL', 'CLEANUP_FAILED', 'EXPORTED'} <= statuses)
+        for status in sorted(statuses):
+            with self.subTest(status=status):
+                problem = run_in_solidworks.check_log_text(status + ';detail OK\n', 'OK')
+                if status in run_in_solidworks.SUCCESS_STATUSES:
+                    self.assertIsNone(problem)
+                else:
+                    self.assertIsNotNone(problem)
+
     def test_cleanup_failure_line_cannot_repeat_the_success_status(self):
         # Rebuild each recipe's cleanup-failure line from its VBA literals and run it
         # through the runner's own log checks.

@@ -99,7 +99,7 @@ cp1250 for VBA import - see pitfalls.md).
    - Prefer `--expect-file <output>` (output freshness) / `--expect-result <log> "RESULT <name> OK"`
      (the last newly written line must start with that exact status, followed by `;`, a space or end
      of line; old success lines do not count). `--expect-text` is only a substring hint and never
-     passes when the final line is a FAIL/CANCELLED status. Byte-identical log
+     passes when the final line is a status other than a known success (ERROR, ERROR_CLEANUP, FAIL...). Byte-identical log
      replacement is conservatively treated as unchanged; prefer appended per-run results or run IDs.
      These check concrete output in
      addition to macro execution. Dialogs are unanswered by default. `--answer` needs an exact

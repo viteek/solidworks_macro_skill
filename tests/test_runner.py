@@ -438,6 +438,19 @@ class RunnerTests(unittest.TestCase):
             with self.subTest(option=option):
                 self.check_log(None, log, 'FAIL', option=option, needle=needle)
 
+    def test_expect_text_accepts_only_a_known_success_status_on_the_final_line(self):
+        rejected = ('RESULT x ERROR cleanup', 'ERROR_CLEANUP; selection restore failed', 'ERROR;failed',
+                    'CLEANUP_FAILED x', 'RESULT_LOG_FAILED: denied', 'COLLECTION_FAILED x',
+                    'START x; terminal RESULT line is required', 'RESULT my-macro OK', 'error: export failed')
+        for final in rejected:
+            with self.subTest(final=final):
+                self.check_log(None, 'RESULT x OK; a=1\n' + final + '\n', 'FAIL')
+        for final, needle in (('EXPORTED;out.step', 'EXPORTED'), ('RESULT=PASS; copy', 'PASS'),
+                              ('RESULT x PASSED', 'PASSED'), ('RESULT=OBSERVED volume=1', 'OBSERVED'),
+                              ('export finished OK', 'OK')):
+            with self.subTest(final=final):
+                self.check_log(None, final + '\n', 'PASS', needle=needle)
+
     def test_expect_result_requires_the_final_line_prefix_and_a_boundary(self):
         self.check_log(None, 'RESULT sketch_extrude OK; volume_m3=1\n', 'PASS',
                        option='--expect-result', needle='RESULT sketch_extrude OK')

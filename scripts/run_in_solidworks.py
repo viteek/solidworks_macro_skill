@@ -21,7 +21,7 @@ How it works
   of a new log or a log whose previous byte prefix changed. Identical content is conservatively
   treated as unchanged, even after replacement. Prefer an appended per-run result or run ID.
   --expect-result requires the final new line to start with an exact status prefix; a log whose
-  final line is FAIL/CANCELLED never satisfies --expect-text either.
+  final line is any status other than a known success never satisfies --expect-text either.
 - Timeout/blocked dialog: report without further COM calls or document cleanup. The macro may
   still be running in SOLIDWORKS; the timeout does not cancel it. A durable UNKNOWN/RUNNING
   marker blocks further runs until explicit --recover-session after inspection.
@@ -281,7 +281,13 @@ def new_log_text(previous, current):
         return raw.decode('cp1250', errors='replace')
 
 
-FAILURE_STATUS = re.compile(r'^(?:RESULT[ =](?:\S+ )?)?(?:FAIL|CANCELLED)\b')
+# A status-shaped final line ("RESULT name STATUS", "RESULT=STATUS", "STATUS;...") is accepted only
+# with a known success status, so new negative states (ERROR_CLEANUP, *_FAILED, START...) fail closed.
+SUCCESS_STATUSES = {'OK', 'PASS', 'PASSED', 'SUCCESS', 'DONE', 'EXPORTED', 'OBSERVED', 'SAVED', 'AUDIT'}
+RESULT_STATUS = re.compile(r'RESULT(?:=| (?:\w+ )?)([A-Za-z_]+)\b')
+LEADING_STATUS = re.compile(r'([A-Z][A-Z_]+)(?=[;: ]|$)')
+NEGATIVE_WORD = re.compile(r'(?i)(?:fail\w*|\w*_failed|error\w*|cancel\w*|abort\w*|timeout|blocked|unknown'
+                           r'|invalid\w*|rejected)\b')
 
 
 def terminal_line(text):
@@ -290,12 +296,23 @@ def terminal_line(text):
     return lines[-1] if lines else ''
 
 
+def final_status_problem(line):
+    match = RESULT_STATUS.match(line) or LEADING_STATUS.match(line)
+    if match:
+        if match.group(1).upper() not in SUCCESS_STATUSES:
+            return f"final status {match.group(1)!r} is not a recognized success status"
+    elif NEGATIVE_WORD.match(line):
+        return "final line reports failure"
+    return None
+
+
 def check_log_text(content, needle):
-    """Substring check that never accepts a log ending in a failure status."""
+    """Substring check that never accepts a log whose final line is not a success status."""
     if needle not in content:
         return f"text {needle!r} not found"
-    if FAILURE_STATUS.match(terminal_line(content)):
-        return f"text {needle!r} found, but the final status line reports failure"
+    problem = final_status_problem(terminal_line(content))
+    if problem:
+        return f"text {needle!r} found, but {problem}"
     return None
 
 
@@ -365,7 +382,7 @@ def main():
                     help="file that must exist and be written during this run (repeatable)")
     ap.add_argument("--expect-text", nargs=2, action="append", default=[], metavar=("FILE", "TEXT"),
                     help="newly appended/replaced text in FILE must contain TEXT and must not end in a "
-                         "FAIL/CANCELLED status line (repeatable)")
+                         "non-success status line such as FAIL or ERROR_CLEANUP (repeatable)")
     ap.add_argument("--expect-result", nargs=2, action="append", default=[], metavar=("FILE", "PREFIX"),
                     help="the last non-empty newly written line in FILE must start with PREFIX, followed by "
                          "end of line, ';' or whitespace (repeatable; preferred acceptance check)")
