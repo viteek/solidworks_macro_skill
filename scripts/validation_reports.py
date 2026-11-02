@@ -23,9 +23,14 @@ def positive(value, name):
 
 
 def report_path(path, protected):
-    path = Path(path).resolve()
+    path = Path(path)
+    if os.path.lexists(path):
+        raise ValueError('Report destination already exists: ' + str(path))
+    path = path.resolve()
     if path.suffix.lower() != '.json':
         raise ValueError('Report must use a .json filename')
+    if not path.parent.is_dir():
+        raise ValueError('Report parent directory must already exist')
     for source in protected:
         if source is None:
             continue
@@ -41,6 +46,6 @@ def write_report(path, value):
     try:
         with os.fdopen(descriptor, 'w', encoding='utf-8') as stream:
             json.dump(value, stream, indent=2, ensure_ascii=False, allow_nan=False)
-        os.replace(temporary, path)
+        os.link(temporary, path)
     finally:
         Path(temporary).unlink(missing_ok=True)

@@ -32,7 +32,7 @@ import time
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))  # sibling imports also under python -I
-from validation_reports import file_hash, write_report  # noqa: E402
+from validation_reports import file_hash, report_path, write_report  # noqa: E402
 from runner_safety import code_hash
 from run_in_solidworks import prepare_code
 from publication_paths import publication_target
@@ -194,10 +194,11 @@ def main():
     parser.add_argument('--timeout', type=float, default=300)
     parser.add_argument('--json', required=True)
     args = parser.parse_args()
-    report_file = Path(args.json).resolve()
     inputs = [args.source, args.target] + [v for v in (args.profile, args.tolerances) if v]
-    if report_file.suffix.lower() != '.json' or report_file in [Path(v).resolve() for v in inputs]:
-        parser.error('Report must be a distinct .json file')
+    try:
+        report_file = report_path(args.json, inputs)
+    except ValueError as error:
+        parser.error(str(error))
     try:
         report = execute(args)
     except Exception as error:  # noqa: BLE001

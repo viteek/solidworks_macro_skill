@@ -1,11 +1,14 @@
 import hashlib
 import json
 import os
+import stat
 from pathlib import Path
 import sys
 import tempfile
 import subprocess
 import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import runner_safety as safety
@@ -84,8 +87,10 @@ class ProfileTests(unittest.TestCase):
                 link.symlink_to(outside, target_is_directory=True)
             except OSError:
                 self.skipTest('Symlinks require privileges on this Windows host')
-            with self.assertRaisesRegex(ValueError, 'outside test_root'):
+            with self.assertRaisesRegex(ValueError, 'Profile path must be absolute and inside test_root'):
                 self.load(outputs=[str(link / 'escape.step')])
+            with self.assertRaisesRegex(ValueError, 'link or reparse point'):
+                safety.output_identity(link / 'escape.step', self.root)
 
     def test_output_revalidation_detects_symlink_substitution_but_allows_atomic_file_replace(self):
         output = self.root / 'out.step'
@@ -106,7 +111,7 @@ class ProfileTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'link or reparse point'):
             safety.revalidate_output(output, self.root, identity)
 
-    def test_rejects_internal_symlink_with_specific_link_error(self):
+    def test_rejects_dangling_internal_symlink_with_specific_link_error(self):
         output = self.root / 'out.step'
         try:
             output.symlink_to(self.root / 'target.step')
@@ -114,6 +119,30 @@ class ProfileTests(unittest.TestCase):
             self.skipTest(f'Symlinks require privileges on this Windows host: {error}')
         with self.assertRaisesRegex(ValueError, 'link or reparse point'):
             safety.output_identity(output, self.root)
+
+    def test_rejects_existing_internal_symlink_with_specific_link_error(self):
+        target = self.root / 'target.step'
+        target.write_bytes(b'target')
+        output = self.root / 'out.step'
+        try:
+            output.symlink_to(target)
+        except OSError as error:
+            self.skipTest(f'Symlinks require privileges on this Windows host: {error}')
+        with self.assertRaisesRegex(ValueError, 'link or reparse point'):
+            safety.output_identity(output, self.root)
+
+    def test_simulated_link_is_rejected_before_resolution(self):
+        output = self.root / 'out.step'
+        original_lstat = Path.lstat
+
+        def simulated_lstat(path):
+            if path == output:
+                return SimpleNamespace(st_mode=stat.S_IFLNK)
+            return original_lstat(path)
+
+        with patch.object(Path, 'lstat', simulated_lstat):
+            with self.assertRaisesRegex(ValueError, 'link or reparse point'):
+                safety.output_identity(output, self.root)
 
     def test_rejects_hardlink_to_file_outside_test_root(self):
         with tempfile.TemporaryDirectory() as outside_directory:

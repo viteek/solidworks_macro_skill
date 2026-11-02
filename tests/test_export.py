@@ -13,6 +13,42 @@ from runner_safety import TestProfile
 
 
 class ExportIsolationTests(unittest.TestCase):
+    def test_existing_report_is_rejected_before_export_side_effects(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, target, tolerances, report = [root / name for name in
+                                                   ('part.sldprt', 'out.step', 'tolerances.json', 'report.json')]
+            source.write_bytes(b'CAD input')
+            tolerances.write_text('{}', encoding='utf-8')
+            report.write_text('keep existing report', encoding='utf-8')
+            with patch.object(sys, 'argv', ['validated_export.py', str(source), str(target),
+                                            '--tolerances', str(tolerances), '--json', str(report)]), \
+                    patch.object(validated_export, 'execute') as execute:
+                with self.assertRaises(SystemExit) as error:
+                    validated_export.main()
+            self.assertEqual(error.exception.code, 2)
+            execute.assert_not_called()
+            self.assertEqual(report.read_text(encoding='utf-8'), 'keep existing report')
+            self.assertFalse(target.exists())
+
+    def test_missing_report_parent_is_rejected_before_export_side_effects(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, target, tolerances = [root / name for name in
+                                           ('part.sldprt', 'out.step', 'tolerances.json')]
+            source.write_bytes(b'CAD input')
+            tolerances.write_text('{}', encoding='utf-8')
+            report = root / 'missing' / 'report.json'
+            with patch.object(sys, 'argv', ['validated_export.py', str(source), str(target),
+                                            '--tolerances', str(tolerances), '--json', str(report)]), \
+                    patch.object(validated_export, 'execute') as execute:
+                with self.assertRaises(SystemExit) as error:
+                    validated_export.main()
+            self.assertEqual(error.exception.code, 2)
+            execute.assert_not_called()
+            self.assertFalse(target.exists())
+            self.assertFalse(report.parent.exists())
+
     def test_pipeline_runs_reviewed_generated_code_on_a_private_copy(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

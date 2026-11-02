@@ -34,13 +34,13 @@ def inside(path, root):
 def output_identity(path, root):
     """Validate the lexical path and capture identities of existing components."""
     path = Path(os.path.abspath(path))
-    root = Path(root)
-    if not inside(path, root):
-        raise ValueError(f'Output outside test_root: {path}')
+    root = Path(os.path.abspath(root))
     try:
         relative = path.relative_to(root)
     except ValueError as error:
         raise ValueError(f'Output outside test_root: {path}') from error
+    if not relative.parts:
+        raise ValueError(f'Output outside test_root: {path}')
     identities = {}
     current = Path(root.anchor)
     components = root.parts[1:] + relative.parts
@@ -62,6 +62,8 @@ def output_identity(path, root):
         # reject links, but do not require its inode to remain unchanged.
         if current != path:
             identities[str(current)] = (info.st_dev, info.st_ino)
+    if not inside(path, root):
+        raise ValueError(f'Output outside test_root: {path}')
     return canonical(path), identities
 
 
