@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -83,7 +84,7 @@ class ProfileTests(unittest.TestCase):
                 link.symlink_to(outside, target_is_directory=True)
             except OSError:
                 self.skipTest('Symlinks require privileges on this Windows host')
-            with self.assertRaises(ValueError):
+            with self.assertRaisesRegex(ValueError, 'outside test_root'):
                 self.load(outputs=[str(link / 'escape.step')])
 
     def test_output_revalidation_detects_symlink_substitution_but_allows_atomic_file_replace(self):
@@ -95,15 +96,44 @@ class ProfileTests(unittest.TestCase):
         replacement.replace(output)
         safety.revalidate_output(output, self.root, identity)
 
-        outside = self.root.parent / 'outside.step'
-        outside.write_bytes(b'outside')
+        inside = self.root / 'inside.step'
+        inside.write_bytes(b'inside')
         output.unlink()
         try:
-            output.symlink_to(outside)
+            output.symlink_to(inside)
         except OSError as error:
             self.skipTest(f'Symlinks require privileges on this Windows host: {error}')
         with self.assertRaisesRegex(ValueError, 'link or reparse point'):
             safety.revalidate_output(output, self.root, identity)
+
+    def test_rejects_internal_symlink_with_specific_link_error(self):
+        output = self.root / 'out.step'
+        try:
+            output.symlink_to(self.root / 'target.step')
+        except OSError as error:
+            self.skipTest(f'Symlinks require privileges on this Windows host: {error}')
+        with self.assertRaisesRegex(ValueError, 'link or reparse point'):
+            safety.output_identity(output, self.root)
+
+    def test_rejects_hardlink_to_file_outside_test_root(self):
+        with tempfile.TemporaryDirectory() as outside_directory:
+            outside = Path(outside_directory) / 'production.step'
+            outside.write_bytes(b'production')
+            output = self.root / 'out.step'
+            try:
+                os.link(outside, output)
+            except (OSError, NotImplementedError) as error:
+                self.skipTest(f'Hardlinks unavailable: {error}')
+            with self.assertRaisesRegex(ValueError, 'multiple hard links'):
+                safety.output_identity(output, self.root)
+
+            output.unlink()
+            output.write_bytes(b'local output')
+            identity = safety.output_identity(output, self.root)
+            output.unlink()
+            os.link(outside, output)
+            with self.assertRaisesRegex(ValueError, 'multiple hard links'):
+                safety.revalidate_output(output, self.root, identity)
 
     def test_output_revalidation_rejects_directory_as_final_component(self):
         output = self.root / 'out.step'

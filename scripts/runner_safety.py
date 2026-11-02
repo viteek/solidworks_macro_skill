@@ -55,6 +55,8 @@ def output_identity(path, root):
             raise ValueError(f'Output path contains a link or reparse point: {current}')
         if current == path and not stat.S_ISREG(info.st_mode):
             raise ValueError(f'Output path is not a regular file: {current}')
+        if current == path and info.st_nlink > 1:
+            raise ValueError(f'Output file has multiple hard links: {current}')
         # Directory identity must remain stable. The final regular output file may
         # legitimately be atomically replaced by the macro, so track it by path,
         # reject links, but do not require its inode to remain unchanged.
