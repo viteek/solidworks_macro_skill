@@ -53,7 +53,7 @@ Cleanup:
     On Error GoTo 0
     If Len(failureText) <> 0 Then resultText = failureText
     If Len(cleanupText) <> 0 Then
-        resultText = "FAIL plane_selection cleanup: " & cleanupText & "; prior=" & resultText
+        resultText = "FAIL plane_selection cleanup: " & cleanupText & "; prior=" & Replace(resultText, "RESULT ", "")
     End If
     On Error GoTo LogFailed
     If resultOpened <> False Then

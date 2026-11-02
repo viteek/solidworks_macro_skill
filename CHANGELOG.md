@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Recipe cleanup-failure lines no longer repeat the `RESULT <recipe> OK` marker in `prior=`, so a
+  substring `--expect-text` check cannot report PASS after a failed cleanup. Regression test added.
+  Retained live evidence in `validation/2026-11-01` predates this change.
+
 ## 3.0.0-dev - 2026-11-01
 
 - Audit stage I: mandatory reviewed/hash-bound test profiles, copied input/dependency closure checks,
