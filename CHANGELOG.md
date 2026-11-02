@@ -8,6 +8,8 @@
   *_FAILED, START... fail closed), so `FAIL ...; prior=... OK` never passes with `OK`.
   Smoke harnesses and SKILL.md use `--expect-result`.
 - Recipe cleanup-failure lines no longer repeat `RESULT <recipe> OK` or `<recipe> OK` in `prior=`.
+- Result lines parse name and status separately: names may contain `-` and `.` (`RESULT export-step PASS`),
+  statuses must be upper case, and malformed `RESULT` lines fail closed.
 - `validated_export.py` passes `--expect-result <log> EXPORTED` and `--expect-file` for the raw export
   (and STEP metrics) to the runner, and checks the final log line instead of searching `EXPORTED;`.
 - DXF and STEP validators re-hash the input after analysis and refuse a file changed meanwhile.

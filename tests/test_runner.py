@@ -441,15 +441,31 @@ class RunnerTests(unittest.TestCase):
     def test_expect_text_accepts_only_a_known_success_status_on_the_final_line(self):
         rejected = ('RESULT x ERROR cleanup', 'ERROR_CLEANUP; selection restore failed', 'ERROR;failed',
                     'CLEANUP_FAILED x', 'RESULT_LOG_FAILED: denied', 'COLLECTION_FAILED x',
-                    'START x; terminal RESULT line is required', 'RESULT my-macro OK', 'error: export failed')
+                    'START x; terminal RESULT line is required', 'RESULT export-step ERROR cleanup',
+                    'error: export failed')
         for final in rejected:
             with self.subTest(final=final):
                 self.check_log(None, 'RESULT x OK; a=1\n' + final + '\n', 'FAIL')
         for final, needle in (('EXPORTED;out.step', 'EXPORTED'), ('RESULT=PASS; copy', 'PASS'),
                               ('RESULT x PASSED', 'PASSED'), ('RESULT=OBSERVED volume=1', 'OBSERVED'),
+                              ('RESULT export-step PASS', 'PASS'),
                               ('export finished OK', 'OK')):
             with self.subTest(final=final):
                 self.check_log(None, final + '\n', 'PASS', needle=needle)
+
+    def test_result_line_name_and_status_are_parsed_separately(self):
+        accepted = ('RESULT OK', 'RESULT PASS; detail', 'RESULT=PASS; copy', 'RESULT=OBSERVED volume=1',
+                    'RESULT sketch_extrude OK; volume_m3=1', 'RESULT export-step PASS',
+                    'RESULT v1.2-export OK: done', 'RESULT x PASSED')
+        rejected = ('RESULT export-step ERROR cleanup', 'RESULT export-step OKAY', 'RESULT export-step FAIL: x',
+                    'RESULT x 5', 'RESULT export+step PASS', 'RESULT=FAIL; error', 'RESULT', 'RESULT export-step',
+                    'RESULT FAIL done', 'RESULT ERROR OK', 'RESULT x ok', 'RESULT=pass')
+        for line in accepted:
+            with self.subTest(line=line):
+                self.assertIsNone(runner.final_status_problem(line))
+        for line in rejected:
+            with self.subTest(line=line):
+                self.assertIsNotNone(runner.final_status_problem(line))
 
     def test_expect_result_requires_the_final_line_prefix_and_a_boundary(self):
         self.check_log(None, 'RESULT sketch_extrude OK; volume_m3=1\n', 'PASS',
