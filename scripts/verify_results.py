@@ -87,6 +87,8 @@ def validate_spec(spec):
         raise ValueError('Task requires assertions')
     seen = set()
     for item in assertions:
+        if not isinstance(item, dict):
+            raise ValueError('Assertion must be an object')
         key = item.get('id')
         if not isinstance(key, str) or not key or key in seen:
             raise ValueError('Missing or duplicate assertion id')

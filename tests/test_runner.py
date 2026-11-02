@@ -171,6 +171,7 @@ class RunnerTests(unittest.TestCase):
         self.assertTrue(report['timed_out'])
         self.assertIsNone(report['documents_left_open'])
         self.assertEqual(json.loads((self.root / 'session.json').read_text())['state'], 'UNKNOWN')
+        self.report.unlink()
         status, report, _ = self.invoke()
         self.assertEqual(status, 2)
         self.assertEqual(report['status'], 'BLOCKED_SESSION')
@@ -192,6 +193,47 @@ class RunnerTests(unittest.TestCase):
                 self.assertFalse(report['macro_executed'])
                 self.assertEqual(self.report.read_text(), 'preserve')
                 self.assertEqual(self.macro_calls, [])
+
+    def test_existing_report_is_never_overwritten(self):
+        self.report.write_text('valuable report')
+        status, _, _ = self.invoke()
+        self.assertEqual(status, 2)
+        self.assertEqual(self.report.read_text(), 'valuable report')
+        self.assertEqual(self.macro_calls, [])
+
+    def test_unchanged_recent_output_is_not_fresh(self):
+        output = self.root / 'output.step'
+        output.write_text('old')
+        status, report, _ = self.invoke('--expect-file', str(output))
+        self.assertEqual(status, 1)
+        self.assertIn('unchanged file', report['expectations_failed'][0])
+
+    def test_changed_output_is_fresh_even_with_old_timestamp(self):
+        import os
+        output = self.root / 'output.step'
+        output.write_text('old')
+        old_time = output.stat().st_mtime_ns
+        def update():
+            output.write_text('new')
+            os.utime(output, ns=(old_time, old_time))
+        status, report, _ = self.invoke('--expect-file', str(output), operation=update)
+        self.assertEqual(status, 0, report)
+
+    def test_temp_directory_removed_only_for_resolved_session(self):
+        real_mkdtemp = tempfile.mkdtemp
+        created = []
+        def make_temp(*args, **kwargs):
+            path = real_mkdtemp(*args, dir=self.root, **kwargs)
+            created.append(Path(path))
+            return path
+        with patch.object(runner.tempfile, 'mkdtemp', side_effect=make_temp):
+            status, _, _ = self.invoke()
+            self.assertEqual(status, 0)
+            self.assertFalse(created[-1].exists())
+            self.report.unlink()
+            status, _, _ = self.invoke('--timeout', '0.01', operation='wait')
+            self.assertEqual(status, 1)
+            self.assertTrue((created[-1] / 'TestMacro.swb').exists())
 
     def test_native_project_is_run_without_text_conversion(self):
         self.macro = self.root / 'complete-project.swp'

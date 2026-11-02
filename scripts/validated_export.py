@@ -35,8 +35,19 @@ from run_in_solidworks import prepare_code
 PACKAGE = HERE.parent
 
 
+def publication_target(target):
+    target = Path(target)
+    if target.is_symlink():
+        raise ValueError('Final output must not be a symlink')
+    # Resolve parent directories, but never follow the final path component.
+    target = target.parent.resolve() / target.name
+    if target.is_symlink():
+        raise ValueError('Final output must not be a symlink')
+    return target
+
+
 def publish_validated(stage, target, validator, overwrite=False):
-    stage, target = Path(stage), Path(target).resolve()
+    stage, target = Path(stage), publication_target(target)
     if stage.is_symlink() or not stage.is_file() or stage.stat().st_size == 0 or stage.resolve() == target:
         raise ValueError('Publication requires a distinct nonempty regular staging file')
     if target.exists() and not overwrite:
@@ -47,6 +58,8 @@ def publish_validated(stage, target, validator, overwrite=False):
         return {'status': 'BLOCKED_VALIDATION', 'validation': validation, 'published': False}
     if stage.is_symlink() or validation.get('sha256') != before or file_hash(stage) != before:
         raise ValueError('Validated byte identity changed before publication')
+    if target.is_symlink():
+        raise ValueError('Final output must not be a symlink')
     backup = None
     if target.exists():
         original_hash = file_hash(target)
@@ -81,7 +94,7 @@ def vba_string(path):
 
 
 def execute(args):
-    source, target = Path(args.source).resolve(strict=True), Path(args.target).resolve()
+    source, target = Path(args.source).resolve(strict=True), publication_target(args.target)
     kind = target.suffix.lower()
     if source.suffix.lower() != '.sldprt':
         raise ValueError('Validated pipeline accepts saved native parts (.sldprt) only')

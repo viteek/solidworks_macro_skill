@@ -41,6 +41,7 @@ import math
 import os
 from pathlib import Path
 import re
+import shutil
 import sys
 import tempfile
 import threading
@@ -277,6 +278,33 @@ def new_log_text(previous, current):
         return raw.decode('cp1250', errors='replace')
 
 
+def file_snapshot(path):
+    """Capture content and identity, rather than relying on a wall-clock threshold."""
+    try:
+        with open(path, 'rb') as stream:
+            stat = os.fstat(stream.fileno())
+            import hashlib
+            digest = hashlib.sha256()
+            for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                digest.update(chunk)
+            return (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, digest.digest())
+    except FileNotFoundError:
+        return None
+
+
+def write_report(path, content):
+    with open(path, 'x', encoding='utf-8') as stream:
+        stream.write(content)
+
+
+def cleanup_temp(a):
+    if getattr(a, 'temp_dir', None):
+        try:
+            shutil.rmtree(a.temp_dir)
+        except OSError as error:
+            print(f'WARN  Could not remove temporary directory {a.temp_dir}: {error}', file=sys.stderr)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("macro", nargs='?')
@@ -316,7 +344,10 @@ def main():
         out = json.dumps(report, ensure_ascii=False, indent=2)
         print(out)
         if a.json and a.report_authorized and inside(a.json, a.test_profile.root):
-            Path(a.json).write_text(out, encoding='utf-8')
+            try:
+                write_report(a.json, out)
+            except OSError as report_error:
+                print(f'WARN  Could not create report: {report_error}', file=sys.stderr)
         return 2
 
     if not math.isfinite(a.timeout) or a.timeout <= 0:
@@ -388,6 +419,8 @@ def main():
                 if Path(a.json).suffix.lower() != '.json' or canonical(a.json) in protected:
                     raise ValueError('--json must name a distinct declared .json output, never macro/profile/input')
                 a.report_authorized = True
+                if os.path.lexists(a.json):
+                    raise ValueError('--json report already exists; choose a new path')
             if a.test_root and canonical(a.test_root) != canonical(a.test_profile.root):
                 raise ValueError('--test-root disagrees with the reviewed profile')
             if pythoncom is None:
@@ -421,6 +454,7 @@ def main():
                 status = execute_macro(a, str(a.test_profile.root), canonical, state)
                 if a.session_resolved or (not a.worker_started and not getattr(a, 'blocked_dialog', False)):
                     state.finish()
+                    cleanup_temp(a)
                 else:
                     state.unknown('Timeout, blocked dialog or unresolved COM execution')
                 return status
@@ -430,6 +464,7 @@ def main():
                     state.unknown(str(error))
                 else:
                     state.finish()
+                    cleanup_temp(a)
                 return failure('EXECUTION_UNKNOWN' if uncertain else 'PREFLIGHT_FAILED', error)
             finally:
                 pythoncom.CoUninitialize()
@@ -449,6 +484,7 @@ def execute_macro(a, test_root, norm, state):
     state.set_process(pid)
 
     tmpdir = tempfile.mkdtemp(prefix="swrun_")
+    a.temp_dir = tmpdir
     strict = a.strict_dialogs or a.answer is None
     code = a.prepared_code
     entry = a.entry
@@ -503,6 +539,7 @@ def execute_macro(a, test_root, norm, state):
         if not path or norm(path) not in a.test_profile.inputs:
             raise ValueError(f'Opening the copy loaded an undeclared document: {path!r}')
 
+    previous_files = {f: file_snapshot(f) for f in a.expect_file}
     previous_logs = {f: read_log(f) for f, _ in a.expect_text}
     watcher = DialogWatcher(pid, a.answer, strict, a.test_profile.data['allowed_dialogs'])
     watcher.start()
@@ -585,7 +622,6 @@ def execute_macro(a, test_root, norm, state):
         except Exception:  # noqa: BLE001
             pass
 
-    started = t0
     expect_failures = []
     # Permission to edit an in-memory copy never permits overwriting its hashed
     # input file. Persisted results must use distinct declared output paths.
@@ -595,10 +631,11 @@ def execute_macro(a, test_root, norm, state):
         except ValueError as error:
             expect_failures.append(str(error))
     for f in a.expect_file:
-        if not os.path.exists(f):
+        current = file_snapshot(f)
+        if current is None:
             expect_failures.append(f"missing: {f}")
-        elif os.path.getmtime(f) < started - 2:
-            expect_failures.append(f"not written by this run (old file): {f}")
+        elif current == previous_files[f]:
+            expect_failures.append(f"not written by this run (unchanged file): {f}")
     for f, needle in a.expect_text:
         content = new_log_text(previous_logs[f], read_log(f))
         if needle not in content:
@@ -628,8 +665,11 @@ def execute_macro(a, test_root, norm, state):
     out = json.dumps(report, ensure_ascii=False, indent=2)
     print(out)
     if a.json:
-        with open(a.json, "w", encoding="utf-8") as f:
-            f.write(out)
+        try:
+            write_report(a.json, out)
+        except OSError as error:
+            print(f'WARN  Could not create report: {error}', file=sys.stderr)
+            return 2
     return 0 if ok else 1
 
 

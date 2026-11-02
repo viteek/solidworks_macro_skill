@@ -36,6 +36,13 @@ EXPECTED_KEYS = {'width_mm', 'height_mm', 'net_area_mm2', 'hole_count', 'outer_c
                  'dimension_tolerance_mm', 'area_tolerance_mm2'}
 MAX_POINTS = 200000
 MAX_ENTITIES = 50000
+MAX_FILE_BYTES = 50 * 1024 * 1024
+
+
+def check_file_size(path):
+    size = path.stat().st_size
+    if size > MAX_FILE_BYTES:
+        raise ValueError(f'RESOURCE_LIMIT: DXF file size {size} exceeds {MAX_FILE_BYTES} bytes')
 
 
 def validate_profile(profile):
@@ -113,6 +120,7 @@ def entity_vertices(entity, distance):
 def validate_dxf(path, profile):
     validate_profile(profile)
     path = Path(path)
+    check_file_size(path)
     source_hash = file_hash(path)
     document = ezdxf.readfile(path)
     audit = document.audit()
@@ -279,6 +287,7 @@ def normalize_dxf(source, target, layer_map, profile):
         raise FileExistsError('Normalization never overwrites a source or existing output')
     if not isinstance(layer_map, dict) or any(layer not in profile['layers'] for layer in layer_map.values()):
         raise ValueError('Mapping destinations must be exact configured layer names')
+    check_file_size(source)
     original_hash = file_hash(source)
     document = ezdxf.readfile(source)
     if not document.units:

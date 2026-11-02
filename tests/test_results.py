@@ -4,6 +4,7 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -89,6 +90,26 @@ class ResultTests(unittest.TestCase):
         (self.root / 'bad.json').write_text('{"task_id":"A","task_id":"B"}')
         with self.assertRaises(ValueError):
             vr.read_json(self.root / 'bad.json')
+
+    def test_non_object_assertions_rejected_by_validator_and_cli(self):
+        spec_path = self.root / 'spec.json'
+        obs_path = self.root / 'observations.json'
+        output = self.root / 'report.json'
+        obs_path.write_text(json.dumps(self.obs), encoding='utf-8')
+        for item in (None, 123, 'invalid'):
+            with self.subTest(item=item):
+                self.spec['assertions'] = [self.spec['assertions'][0], item]
+                with self.assertRaisesRegex(ValueError, 'Assertion must be an object'):
+                    vr.validate_spec(self.spec)
+                spec_path.write_text(json.dumps(self.spec), encoding='utf-8')
+                result = subprocess.run(
+                    [sys.executable, str(Path(vr.__file__)), '--spec', str(spec_path),
+                     '--observations', str(obs_path), '--evidence-root', str(self.root),
+                     '--output', str(output)], capture_output=True, text=True, check=False)
+                self.assertEqual(result.returncode, 3)
+                self.assertIn('Assertion must be an object', result.stderr)
+                self.assertNotIn('Traceback', result.stderr)
+                self.assertFalse(output.exists())
 
     def test_stale_macro_missing_version_and_incomplete_safety(self):
         (self.root / 'macro.bas').write_text('changed')
