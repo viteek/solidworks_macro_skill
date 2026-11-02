@@ -346,8 +346,9 @@ def main():
         print(out)
         if a.json and a.report_authorized and inside(a.json, a.test_profile.root):
             try:
+                revalidate_output(a.json, a.test_profile.data['test_root'], a.output_identities[a.json])
                 write_report(a.json, out)
-            except OSError as report_error:
+            except (OSError, ValueError) as report_error:
                 print(f'WARN  Could not create report: {report_error}', file=sys.stderr)
         return 2
 
@@ -415,7 +416,7 @@ def main():
             if a.test_profile.data.get('observer_sha256') != expected_observer:
                 raise ValueError('Observer changed or differs from the reviewed profile')
             a.test_profile.validate_request(a.open, outputs, a.pick_folder, a.confirm_model_changes)
-            a.output_identities = {path: output_identity(path, a.test_profile.data['test_root']) for path in expected_outputs}
+            a.output_identities = {path: output_identity(path, a.test_profile.data['test_root']) for path in outputs}
             if a.json:
                 protected = {canonical(path) for path in (a.macro, a.profile, a.open, a.observe) if path}
                 if Path(a.json).suffix.lower() != '.json' or canonical(a.json) in protected:
@@ -697,8 +698,9 @@ def execute_macro(a, test_root, norm, state):
     print(out)
     if a.json:
         try:
+            revalidate_output(a.json, a.test_profile.data['test_root'], a.output_identities[a.json])
             write_report(a.json, out)
-        except OSError as error:
+        except (OSError, ValueError) as error:
             print(f'WARN  Could not create report: {error}', file=sys.stderr)
             return 2
     return 0 if ok else 1

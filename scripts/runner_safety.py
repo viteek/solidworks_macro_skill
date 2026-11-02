@@ -118,7 +118,11 @@ class TestProfile:
 
     def check_input_hashes(self):
         for path, expected in self.inputs.items():
-            if not inside(path, self.root) or not Path(path).is_file() or file_hash(path) != expected:
+            if not inside(path, self.root) or not Path(path).is_file():
+                raise ValueError(f'Input copy missing, moved outside test_root, or changed since review: {path}')
+            if Path(path).stat().st_nlink > 1:
+                raise ValueError(f'Input copy has multiple hard links: {path}')
+            if file_hash(path) != expected:
                 raise ValueError(f'Input copy missing, moved outside test_root, or changed since review: {path}')
 
     def validate_request(self, opened, outputs, folders, confirmed_changes):

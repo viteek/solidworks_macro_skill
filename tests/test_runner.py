@@ -194,6 +194,19 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(status, 1)
         self.assertTrue(any('identity changed' in failure for failure in report['expectations_failed']))
 
+    def test_report_parent_replacement_is_rejected(self):
+        directory = self.root / 'reports'
+        directory.mkdir()
+        self.report = directory / 'report.json'
+
+        def replace_directory():
+            directory.rename(self.root / 'old-reports')
+            directory.mkdir()
+
+        status, report, _ = self.invoke(operation=replace_directory)
+        self.assertEqual(status, 2)
+        self.assertFalse(self.report.exists())
+
     def test_in_memory_mutation_permission_never_allows_saving_a_hashed_input(self):
         status, report, _ = self.invoke('--confirm-model-changes', mutating=True,
             operation=lambda: (self.root / 'copy.sldprt').write_bytes(b'unexpected Save3'))

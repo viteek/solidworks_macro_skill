@@ -39,11 +39,12 @@ class ReportPathTests(unittest.TestCase):
                     path.symlink_to(destination)
                 except (OSError, NotImplementedError) as error:
                     self.skipTest('Symlinks unavailable: ' + str(error))
+                original_link = path.readlink()
                 with self.subTest(name=name):
                     with self.assertRaisesRegex(ValueError, 'already exists'):
                         validation_reports.report_path(path, [])
                     self.assertTrue(path.is_symlink())
-                    self.assertEqual(path.readlink(), destination)
+                    self.assertEqual(path.readlink(), original_link)
             self.assertEqual(target.read_bytes(), b'original')
             self.assertFalse((root / 'missing').exists())
 

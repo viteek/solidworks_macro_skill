@@ -181,6 +181,25 @@ class ProfileTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'multiple hard links'):
                 safety.revalidate_output(output, self.root, identity)
 
+    def test_rejects_input_hardlink_at_load_and_recheck(self):
+        with tempfile.TemporaryDirectory() as outside_directory:
+            production = Path(outside_directory) / 'production.sldprt'
+            production.write_bytes(b'CAD copy')
+            self.source.unlink()
+            try:
+                os.link(production, self.source)
+            except (OSError, NotImplementedError) as error:
+                self.skipTest(f'Hardlinks unavailable: {error}')
+            with self.assertRaisesRegex(ValueError, 'multiple hard links'):
+                self.load()
+            self.source.unlink()
+            self.source.write_bytes(b'CAD copy')
+            profile = self.load()
+            self.source.unlink()
+            os.link(production, self.source)
+            with self.assertRaisesRegex(ValueError, 'multiple hard links'):
+                profile.check_input_hashes()
+
     def test_output_revalidation_rejects_directory_as_final_component(self):
         output = self.root / 'out.step'
         output.mkdir()
