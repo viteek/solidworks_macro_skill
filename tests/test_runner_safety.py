@@ -1,4 +1,5 @@
 import hashlib
+import errno
 import json
 import os
 import stat
@@ -35,6 +36,17 @@ class ProfileTests(unittest.TestCase):
         self.data.update(changes)
         self.profile.write_text(json.dumps(self.data))
         return safety.TestProfile.load(self.profile, self.code)
+
+    def create_symlink(self, link, target, *, target_is_directory=False):
+        try:
+            link.symlink_to(target, target_is_directory=target_is_directory)
+        except NotImplementedError as error:
+            self.skipTest(f'Symlinks unavailable: {error}')
+        except OSError as error:
+            if getattr(error, 'winerror', None) == 1314 or error.errno in (
+                    errno.EPERM, errno.EACCES, errno.ENOSYS, errno.EOPNOTSUPP):
+                self.skipTest(f'Symlinks unavailable: {error}')
+            raise
 
     def test_accepts_reviewed_copies_and_declared_outputs(self):
         profile = self.load()
@@ -83,16 +95,13 @@ class ProfileTests(unittest.TestCase):
     def test_rejects_symlink_escape(self):
         with tempfile.TemporaryDirectory() as outside:
             link = self.root / 'link'
-            try:
-                link.symlink_to(outside, target_is_directory=True)
-            except OSError:
-                self.skipTest('Symlinks require privileges on this Windows host')
+            self.create_symlink(link, outside, target_is_directory=True)
             with self.assertRaisesRegex(ValueError, 'Profile path must be absolute and inside test_root'):
                 self.load(outputs=[str(link / 'escape.step')])
             with self.assertRaisesRegex(ValueError, 'link or reparse point'):
                 safety.output_identity(link / 'escape.step', self.root)
 
-    def test_output_revalidation_detects_symlink_substitution_but_allows_atomic_file_replace(self):
+    def test_output_revalidation_allows_atomic_file_replace(self):
         output = self.root / 'out.step'
         output.write_bytes(b'old')
         identity = safety.output_identity(output, self.root)
@@ -101,22 +110,20 @@ class ProfileTests(unittest.TestCase):
         replacement.replace(output)
         safety.revalidate_output(output, self.root, identity)
 
+    def test_output_revalidation_detects_symlink_substitution(self):
+        output = self.root / 'out.step'
+        output.write_bytes(b'old')
+        identity = safety.output_identity(output, self.root)
         inside = self.root / 'inside.step'
         inside.write_bytes(b'inside')
         output.unlink()
-        try:
-            output.symlink_to(inside)
-        except OSError as error:
-            self.skipTest(f'Symlinks require privileges on this Windows host: {error}')
+        self.create_symlink(output, inside)
         with self.assertRaisesRegex(ValueError, 'link or reparse point'):
             safety.revalidate_output(output, self.root, identity)
 
     def test_rejects_dangling_internal_symlink_with_specific_link_error(self):
         output = self.root / 'out.step'
-        try:
-            output.symlink_to(self.root / 'target.step')
-        except OSError as error:
-            self.skipTest(f'Symlinks require privileges on this Windows host: {error}')
+        self.create_symlink(output, self.root / 'target.step')
         with self.assertRaisesRegex(ValueError, 'link or reparse point'):
             safety.output_identity(output, self.root)
 
@@ -124,10 +131,7 @@ class ProfileTests(unittest.TestCase):
         target = self.root / 'target.step'
         target.write_bytes(b'target')
         output = self.root / 'out.step'
-        try:
-            output.symlink_to(target)
-        except OSError as error:
-            self.skipTest(f'Symlinks require privileges on this Windows host: {error}')
+        self.create_symlink(output, target)
         with self.assertRaisesRegex(ValueError, 'link or reparse point'):
             safety.output_identity(output, self.root)
 
@@ -138,6 +142,19 @@ class ProfileTests(unittest.TestCase):
         def simulated_lstat(path):
             if path == output:
                 return SimpleNamespace(st_mode=stat.S_IFLNK)
+            return original_lstat(path)
+
+        with patch.object(Path, 'lstat', simulated_lstat):
+            with self.assertRaisesRegex(ValueError, 'link or reparse point'):
+                safety.output_identity(output, self.root)
+
+    def test_simulated_windows_reparse_point_is_rejected_before_resolution(self):
+        output = self.root / 'out.step'
+        original_lstat = Path.lstat
+
+        def simulated_lstat(path):
+            if path == output:
+                return SimpleNamespace(st_mode=stat.S_IFREG, st_file_attributes=0x400)
             return original_lstat(path)
 
         with patch.object(Path, 'lstat', simulated_lstat):
